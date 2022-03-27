@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Edoardo Costantini</title>
-    <link>https://edoardocostantini.github.io/</link>
-    <description>Recent content on Edoardo Costantini</description>
+    <title>What&#39;s the deal with on Edoardo Costantini</title>
+    <link>https://edoardocostantini.github.io/tags/whats-the-deal-with/</link>
+    <description>Recent content in What&#39;s the deal with on Edoardo Costantini</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 27 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://edoardocostantini.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 27 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://edoardocostantini.github.io/tags/whats-the-deal-with/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>What&#39;s the deal with the weigthed covariance matrix</title>
       <link>https://edoardocostantini.github.io/posts/covweight/</link>
