@@ -3,24 +3,17 @@
   <channel>
     <title>Edoardo Costantini</title>
     <link>https://edoardocostantini.github.io/</link>
-    <description>Edoardo Costantini</description>
+    <description>Recent content on Edoardo Costantini</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Mon, 11 Mar 2019 00:00:00 +0000</lastBuildDate>
-    
-    <atom:link href="https://edoardocostantini.github.io/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en</language>
+    <lastBuildDate>Mon, 11 Mar 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://edoardocostantini.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>qqplots</title>
       <link>https://edoardocostantini.github.io/posts/qqplots/</link>
       <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://edoardocostantini.github.io/posts/qqplots/</guid>
-      <description>&lt;p&gt;What are qqplots anyway?&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-r&#34; data-lang=&#34;r&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;qqnorm&lt;/span&gt;()
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;qqline&lt;/span&gt;()
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+      <description>What are qqplots anyway?</description>
     </item>
     
   </channel>

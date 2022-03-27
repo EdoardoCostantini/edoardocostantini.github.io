@@ -1,5 +1,3 @@
 User-agent: *
-# robotstxt.org - if environment is not `production` then robots will be disallowed.
-
-  Disallow:
-
+Allow: /
+Sitemap: https://edoardocostantini.github.io/sitemap.xml
