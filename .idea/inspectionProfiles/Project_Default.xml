@@ -1,0 +1,15 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="LatexMissingImport" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="LatexUnresolvedReference" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RDeprecatedDoubleStarts" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RDeprecatedSetClassArgsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RMarkdownRequirements" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RMissingPackage" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="RNamingConventionInspection" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="RPasteToPaste0Inspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RStudioAPISourceMarkerInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RUnresolvedReference" enabled="false" level="WARNING" enabled_by_default="false" />
+  </profile>
+</component>

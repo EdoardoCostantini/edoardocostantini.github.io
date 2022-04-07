@@ -1,0 +1,1404 @@
+<!DOCTYPE html><html lang="en-us" >
+
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  
+  
+    <meta name="generator" content="Wowchemy 5.4.0 for Hugo" />
+  
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Edoardo Costantini (Edo)" />
+
+  
+  
+  
+    
+  
+  <meta name="description" content="1 Introduction 2 Learn by coding  2.1 Fitting ridge regression manually  2.1.1 An alternative way to avoid penalising the intercept  2.2 Fit ridge regression with R packages  2." />
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://symphonious-crostata-aa195e.netlify.app/post/ridge/" />
+
+  
+  
+  
+    <meta name="theme-color" content="#1565c0" />
+  
+
+  
+  
+    
+    <script src="/js/mathjax-config.js"></script>
+  
+
+  
+
+  <link rel="stylesheet" href="/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css" media="print" onload="this.media='all'">
+
+  
+  
+  
+    
+    
+
+    
+    
+    
+    
+      
+      
+    
+    
+    
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/github.min.css" crossorigin="anonymous" title="hl-light" media="print" onload="this.media='all'">
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" media="print" onload="this.media='all'" disabled>
+        
+      
+    
+
+    
+    
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.css" integrity="" crossorigin="anonymous" media="print" onload="this.media='all'">
+    
+
+    
+
+    
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+  
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.3f856681d393c81bcc1788511efeeb64.css" />
+
+  
+
+
+
+  
+
+  
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+    <link rel="manifest" href="/manifest.webmanifest" />
+  
+
+  <link rel="icon" type="image/png" href="/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_32x32_fill_lanczos_center_3.png" />
+  <link rel="apple-touch-icon" type="image/png" href="/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_180x180_fill_lanczos_center_3.png" />
+
+  <link rel="canonical" href="https://symphonious-crostata-aa195e.netlify.app/post/ridge/" />
+
+  
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+
+  
+  
+    
+    
+  
+  <meta property="twitter:card" content="summary" />
+  
+  <meta property="og:site_name" content="Edo" />
+  <meta property="og:url" content="https://symphonious-crostata-aa195e.netlify.app/post/ridge/" />
+  <meta property="og:title" content="Estimating ridge regression in R | Edo" />
+  <meta property="og:description" content="1 Introduction 2 Learn by coding  2.1 Fitting ridge regression manually  2.1.1 An alternative way to avoid penalising the intercept  2.2 Fit ridge regression with R packages  2." /><meta property="og:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png" />
+    <meta property="twitter:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
+  
+    
+      <meta
+        property="article:published_time"
+        content="2022-02-28T00:00:00&#43;00:00"
+      />
+    
+    <meta property="article:modified_time" content="2022-04-02T14:26:57&#43;02:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://symphonious-crostata-aa195e.netlify.app/post/ridge/"
+  },
+  "headline": "Estimating ridge regression in R",
+  
+  "datePublished": "2022-02-28T00:00:00Z",
+  "dateModified": "2022-04-02T14:26:57+02:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Edoardo Costantini (Edo)"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "Edo",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_192x192_fill_lanczos_center_3.png"
+    }
+  },
+  "description": "1 Introduction 2 Learn by coding  2.1 Fitting ridge regression manually  2.1.1 An alternative way to avoid penalising the intercept  2.2 Fit ridge regression with R packages  2."
+}
+</script>
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+  <title>Estimating ridge regression in R | Edo</title>
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper   " data-wc-page-id="002b3ab0e0f6e5e68210162d4766a05b" >
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="/js/wowchemy-init.min.13d3c1ccc66961c64e937f4e854fdd1e.js"></script>
+
+  
+
+
+<aside class="search-modal" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#" aria-label="Close"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control"
+        aria-label="Search...">
+        
+      </div>
+
+      
+      
+
+      
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+
+  <div class="page-header">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="header--fixed">
+  <nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+    <div class="container-xl">
+
+      
+      <div class="d-none d-lg-inline-flex">
+        <a class="navbar-brand" href="/">Edo</a>
+      </div>
+      
+
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+      <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+      
+      <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+        <a class="navbar-brand" href="/">Edo</a>
+      </div>
+      
+
+      
+      
+      <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+        
+        <ul class="navbar-nav d-md-inline-flex">
+          
+
+          
+
+          
+          
+          
+            
+          
+
+          
+
+          
+          
+          
+          
+
+          
+            
+              
+              
+            
+            
+          
+
+          <li class="nav-item">
+            <a class="nav-link  active" href="/post/"><span>Posts</span></a>
+          </li>
+
+          
+          
+
+        
+
+          
+        </ul>
+      </div>
+
+      <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+
+        
+        
+          
+        
+
+        
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+        
+        <li class="nav-item dropdown theme-dropdown">
+          <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+          </a>
+          <div class="dropdown-menu">
+            <a href="#" class="dropdown-item js-set-theme-light">
+              <span>Light</span>
+            </a>
+            <a href="#" class="dropdown-item js-set-theme-dark">
+              <span>Dark</span>
+            </a>
+            <a href="#" class="dropdown-item js-set-theme-auto">
+              <span>Automatic</span>
+            </a>
+          </div>
+        </li>
+        
+
+        
+        
+
+      </ul>
+
+    </div>
+  </nav>
+</header>
+
+
+  </div>
+
+  <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>Estimating ridge regression in R</h1>
+
+  
+
+  
+    
+
+
+<div class="article-metadata">
+
+  
+  
+  
+  
+  <div>
+    
+
+  <span class="author-highlighted">
+      <a href="/author/edoardo-costantini-edo/">Edoardo Costantini (Edo)</a></span>
+  </div>
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Apr 2, 2022
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder mr-1"></i><a href="/category/tutorials/">Tutorials</a>, <a href="/category/drafts/">Drafts</a></span>
+  
+
+</div>
+
+    
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+<script src="https://symphonious-crostata-aa195e.netlify.app/post/ridge/index_files/header-attrs/header-attrs.js"></script>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#learn-by-coding"><span class="toc-section-number">2</span> Learn by coding</a>
+<ul>
+<li><a href="#fitting-ridge-regression-manually"><span class="toc-section-number">2.1</span> Fitting ridge regression manually</a>
+<ul>
+<li><a href="#an-alternative-way-to-avoid-penalising-the-intercept"><span class="toc-section-number">2.1.1</span> An alternative way to avoid penalising the intercept</a></li>
+</ul></li>
+<li><a href="#fit-ridge-regression-with-r-packages"><span class="toc-section-number">2.2</span> Fit ridge regression with R packages</a>
+<ul>
+<li><a href="#use-the-biased-estimation-of-variance"><span class="toc-section-number">2.2.1</span> Use the biased estimation of variance</a></li>
+<li><a href="#return-the-unstandardized-coefficients"><span class="toc-section-number">2.2.2</span> Return the unstandardized coefficients</a></li>
+<li><a href="#adjust-the-parametrization-of-lambda-for-glmnet"><span class="toc-section-number">2.2.3</span> Adjust the parametrization of <span class="math inline">\(\lambda\)</span> for <code>glmnet</code></a></li>
+<li><a href="#compare-manual-and-glmnet-ridge-regression-output"><span class="toc-section-number">2.2.4</span> Compare manual and <code>glmnet</code> ridge regression output</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#tldr-just-give-me-the-code"><span class="toc-section-number">3</span> TL;DR, just give me the code!</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>When there are many correlated variables in a linear regression model, their coefficients can become poorly determined and exhibit high variance. This problem is alleviated by imposing a size constraint (or penalty) on the coefficients.</p>
+<p>Ridge regression shrinks the regression coefficients by imposing a penalty on their size. The ridge coefficients minimize a penalized residual sum of squares:</p>
+<p><span class="math display">\[
+\hat{\beta}^{\text{ridge}} = \text{argmin}_{\beta} \left\{ \sum_{i=1}^{N} \left( y_i - \beta_0 - \sum_{j=1}^{p} x_{ij}\beta_j \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 \right\}
+\]</span></p>
+<p>with a one-to-one correspondence between the <span class="math inline">\(\sigma\)</span> and <span class="math inline">\(t\)</span> parameters.
+The ridge solutions are not equivariant under scaling of the inputs
+Therefore, we better standardize the inputs before solving the minimization problem.</p>
+<p>Notice that the intercept <span class="math inline">\(\beta_0\)</span> has been left out of the penalty term. Penalization of the intercept would make the procedure depend on the origin chosen for <span class="math inline">\(Y\)</span>. By centering the predictors inputs, we can separate the solution to the <a href="https://www.notion.so/Ridge-regression-8134d8babda5413ab182df645c6196a8">minimazion problem</a> into two parts:</p>
+<ul>
+<li><p>Intercept
+<span class="math display">\[
+\beta_0 = \bar{y}=\frac{1}{N}\sum_{i = 1}^{N} y_i
+\]</span></p></li>
+<li><p>Penalised regression coefficinets
+<span class="math display">\[
+\hat{\beta}^{\text{ridge}}=(\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I})^{-1}\mathbf{X}^Ty
+\]</span>
+which is the regular way of estimating regression coefficients with an added penalty term (<span class="math inline">\(\lambda \mathbf{I}\)</span>) on the diagonal of the cross-product matrix (<span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span>) to make it invertible (<span class="math inline">\((...)^{-1}\)</span>).</p></li>
+</ul>
+</div>
+<div id="learn-by-coding" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Learn by coding</h1>
+<p>First let’s set up the R environment.
+We’ll use the <code>glmnet</code> to check how other people have implemented the same concepts.
+For these notes, we will work with the <code>mtcars</code> data.
+We will use the first column of the dataset (variable named <code>mpg</code>) as a dependent variable and the remaining ones as predictors.</p>
+<pre class="r"><code># Load packages
+library(glmnet)
+
+# Take the mtcars data
+y &lt;- mtcars[, &quot;mpg&quot;]
+X &lt;- mtcars[, -1]
+
+# Create a few shorthands we will use
+n &lt;- nrow(X)
+p &lt;- ncol(X)</code></pre>
+<div id="fitting-ridge-regression-manually" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Fitting ridge regression manually</h2>
+<p>First, let’s <strong>fit ridge regression</strong> manually by separating the intercept and the regression coefficients estimation (two-step approach):</p>
+<pre class="r"><code># Scale the data (standardize)
+X_scale &lt;- scale(X, center = TRUE, scale = TRUE)
+
+# Compute the cross-product matrix of the data
+XtX &lt;- t(X_scale) %*% X_scale
+
+# Define the identify matrix
+I &lt;- diag(ncol(X_scale))
+
+# Define a lambda value
+lambda &lt;- .1
+
+# Estimate the regression coefficients with the ridge penalty
+bs_hat_r &lt;- solve(XtX + lambda * I) %*% t(X_scale) %*% y
+
+# Estimate the intercept
+b0_hat_r &lt;- mean(y)
+
+# Print the results
+round(
+        data.frame(twostep = c(b0 = b0_hat_r, b = bs_hat_r)),
+        3
+)</code></pre>
+<pre><code>##     twostep
+## b0   20.091
+## b1   -0.194
+## b2    1.366
+## b3   -1.373
+## b4    0.438
+## b5   -3.389
+## b6    1.361
+## b7    0.162
+## b8    1.243
+## b9    0.496
+## b10  -0.460</code></pre>
+<p>It is important to note the effect of centering and scaling.
+When fitting ridge regression, many sources reccomend to center the data.
+This allows to separate the estimation of the intercept from the estimation of the regression coefficients.
+As a result, only the regression coefficients are penalised.
+To understand the effect of centering, consider what happens in regular OLS estimation when <strong>predictors are centered</strong>:</p>
+<pre class="r"><code># Create a version of X that is centered
+X_center &lt;- scale(X, center = TRUE, scale = FALSE)
+
+# Fit an regular linear model
+lm_ols &lt;- lm(y ~ X_center)
+
+# Check that b0 is equal to the mean of y
+coef(lm_ols)[&quot;(Intercept)&quot;] - mean(y)</code></pre>
+<pre><code>##   (Intercept) 
+## -3.552714e-15</code></pre>
+<p>As for <strong>scaling</strong>, the important thing to not for now is that scaling allows the penalty term to act in the same way independently of the scale of the predictors.</p>
+<div id="an-alternative-way-to-avoid-penalising-the-intercept" class="section level3" number="2.1.1">
+<h3><span class="header-section-number">2.1.1</span> An alternative way to avoid penalising the intercept</h3>
+<p>We can also avoid the penalisation of the intercept by setting to 0 the corresponding element in the <code>pen</code> object.
+By doing so, we can obtain the estimate of the intercept and the penalised regression coefficients in one step.</p>
+<pre class="r"><code>  # Create desing matrix with intercept
+  X_scale_dm &lt;- cbind(1, X_scale)
+
+  # Compute cross-product matrix
+  XtX &lt;- crossprod(X_scale_dm)
+
+  # Create penalty matrix
+  pen &lt;- lambda * diag(p + 1)
+  pen[1] &lt;- 0
+
+  # Obtain standardized estimates
+  bs_hat_r2 &lt;- solve(XtX + pen) %*% t(X_scale_dm) %*% (y)
+
+  # Compare
+  round(
+          data.frame(
+                  twostep = c(b0 = b0_hat_r, b = bs_hat_r),
+                  onestep = drop(bs_hat_r2)
+          ),
+          3
+  )</code></pre>
+<pre><code>##     twostep onestep
+## b0   20.091  20.091
+## b1   -0.194  -0.194
+## b2    1.366   1.366
+## b3   -1.373  -1.373
+## b4    0.438   0.438
+## b5   -3.389  -3.389
+## b6    1.361   1.361
+## b7    0.162   0.162
+## b8    1.243   1.243
+## b9    0.496   0.496
+## b10  -0.460  -0.460</code></pre>
+</div>
+</div>
+<div id="fit-ridge-regression-with-r-packages" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Fit ridge regression with R packages</h2>
+<p>The most popular R package for regularised regression is <code>glmnet</code>.
+Let’s see how we can replicate the results we obtained with the manual approach with glmnet.
+There are three important differences to consider:</p>
+<ul>
+<li>glmnet uses the biased version of variance estimation when scaling</li>
+<li>glmnet returns the unstandardized regression coefficients</li>
+<li>glmnet uses a different parametrization of lambda</li>
+</ul>
+<p>To replicate the results we need to account for these.</p>
+<div id="use-the-biased-estimation-of-variance" class="section level3" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> Use the biased estimation of variance</h3>
+<p>First, let’s obtain the results with the biased variance estimation:</p>
+<pre class="r"><code># Standardize X
+X_scale &lt;- sapply(1:p, function (j){
+  muj &lt;- mean(X[, j])
+  sj &lt;- sqrt( var(X[, j]) * (n-1) / n) # biased sd
+  (X[, j] - muj) / sj                  # standardize
+})
+
+# Craete desing matrix with intercept
+X_scale_dm &lt;- cbind(1, X_scale)
+
+# Compute cross-product matrix
+XtX &lt;- crossprod(X_scale_dm)
+
+# Create penalty matrix
+pen &lt;- lambda * diag(p + 1)
+pen[1] &lt;- 0
+
+# Obtain standardized estimates
+bs_hat_r3 &lt;- solve(XtX + pen) %*% t(X_scale_dm) %*% (y)
+
+# Print results
+round(
+      data.frame(
+              manual = drop(bs_hat_r3)
+      ),
+      3
+)</code></pre>
+<pre><code>##    manual
+## 1  20.091
+## 2  -0.191
+## 3   1.353
+## 4  -1.354
+## 5   0.430
+## 6  -3.343
+## 7   1.343
+## 8   0.159
+## 9   1.224
+## 10  0.488
+## 11 -0.449</code></pre>
+</div>
+<div id="return-the-unstandardized-coefficients" class="section level3" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> Return the unstandardized coefficients</h3>
+<p>Next, we need to revert these regression coefficients to their original scale.</p>
+<pre class="r"><code># Extract the original mean and standard deviations of all X variables
+mean_x &lt;- colMeans(X)
+sd_x &lt;- sqrt(apply(X, 2, var) * (n - 1) / n) # biased version
+
+# Revert to original scale
+bs_hat_r4 &lt;- c(bs_hat_r3[1] - crossprod(mean_x, bs_hat_r3[-1] / sd_x),
+               bs_hat_r3[-1] / sd_x)
+
+# Compare manual standardized and unstandardized results
+round(
+      data.frame(
+              standardized = drop(bs_hat_r3),
+              unstandardized = drop(bs_hat_r4)
+      ),
+      3
+)</code></pre>
+<pre><code>##      standardized unstandardized
+##            20.091         12.908
+## cyl        -0.191         -0.109
+## disp        1.353          0.011
+## hp         -1.354         -0.020
+## drat        0.430          0.818
+## wt         -3.343         -3.471
+## qsec        1.343          0.764
+## vs          0.159          0.320
+## am          1.224          2.491
+## gear        0.488          0.672
+## carb       -0.449         -0.282</code></pre>
+</div>
+<div id="adjust-the-parametrization-of-lambda-for-glmnet" class="section level3" number="2.2.3">
+<h3><span class="header-section-number">2.2.3</span> Adjust the parametrization of <span class="math inline">\(\lambda\)</span> for <code>glmnet</code></h3>
+<p>Next, we can use <code>glmnet</code> to fit the ridge regression.
+Pay attention to the fact that the value of lambda has been reparametrized for the <code>glmnet()</code> function.</p>
+<pre class="r"><code># Extract the original mean and standard deviations of y (for lambda parametrization)
+mean_y &lt;- mean(y)
+sd_y &lt;- sqrt(var(y) * (n - 1) / n)
+
+# Compute the value glmnet wants for your target lambda
+lambda_glmnet &lt;- sd_y * lambda / n</code></pre>
+</div>
+<div id="compare-manual-and-glmnet-ridge-regression-output" class="section level3" number="2.2.4">
+<h3><span class="header-section-number">2.2.4</span> Compare manual and <code>glmnet</code> ridge regression output</h3>
+<p>Finally, we can compare the results:</p>
+<pre class="r"><code># Fit glmnet
+fit_glmnet_s &lt;- glmnet(x = X,
+                       y = y,
+                       alpha = 0,
+                       lambda = lambda_glmnet, # correction for how penalty is used
+                       thresh = 1e-20)
+
+bs_glmnet &lt;- coef(fit_glmnet_s)
+
+# Compare estimated coefficients
+round(
+      data.frame(
+        manual = drop(bs_hat_r4),
+        glmnet = drop(bs_glmnet)
+      ),
+      3
+)</code></pre>
+<pre><code>##      manual glmnet
+##      12.908 12.908
+## cyl  -0.109 -0.109
+## disp  0.011  0.011
+## hp   -0.020 -0.020
+## drat  0.818  0.818
+## wt   -3.471 -3.471
+## qsec  0.764  0.764
+## vs    0.320  0.320
+## am    2.491  2.491
+## gear  0.672  0.672
+## carb -0.282 -0.282</code></pre>
+</div>
+</div>
+</div>
+<div id="tldr-just-give-me-the-code" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> TL;DR, just give me the code!</h1>
+<pre class="r"><code># Load packages
+library(glmnet)
+
+# Take the mtcars data
+y &lt;- mtcars[, &quot;mpg&quot;]
+X &lt;- mtcars[, -1]
+
+# Create a few shorthands we will use
+n &lt;- nrow(X)
+p &lt;- ncol(X)
+
+# Scale the data (standardize)
+X_scale &lt;- scale(X, center = TRUE, scale = TRUE)
+
+# Compute the cross-product matrix of the data
+XtX &lt;- t(X_scale) %*% X_scale
+
+# Define the identify matrix
+I &lt;- diag(ncol(X_scale))
+
+# Define a lambda value
+lambda &lt;- .1
+
+# Estimate the regression coefficients with the ridge penalty
+bs_hat_r &lt;- solve(XtX + lambda * I) %*% t(X_scale) %*% y
+
+# Estimate the intercept
+b0_hat_r &lt;- mean(y)
+
+# Print the results
+round(
+        data.frame(twostep = c(b0 = b0_hat_r, b = bs_hat_r)),
+        3
+)
+
+# Create a version of X that is centered
+X_center &lt;- scale(X, center = TRUE, scale = FALSE)
+
+# Fit an regular linear model
+lm_ols &lt;- lm(y ~ X_center)
+
+# Check that b0 is equal to the mean of y
+coef(lm_ols)[&quot;(Intercept)&quot;] - mean(y)
+
+  # Create desing matrix with intercept
+  X_scale_dm &lt;- cbind(1, X_scale)
+
+  # Compute cross-product matrix
+  XtX &lt;- crossprod(X_scale_dm)
+
+  # Create penalty matrix
+  pen &lt;- lambda * diag(p + 1)
+  pen[1] &lt;- 0
+
+  # Obtain standardized estimates
+  bs_hat_r2 &lt;- solve(XtX + pen) %*% t(X_scale_dm) %*% (y)
+
+  # Compare
+  round(
+          data.frame(
+                  twostep = c(b0 = b0_hat_r, b = bs_hat_r),
+                  onestep = drop(bs_hat_r2)
+          ),
+          3
+  )
+
+# Standardize X
+X_scale &lt;- sapply(1:p, function (j){
+  muj &lt;- mean(X[, j])
+  sj &lt;- sqrt( var(X[, j]) * (n-1) / n) # biased sd
+  (X[, j] - muj) / sj                  # standardize
+})
+
+# Craete desing matrix with intercept
+X_scale_dm &lt;- cbind(1, X_scale)
+
+# Compute cross-product matrix
+XtX &lt;- crossprod(X_scale_dm)
+
+# Create penalty matrix
+pen &lt;- lambda * diag(p + 1)
+pen[1] &lt;- 0
+
+# Obtain standardized estimates
+bs_hat_r3 &lt;- solve(XtX + pen) %*% t(X_scale_dm) %*% (y)
+
+# Print results
+round(
+      data.frame(
+              manual = drop(bs_hat_r3)
+      ),
+      3
+)
+
+# Extract the original mean and standard deviations of all X variables
+mean_x &lt;- colMeans(X)
+sd_x &lt;- sqrt(apply(X, 2, var) * (n - 1) / n) # biased version
+
+# Revert to original scale
+bs_hat_r4 &lt;- c(bs_hat_r3[1] - crossprod(mean_x, bs_hat_r3[-1] / sd_x),
+               bs_hat_r3[-1] / sd_x)
+
+# Compare manual standardized and unstandardized results
+round(
+      data.frame(
+              standardized = drop(bs_hat_r3),
+              unstandardized = drop(bs_hat_r4)
+      ),
+      3
+)
+
+# Extract the original mean and standard deviations of y (for lambda parametrization)
+mean_y &lt;- mean(y)
+sd_y &lt;- sqrt(var(y) * (n - 1) / n)
+
+# Compute the value glmnet wants for your target lambda
+lambda_glmnet &lt;- sd_y * lambda / n
+
+# Fit glmnet
+fit_glmnet_s &lt;- glmnet(x = X,
+                       y = y,
+                       alpha = 0,
+                       lambda = lambda_glmnet, # correction for how penalty is used
+                       thresh = 1e-20)
+
+bs_glmnet &lt;- coef(fit_glmnet_s)
+
+# Compare estimated coefficients
+round(
+      data.frame(
+        manual = drop(bs_hat_r4),
+        glmnet = drop(bs_glmnet)
+      ),
+      3
+)</code></pre>
+</div>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/statistics/">statistics</a>
+  
+  <a class="badge badge-light" href="/tag/regression/">regression</a>
+  
+  <a class="badge badge-light" href="/tag/penalty/">penalty</a>
+  
+  <a class="badge badge-light" href="/tag/high-dimensional-data/">high-dimensional data</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://symphonious-crostata-aa195e.netlify.app/"><img class="avatar mr-3 avatar-circle" src="/author/edoardo-costantini-edo/avatar_hubc644763d821b4643633e77d54abca59_619947_270x270_fill_q75_lanczos_center.jpg" alt="Edoardo Costantini (Edo)"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://symphonious-crostata-aa195e.netlify.app/">Edoardo Costantini (Edo)</a></h5>
+      <h6 class="card-subtitle">PhD Researcher</h6>
+      <p class="card-text">My research interests are imputation of missing data and principal component analysis.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:e.costantini@tilburguniversity.edu" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/EdoardoCostantini?tab=repositories" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/edoardo-costantini-78352b137/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/sweep/">The sweep operator</a></li>
+      
+      <li><a href="/post/covmatwt/">Estimating the weighted covariance matrix in R</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+  </div>
+
+  <div class="page-footer">
+    
+    
+    <div class="container">
+      <footer class="site-footer">
+
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    
+    
+      
+      
+      
+      
+      
+      
+      Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a> — the free, <a href="https://github.com/wowchemy/wowchemy-hugo-themes" target="_blank" rel="noopener">open source</a> website builder that empowers creators.
+    
+  </p>
+</footer>
+
+    </div>
+    
+  </div>
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      
+
+    
+    <script src="/js/vendor-bundle.min.3d946de2e8784a477845261d87025092.js"></script>
+
+    
+    
+    
+      
+      
+        <script src="https://cdn.jsdelivr.net/gh/desandro/imagesloaded@v4.1.4/imagesloaded.pkgd.min.js" integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/metafizzy/isotope@v3.0.6/dist/isotope.pkgd.min.js" integrity="sha512-Zq2BOxyhvnRFXu0+WE6ojpZLOU2jdnqbrM1hmVdGzyeCa1DgM3X5Q4A/Is9xA1IkbUeDd7755dNNI/PzSf2Pew==" crossorigin="anonymous"></script>
+      
+
+      
+      
+
+      
+
+      
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js" integrity="sha512-Ypjm0o7jOxAd4hpdoppSEN0TQOC19UtPAqD+4s5AlXmUvbmmS/YMxYqAqarQYyxTnB6/rqip9qcxlNB/3U9Wdg==" crossorigin="anonymous"></script>
+        
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/r.min.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/python.min.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/latex.min.js" crossorigin="anonymous"></script>
+        
+      
+
+    
+
+    
+    
+    
+      <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js" integrity="" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+      
+      <script id="search-hit-fuse-template" type="text/x-template">
+        <div class="search-hit" id="summary-{{key}}">
+          <div class="search-hit-content">
+            <div class="search-hit-name">
+              <a href="{{relpermalink}}">{{title}}</a>
+              <div class="article-metadata search-hit-type">{{type}}</div>
+              <p class="search-hit-description">{{snippet}}</p>
+            </div>
+          </div>
+        </div>
+      </script>
+      
+        <script src="https://cdn.jsdelivr.net/gh/krisk/Fuse@v3.2.1/dist/fuse.min.js" integrity="sha512-o38bmzBGX+hD3JHWUFCDA09btWaqrNmoJ3RXLlrysA7PP01Kgs4UlE4MhelE1v5dJR3+cxlR4qQlotsW7jKsnw==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/julmot/mark.js@8.11.1/dist/jquery.mark.min.js" integrity="sha512-mhbv5DqBMgrWL+32MmsDOt/OAvqr/cHimk6B8y/bx/xS88MVkYGPiVv2ixKVrkywF2qHplNRUvFsAHUdxZ3Krg==" crossorigin="anonymous"></script>
+      
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+      
+      
+      
+      
+      
+      
+      
+    
+
+    
+
+    
+    
+    
+    <script id="page-data" type="application/json">{"use_headroom":true}</script>
+
+    
+    
+      <script src="/js/wowchemy-headroom.208bf5db800f4a4e5a38cf3b67a99a51.js" type="module"></script>
+    
+    
+    
+    
+    
+    
+    
+      
+      
+    
+    
+    <script src="/en/js/wowchemy.min.63639926e24ecfb8040ea052c1077969.js"></script>
+
+    
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+User-agent: *
+
+Sitemap: https://symphonious-crostata-aa195e.netlify.app/sitemap.xml

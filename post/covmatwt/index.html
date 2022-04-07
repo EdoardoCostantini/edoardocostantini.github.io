@@ -1,0 +1,1504 @@
+<!DOCTYPE html><html lang="en-us" >
+
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  
+  
+    <meta name="generator" content="Wowchemy 5.4.0 for Hugo" />
+  
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Edoardo Costantini (Edo)" />
+
+  
+  
+  
+    
+  
+  <meta name="description" content="1 Introduction 2 Learn by coding  2.1 Example 2.2 Computing the weighted covariance matrix manually  2.2.1 Exploring the stats::cov.wt() function code 2.2.2 Reproducing the internal steps  2." />
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://symphonious-crostata-aa195e.netlify.app/post/covmatwt/" />
+
+  
+  
+  
+    <meta name="theme-color" content="#1565c0" />
+  
+
+  
+  
+    
+    <script src="/js/mathjax-config.js"></script>
+  
+
+  
+
+  <link rel="stylesheet" href="/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css" media="print" onload="this.media='all'">
+
+  
+  
+  
+    
+    
+
+    
+    
+    
+    
+      
+      
+    
+    
+    
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/github.min.css" crossorigin="anonymous" title="hl-light" media="print" onload="this.media='all'">
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" media="print" onload="this.media='all'" disabled>
+        
+      
+    
+
+    
+    
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.css" integrity="" crossorigin="anonymous" media="print" onload="this.media='all'">
+    
+
+    
+
+    
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+  
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.3f856681d393c81bcc1788511efeeb64.css" />
+
+  
+
+
+
+  
+
+  
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+    <link rel="manifest" href="/manifest.webmanifest" />
+  
+
+  <link rel="icon" type="image/png" href="/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_32x32_fill_lanczos_center_3.png" />
+  <link rel="apple-touch-icon" type="image/png" href="/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_180x180_fill_lanczos_center_3.png" />
+
+  <link rel="canonical" href="https://symphonious-crostata-aa195e.netlify.app/post/covmatwt/" />
+
+  
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+
+  
+  
+    
+    
+  
+  <meta property="twitter:card" content="summary" />
+  
+  <meta property="og:site_name" content="Edo" />
+  <meta property="og:url" content="https://symphonious-crostata-aa195e.netlify.app/post/covmatwt/" />
+  <meta property="og:title" content="Estimating the weighted covariance matrix in R | Edo" />
+  <meta property="og:description" content="1 Introduction 2 Learn by coding  2.1 Example 2.2 Computing the weighted covariance matrix manually  2.2.1 Exploring the stats::cov.wt() function code 2.2.2 Reproducing the internal steps  2." /><meta property="og:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png" />
+    <meta property="twitter:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
+  
+    
+      <meta
+        property="article:published_time"
+        content="2022-03-14T00:00:00&#43;00:00"
+      />
+    
+    <meta property="article:modified_time" content="2022-04-02T14:37:58&#43;02:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://symphonious-crostata-aa195e.netlify.app/post/covmatwt/"
+  },
+  "headline": "Estimating the weighted covariance matrix in R",
+  
+  "datePublished": "2022-03-14T00:00:00Z",
+  "dateModified": "2022-04-02T14:37:58+02:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Edoardo Costantini (Edo)"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "Edo",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_192x192_fill_lanczos_center_3.png"
+    }
+  },
+  "description": "1 Introduction 2 Learn by coding  2.1 Example 2.2 Computing the weighted covariance matrix manually  2.2.1 Exploring the stats::cov.wt() function code 2.2.2 Reproducing the internal steps  2."
+}
+</script>
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+  <title>Estimating the weighted covariance matrix in R | Edo</title>
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper   " data-wc-page-id="dfd82daeec56c4cfec7556dd9d2e1ebb" >
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="/js/wowchemy-init.min.13d3c1ccc66961c64e937f4e854fdd1e.js"></script>
+
+  
+
+
+<aside class="search-modal" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#" aria-label="Close"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control"
+        aria-label="Search...">
+        
+      </div>
+
+      
+      
+
+      
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+
+  <div class="page-header">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="header--fixed">
+  <nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+    <div class="container-xl">
+
+      
+      <div class="d-none d-lg-inline-flex">
+        <a class="navbar-brand" href="/">Edo</a>
+      </div>
+      
+
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+      <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+      
+      <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+        <a class="navbar-brand" href="/">Edo</a>
+      </div>
+      
+
+      
+      
+      <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+        
+        <ul class="navbar-nav d-md-inline-flex">
+          
+
+          
+
+          
+          
+          
+            
+          
+
+          
+
+          
+          
+          
+          
+
+          
+            
+              
+              
+            
+            
+          
+
+          <li class="nav-item">
+            <a class="nav-link  active" href="/post/"><span>Posts</span></a>
+          </li>
+
+          
+          
+
+        
+
+          
+        </ul>
+      </div>
+
+      <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+
+        
+        
+          
+        
+
+        
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+        
+        <li class="nav-item dropdown theme-dropdown">
+          <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+          </a>
+          <div class="dropdown-menu">
+            <a href="#" class="dropdown-item js-set-theme-light">
+              <span>Light</span>
+            </a>
+            <a href="#" class="dropdown-item js-set-theme-dark">
+              <span>Dark</span>
+            </a>
+            <a href="#" class="dropdown-item js-set-theme-auto">
+              <span>Automatic</span>
+            </a>
+          </div>
+        </li>
+        
+
+        
+        
+
+      </ul>
+
+    </div>
+  </nav>
+</header>
+
+
+  </div>
+
+  <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>Estimating the weighted covariance matrix in R</h1>
+
+  
+
+  
+    
+
+
+<div class="article-metadata">
+
+  
+  
+  
+  
+  <div>
+    
+
+  <span class="author-highlighted">
+      <a href="/author/edoardo-costantini-edo/">Edoardo Costantini (Edo)</a></span>
+  </div>
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Apr 2, 2022
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder mr-1"></i><a href="/category/tutorials/">Tutorials</a>, <a href="/category/drafts/">Drafts</a></span>
+  
+
+</div>
+
+    
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+<script src="https://symphonious-crostata-aa195e.netlify.app/post/covmatwt/index_files/header-attrs/header-attrs.js"></script>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#learn-by-coding"><span class="toc-section-number">2</span> Learn by coding</a>
+<ul>
+<li><a href="#example"><span class="toc-section-number">2.1</span> Example</a></li>
+<li><a href="#computing-the-weighted-covariance-matrix-manually"><span class="toc-section-number">2.2</span> Computing the weighted covariance matrix manually</a>
+<ul>
+<li><a href="#exploring-the-statscov.wt-function-code"><span class="toc-section-number">2.2.1</span> Exploring the <code>stats::cov.wt()</code> function code</a></li>
+<li><a href="#reproducing-the-internal-steps"><span class="toc-section-number">2.2.2</span> Reproducing the internal steps</a></li>
+</ul></li>
+<li><a href="#mathematical-formula-and-alternative-r-computations"><span class="toc-section-number">2.3</span> Mathematical formula and alternative R computations</a>
+<ul>
+<li><a href="#unbiased-weighted-covariance-matrix"><span class="toc-section-number">2.3.1</span> Unbiased weighted covariance matrix</a></li>
+<li><a href="#maximum-likelihood-weighted-covariance-matrix"><span class="toc-section-number">2.3.2</span> Maximum Likelihood weighted covariance matrix</a></li>
+</ul></li>
+<li><a href="#relationship-with-the-matrix-of-sufficient-statistics"><span class="toc-section-number">2.4</span> Relationship with the matrix of sufficient statistics</a></li>
+</ul></li>
+<li><a href="#tldr-just-give-me-the-code"><span class="toc-section-number">3</span> TL;DR, just give me the code!</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>In a sample made of groups of different sizes, descriptive statistics like the mean and the covariance between variables can be computed by assigning proper weights to account for the difference in group sizes.
+Wights are generally normalized (i.e., <span class="math inline">\(\sum_{i = 1}^{n} w_i = 1\)</span>).</p>
+</div>
+<div id="learn-by-coding" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Learn by coding</h1>
+<div id="example" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Example</h2>
+<p>Now, let’s consider a very simple example.
+Say that you have a dataset with two variables and that you have a vector of weights defining how important each observation should be.</p>
+<pre class="r"><code># Initial simple example -------------------------------------------------------
+
+  # Get the dataset used in the example of stats::cov.wt()
+  xy &lt;- cbind(x = 1:10, y = c(1:3, 8:5, 8:10))
+
+  # Define non-negative weights (as in example of stats::cov.wt())
+  wi &lt;- c(0,0,0,1,1,1,1,1,0,0)
+
+  # Get the weighted estimate with the default methods
+  covwt_stats &lt;- stats::cov.wt(xy, wt = wi) # i.e. method = &quot;unbiased&quot;
+
+  # Compare unweighted and weighted means
+  data.frame(uw = colMeans(xy),
+             select = colMeans(xy[wi == 1, ]),
+             wg = covwt_stats$center)</code></pre>
+<pre><code>##    uw select  wg
+## x 5.5    6.0 6.0
+## y 5.9    6.8 6.8</code></pre>
+<pre class="r"><code>  # Compare unweighted and weighted covariance matrix
+  data.frame(uw = c(cov(xy)),
+             select = c(cov(xy[wi == 1, ])),
+             wg = c(covwt_stats$cov),
+             row.names = c(sapply(colnames(cov(xy)), paste0, rownames(cov(xy))))
+  )</code></pre>
+<pre><code>##          uw select   wg
+## xx 9.166667    2.5  2.5
+## xy 8.055556   -0.5 -0.5
+## yx 8.055556   -0.5 -0.5
+## yy 9.433333    1.7  1.7</code></pre>
+<p>Note how by weighting with a vector of 0 and 1s we are basically saying that the observations with a 0 will be excluded from the count.
+They are weighted to have 0 impact on the computation of the descriptive statistics.
+This is clear when you compare the results of the <code>select</code> and <code>wg</code> columns.</p>
+</div>
+<div id="computing-the-weighted-covariance-matrix-manually" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Computing the weighted covariance matrix manually</h2>
+<p>We could replicate the results of the weighting simply by selecting a subset of the original data because all observations were either weighted 0 or equally (1).
+When this is not the case, weighting is slightly more complicated.</p>
+<div id="exploring-the-statscov.wt-function-code" class="section level3" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> Exploring the <code>stats::cov.wt()</code> function code</h3>
+<p>Let’s look at how the <code>cov.wt()</code> function works more in depth.
+The internal code of the function is the following:</p>
+<pre class="r"><code># Examine the internal code of stats::cov.wt() ---------------------------------
+
+  cov.wt</code></pre>
+<pre><code>## function (x, wt = rep(1/nrow(x), nrow(x)), cor = FALSE, center = TRUE, 
+##     method = c(&quot;unbiased&quot;, &quot;ML&quot;)) 
+## {
+##     if (is.data.frame(x)) 
+##         x &lt;- as.matrix(x)
+##     else if (!is.matrix(x)) 
+##         stop(&quot;&#39;x&#39; must be a matrix or a data frame&quot;)
+##     if (!all(is.finite(x))) 
+##         stop(&quot;&#39;x&#39; must contain finite values only&quot;)
+##     n &lt;- nrow(x)
+##     if (with.wt &lt;- !missing(wt)) {
+##         if (length(wt) != n) 
+##             stop(&quot;length of &#39;wt&#39; must equal the number of rows in &#39;x&#39;&quot;)
+##         if (any(wt &lt; 0) || (s &lt;- sum(wt)) == 0) 
+##             stop(&quot;weights must be non-negative and not all zero&quot;)
+##         wt &lt;- wt/s
+##     }
+##     if (is.logical(center)) {
+##         center &lt;- if (center) 
+##             colSums(wt * x)
+##         else 0
+##     }
+##     else {
+##         if (length(center) != ncol(x)) 
+##             stop(&quot;length of &#39;center&#39; must equal the number of columns in &#39;x&#39;&quot;)
+##     }
+##     x &lt;- sqrt(wt) * sweep(x, 2, center, check.margin = FALSE)
+##     cov &lt;- switch(match.arg(method), unbiased = crossprod(x)/(1 - 
+##         sum(wt^2)), ML = crossprod(x))
+##     y &lt;- list(cov = cov, center = center, n.obs = n)
+##     if (with.wt) 
+##         y$wt &lt;- wt
+##     if (cor) {
+##         Is &lt;- 1/sqrt(diag(cov))
+##         R &lt;- cov
+##         R[] &lt;- Is * cov * rep(Is, each = nrow(cov))
+##         y$cor &lt;- R
+##     }
+##     y
+## }
+## &lt;bytecode: 0x7fd229e352d0&gt;
+## &lt;environment: namespace:stats&gt;</code></pre>
+<p>Note the following:</p>
+<ul>
+<li><p>The first thing to pay attention to is that the function can <strong>compute</strong> the weighted covariance matrix <strong>in two ways</strong>:</p>
+<ul>
+<li>unbiased, using <code>corssprod(x) / (1 - sum(wt^2))</code></li>
+<li>ML (or maximum likelihood), using <code>corssprod(x)</code></li>
+</ul></li>
+<li><p>Note that the <code>wt</code> object is divided by the sum of the values it is storing, which amounts to <strong>normalising</strong> the weights.
+This happens with <code>wt &lt;- wt/s</code> with <code>s</code> being created inside an if statement as <code>s &lt;- sum(wt)</code>.</p></li>
+<li><p><code>x</code> is <strong>centered</strong> on the normalized weigthed means using the <code>sweep</code> function</p></li>
+<li><p><code>x</code> is <strong>weighted</strong> by multiplying by <code>sqrt(wt)</code></p></li>
+</ul>
+</div>
+<div id="reproducing-the-internal-steps" class="section level3" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> Reproducing the internal steps</h3>
+<p>First, we’ll <strong>set up</strong> a few objects we need to replicate manually what happens inside the <code>stats::cov.wt()</code> function.
+We need to define a dataset, a vector of weights, a method to compute descriptives, and based on these we will also create an object to store the number of rows (<code>n</code>).
+As a vector of weights we sample random values between 0 and 1.
+We can think of this as an attempt to weight each observation for the probability of sampling them from a population.</p>
+<pre class="r"><code># Set up manual computation of cov.wt() ----------------------------------------
+
+  # Assign values to the function arguments
+  x      &lt;- xy                     # data
+  set.seed(20220314)
+  wi     &lt;- runif(length(wi), min = 0, max = 1)
+  method &lt;- &quot;ML&quot;                   # use Maximum Likelihood for estimation
+
+  # Assign values to some of the internal objects
+  n &lt;- nrow(x)</code></pre>
+<p>Next, we want to make sure we <strong>normalize the weights</strong>.
+In other words we want to make sure the weights sum to 1.</p>
+<pre class="r"><code># Normalize weights ------------------------------------------------------------
+
+  # Normalise weights (to sum to 1)
+  wn &lt;- wi / sum(wi)
+
+  # Check they sum to 1
+  sum(wn) == 1</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>Then, we want to compute the <strong>vector of <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#:~:text=Mathematical%20definition%5Bedit%5D">weighted means</a></strong>.</p>
+<pre class="r"><code># Compute the weighted means ---------------------------------------------------
+
+  # Center on weighted mean if required
+  center &lt;- colSums(wn * x)
+
+  # Center X on the weigthed mean
+  x_cent &lt;- sweep(x, 2, center, check.margin = FALSE)
+
+  # Note that the sweep is subtracting the &quot;center&quot; to each value
+  all.equal(
+    sweep(x, 2, center, check.margin = FALSE),
+    t(apply(x, 1, function (i) i - center))
+  )</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>Note that the weighted mean is computed as:
+<span class="math display">\[
+\bar{x} = \sum_{i = 1}^{n} w_i x_i
+\]</span>
+and that <code>center &lt;- colSums(wn * x)</code> is doing exactly this.</p>
+<p>Finally, we want to compute the <strong><a href="https://en.wikipedia.org/wiki/Sample_mean_and_covariance#:~:text=weighted%20covariance%20matrix">weighted covariance matrix</a></strong>.</p>
+<pre class="r"><code># Compute the weighted covariance matrix ---------------------------------------
+
+  # Weight (centered) data
+  x_weighted &lt;- sqrt(wn) * x_cent
+
+  # Compute the ML weigthed covariance matrix manually
+  covwt_man &lt;- crossprod(x_weighted)
+
+  # Print the manual weigthed covariance matrix
+  covwt_man</code></pre>
+<pre><code>##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209</code></pre>
+<pre class="r"><code>  # Compute the ML weigthed covariance matrix with stats::cov.wt()
+  covwt_stats &lt;- cov.wt(xy, wt = wi, method = &quot;ML&quot;, center = TRUE)$cov
+
+  # Compare manual and stats weigthed covariance matrices
+  covwt_man - covwt_stats</code></pre>
+<pre><code>##   x y
+## x 0 0
+## y 0 0</code></pre>
+</div>
+</div>
+<div id="mathematical-formula-and-alternative-r-computations" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Mathematical formula and alternative R computations</h2>
+<div id="unbiased-weighted-covariance-matrix" class="section level3" number="2.3.1">
+<h3><span class="header-section-number">2.3.1</span> Unbiased weighted covariance matrix</h3>
+<p>For a given population covariance matrix <span class="math inline">\(Q\)</span>, each element <span class="math inline">\(q_{ik}\)</span> of the <strong>unbiased</strong> estimation of the weighted covariance matrix <span class="math inline">\(\hat{Q}\)</span> can be computed with the following formula:</p>
+<p><span class="math display">\[
+q_{ik} = \frac{1}{1 - \sum_{i = 1}^{n} w_i^2} \sum_{i = 1}^{n} w_i (x_{ij} - \bar{x}_j) (x_{ij} - \bar{x}_k)
+\]</span></p>
+<p>with <span class="math inline">\(\bar{x}_j\)</span> being the weighted mean for variable <span class="math inline">\(j\)</span>, and <span class="math inline">\(w_i\)</span> being the normalized weight for a given observation (which we store in the vector <code>wn</code>).
+The following are alternative ways of computing it with mathematical or R shortcuts:</p>
+<pre class="r"><code># Alternative computations of the unbiased weighted covariance mat -------------
+
+  # Literal translation of equation
+  1 / (1 - sum(wn^2)) * t(wn * x_cent) %*% (x_cent)</code></pre>
+<pre><code>##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922</code></pre>
+<pre class="r"><code>  # Rearrange denominator
+  t(wn * x_cent) %*% (x_cent) / (1 - sum(wn^2))</code></pre>
+<pre><code>##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922</code></pre>
+<pre class="r"><code>  # Spread wn
+  t(sqrt(wn) * x_cent) %*% (sqrt(wn)*x_cent) / (1 - sum(wn^2))</code></pre>
+<pre><code>##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922</code></pre>
+<pre class="r"><code>  # Replace manual cross-product with R cross-product
+  crossprod(sqrt(wn) * x_cent)/(1 - sum(wn^2))</code></pre>
+<pre><code>##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922</code></pre>
+<pre class="r"><code>  # Compute with stats::cov.wt()
+  cov.wt(xy, wt = wi, method = &quot;unbiased&quot;, center = TRUE)$cov</code></pre>
+<pre><code>##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922</code></pre>
+</div>
+<div id="maximum-likelihood-weighted-covariance-matrix" class="section level3" number="2.3.2">
+<h3><span class="header-section-number">2.3.2</span> Maximum Likelihood weighted covariance matrix</h3>
+<p>Each element <span class="math inline">\(q_{ik}\)</span> of the <strong>maximum likelihood</strong> weighted covariance matrix estimate <span class="math inline">\(\hat{Q}\)</span> can be computed manually with the following formula:</p>
+<p><span class="math display">\[
+q_{ik} = \frac{1}{\sum_{i = 1}^{n} w_i} \sum_{i = 1}^{n} w_i (x_{ij} - \bar{x}_j) (x_{ij} - \bar{x}_k)
+\]</span></p>
+<p>with <span class="math inline">\(\bar{x}_j\)</span> being the weighted mean for variable <span class="math inline">\(j\)</span>, and <span class="math inline">\(w_i\)</span> being the normalized weight for a given observation.
+The following are alternative ways of computing it with mathematical or R shortcuts:</p>
+<pre class="r"><code># Alternative computations of the ML weighted covariance mat -------------------
+
+  # R manual cross-product using un-normalised weights
+  1 / sum(wi) * t(wi * x_cent) %*% (x_cent)</code></pre>
+<pre><code>##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209</code></pre>
+<pre class="r"><code>  # Using the normalised weights
+  1 / sum(wn) * t(wn * x_cent) %*% (x_cent)</code></pre>
+<pre><code>##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209</code></pre>
+<pre class="r"><code>  # Dropp the term = 1
+  t(wn * x_cent) %*% (x_cent)</code></pre>
+<pre><code>##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209</code></pre>
+<pre class="r"><code>  # Spread wn
+  t(sqrt(wn) * x_cent) %*% (sqrt(wn) * x_cent)</code></pre>
+<pre><code>##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209</code></pre>
+<pre class="r"><code>  # Replace manual cross-product with R cross-product
+  crossprod(sqrt(wn) * x_cent)</code></pre>
+<pre><code>##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209</code></pre>
+<pre class="r"><code>  # R cross-product matrix
+  crossprod(x_weighted)</code></pre>
+<pre><code>##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209</code></pre>
+<pre class="r"><code>  # Compute with stats::cov.wt()
+  cov.wt(xy, wt = wi, method = &quot;ML&quot;, center = TRUE)$cov</code></pre>
+<pre><code>##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209</code></pre>
+</div>
+</div>
+<div id="relationship-with-the-matrix-of-sufficient-statistics" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> Relationship with the matrix of sufficient statistics</h2>
+<p>Note the relationship between the covariance matrix and the matrix of sufficient statistics is the same as in the <em>unweighted</em> case: <span class="math inline">\(\text{cov} = \frac{T_{\text{obs}}}{n}\)</span>.</p>
+<pre class="r"><code># Obtain the matrix of sufficient statistics Tobs ------------------------------
+
+  # Define a new weigthing object
+  set.seed(20220314)
+  wi &lt;- runif(length(wi), min = 0, max = 1)
+  wn &lt;- wi / sum(wi)
+
+  # Compute the weighted means of X again
+  center &lt;- colSums(wn * x)
+  x_cent &lt;- sweep(x, 2, center, check.margin = FALSE)
+
+  # &quot;Effective&quot; sample size
+  n &lt;- sum(wi)
+
+  # Number of columns
+  p &lt;- ncol(x)
+
+  # Obtain matrix of sufficient statistics (Tobs)
+  Tobs_lopp &lt;- matrix(0, p, p)
+  for(i in 1:nrow(x)){
+    Tobs_lopp &lt;- Tobs_lopp + wi[i] * (x_cent[i, ]) %*% t(x_cent[i, ])
+  }
+
+  # Obtain matrix of sufficient statistics (Tobs) w/ cross-product shortcut
+  Tobs_cp &lt;- t(wi * x_cent) %*% x_cent
+
+  # Compare loop version and cross-product shortcut
+  Tobs_lopp - Tobs_cp</code></pre>
+<pre><code>##      x            y
+## [1,] 0 3.552714e-15
+## [2,] 0 0.000000e+00</code></pre>
+<pre class="r"><code>  # Assign simpler name and print Tobs
+  (Tobs &lt;- Tobs_cp)</code></pre>
+<pre><code>##          x        y
+## x 31.08417 23.77229
+## y 23.77229 27.18091</code></pre>
+<pre class="r"><code>  # Convert to a covariance matrix
+  covmat &lt;- Tobs / n
+
+  # Check it&#39;s what you were expecting
+  covmat - cov.wt(xy, wt = wi, method = &quot;ML&quot;, center = TRUE)$cov</code></pre>
+<pre><code>##   x             y
+## x 0 -8.881784e-16
+## y 0 -8.881784e-16</code></pre>
+<p>Note the following:</p>
+<ul>
+<li>we are using the normalized weights <code>wn</code> to center the data, but we are using the un-normalised weights to scale the data contribution to <code>Tobs</code></li>
+<li>if we had used the normalized weights, <span class="math inline">\(n\)</span> would have been equal to 1 and <code>covmat</code> would be equal to <code>Tobs</code>.</li>
+</ul>
+<pre class="r"><code># Obtain the matrix of sufficient statistics Tobs (normalised weights) ---------
+
+  # Convert to a covariance matrix
+  covmat - t(wn * x_cent) %*% x_cent</code></pre>
+<pre><code>##              x y
+## x 0.000000e+00 0
+## y 8.881784e-16 0</code></pre>
+<pre class="r"><code>  # Then, covmat relates to Tobs as
+  (t(wn * x_cent) %*% x_cent * n) - Tobs_cp</code></pre>
+<pre><code>##               x y
+## x  0.000000e+00 0
+## y -3.552714e-15 0</code></pre>
+<pre class="r"><code>  # So we could say
+  Tobs &lt;- t(wn * x_cent) %*% x_cent * n</code></pre>
+</div>
+</div>
+<div id="tldr-just-give-me-the-code" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> TL;DR, just give me the code!</h1>
+<pre class="r"><code># Initial simple example -------------------------------------------------------
+
+  # Get the dataset used in the example of stats::cov.wt()
+  xy &lt;- cbind(x = 1:10, y = c(1:3, 8:5, 8:10))
+
+  # Define non-negative weights (as in example of stats::cov.wt())
+  wi &lt;- c(0,0,0,1,1,1,1,1,0,0)
+
+  # Get the weighted estimate with the default methods
+  covwt_stats &lt;- stats::cov.wt(xy, wt = wi) # i.e. method = &quot;unbiased&quot;
+
+  # Compare unweighted and weighted means
+  data.frame(uw = colMeans(xy),
+             select = colMeans(xy[wi == 1, ]),
+             wg = covwt_stats$center)
+
+  # Compare unweighted and weighted covariance matrix
+  data.frame(uw = c(cov(xy)),
+             select = c(cov(xy[wi == 1, ])),
+             wg = c(covwt_stats$cov),
+             row.names = c(sapply(colnames(cov(xy)), paste0, rownames(cov(xy))))
+  )
+
+# Examine the internal code of stats::cov.wt() ---------------------------------
+
+  cov.wt
+
+# Set up manual computation of cov.wt() ----------------------------------------
+
+  # Assign values to the function arguments
+  x      &lt;- xy                     # data
+  set.seed(20220314)
+  wi     &lt;- runif(length(wi), min = 0, max = 1)
+  method &lt;- &quot;ML&quot;                   # use Maximum Likelihood for estimation
+
+  # Assign values to some of the internal objects
+  n &lt;- nrow(x)
+
+# Normalize weights ------------------------------------------------------------
+
+  # Normalise weights (to sum to 1)
+  wn &lt;- wi / sum(wi)
+
+  # Check they sum to 1
+  sum(wn) == 1
+
+
+# Compute the weighted means ---------------------------------------------------
+
+  # Center on weighted mean if required
+  center &lt;- colSums(wn * x)
+
+  # Center X on the weigthed mean
+  x_cent &lt;- sweep(x, 2, center, check.margin = FALSE)
+
+  # Note that the sweep is subtracting the &quot;center&quot; to each value
+  all.equal(
+    sweep(x, 2, center, check.margin = FALSE),
+    t(apply(x, 1, function (i) i - center))
+  )
+
+
+# Compute the weighted covariance matrix ---------------------------------------
+
+  # Weight (centered) data
+  x_weighted &lt;- sqrt(wn) * x_cent
+
+  # Compute the ML weigthed covariance matrix manually
+  covwt_man &lt;- crossprod(x_weighted)
+
+  # Print the manual weigthed covariance matrix
+  covwt_man
+
+  # Compute the ML weigthed covariance matrix with stats::cov.wt()
+  covwt_stats &lt;- cov.wt(xy, wt = wi, method = &quot;ML&quot;, center = TRUE)$cov
+
+  # Compare manual and stats weigthed covariance matrices
+  covwt_man - covwt_stats
+
+# Alternative computations of the unbiased weighted covariance mat -------------
+
+  # Literal translation of equation
+  1 / (1 - sum(wn^2)) * t(wn * x_cent) %*% (x_cent)
+
+  # Rearrange denominator
+  t(wn * x_cent) %*% (x_cent) / (1 - sum(wn^2))
+
+  # Spread wn
+  t(sqrt(wn) * x_cent) %*% (sqrt(wn)*x_cent) / (1 - sum(wn^2))
+
+  # Replace manual cross-product with R cross-product
+  crossprod(sqrt(wn) * x_cent)/(1 - sum(wn^2))
+
+  # Compute with stats::cov.wt()
+  cov.wt(xy, wt = wi, method = &quot;unbiased&quot;, center = TRUE)$cov
+
+# Alternative computations of the ML weighted covariance mat -------------------
+
+  # R manual cross-product using un-normalised weights
+  1 / sum(wi) * t(wi * x_cent) %*% (x_cent)
+
+  # Using the normalised weights
+  1 / sum(wn) * t(wn * x_cent) %*% (x_cent)
+
+  # Dropp the term = 1
+  t(wn * x_cent) %*% (x_cent)
+
+  # Spread wn
+  t(sqrt(wn) * x_cent) %*% (sqrt(wn) * x_cent)
+
+  # Replace manual cross-product with R cross-product
+  crossprod(sqrt(wn) * x_cent)
+
+  # R cross-product matrix
+  crossprod(x_weighted)
+
+  # Compute with stats::cov.wt()
+  cov.wt(xy, wt = wi, method = &quot;ML&quot;, center = TRUE)$cov
+
+# Obtain the matrix of sufficient statistics Tobs ------------------------------
+
+  # Define a new weigthing object
+  set.seed(20220314)
+  wi &lt;- runif(length(wi), min = 0, max = 1)
+  wn &lt;- wi / sum(wi)
+
+  # Compute the weighted means of X again
+  center &lt;- colSums(wn * x)
+  x_cent &lt;- sweep(x, 2, center, check.margin = FALSE)
+
+  # &quot;Effective&quot; sample size
+  n &lt;- sum(wi)
+
+  # Number of columns
+  p &lt;- ncol(x)
+
+  # Obtain matrix of sufficient statistics (Tobs)
+  Tobs_lopp &lt;- matrix(0, p, p)
+  for(i in 1:nrow(x)){
+    Tobs_lopp &lt;- Tobs_lopp + wi[i] * (x_cent[i, ]) %*% t(x_cent[i, ])
+  }
+
+  # Obtain matrix of sufficient statistics (Tobs) w/ cross-product shortcut
+  Tobs_cp &lt;- t(wi * x_cent) %*% x_cent
+
+  # Compare loop version and cross-product shortcut
+  Tobs_lopp - Tobs_cp
+
+  # Assign simpler name and print Tobs
+  (Tobs &lt;- Tobs_cp)
+
+  # Convert to a covariance matrix
+  covmat &lt;- Tobs / n
+
+  # Check it&#39;s what you were expecting
+  covmat - cov.wt(xy, wt = wi, method = &quot;ML&quot;, center = TRUE)$cov
+
+# Obtain the matrix of sufficient statistics Tobs (normalised weights) ---------
+
+  # Convert to a covariance matrix
+  covmat - t(wn * x_cent) %*% x_cent
+
+  # Then, covmat relates to Tobs as
+  (t(wn * x_cent) %*% x_cent * n) - Tobs_cp
+
+  # So we could say
+  Tobs &lt;- t(wn * x_cent) %*% x_cent * n</code></pre>
+</div>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/statistics/">statistics</a>
+  
+  <a class="badge badge-light" href="/tag/weights/">weights</a>
+  
+  <a class="badge badge-light" href="/tag/covariance/">covariance</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://symphonious-crostata-aa195e.netlify.app/"><img class="avatar mr-3 avatar-circle" src="/author/edoardo-costantini-edo/avatar_hubc644763d821b4643633e77d54abca59_619947_270x270_fill_q75_lanczos_center.jpg" alt="Edoardo Costantini (Edo)"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://symphonious-crostata-aa195e.netlify.app/">Edoardo Costantini (Edo)</a></h5>
+      <h6 class="card-subtitle">PhD Researcher</h6>
+      <p class="card-text">My research interests are imputation of missing data and principal component analysis.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:e.costantini@tilburguniversity.edu" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/EdoardoCostantini?tab=repositories" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/edoardo-costantini-78352b137/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/ridge/">Estimating ridge regression in R</a></li>
+      
+      <li><a href="/post/sweep/">The sweep operator</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+  </div>
+
+  <div class="page-footer">
+    
+    
+    <div class="container">
+      <footer class="site-footer">
+
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    
+    
+      
+      
+      
+      
+      
+      
+      Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a> — the free, <a href="https://github.com/wowchemy/wowchemy-hugo-themes" target="_blank" rel="noopener">open source</a> website builder that empowers creators.
+    
+  </p>
+</footer>
+
+    </div>
+    
+  </div>
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      
+
+    
+    <script src="/js/vendor-bundle.min.3d946de2e8784a477845261d87025092.js"></script>
+
+    
+    
+    
+      
+      
+        <script src="https://cdn.jsdelivr.net/gh/desandro/imagesloaded@v4.1.4/imagesloaded.pkgd.min.js" integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/metafizzy/isotope@v3.0.6/dist/isotope.pkgd.min.js" integrity="sha512-Zq2BOxyhvnRFXu0+WE6ojpZLOU2jdnqbrM1hmVdGzyeCa1DgM3X5Q4A/Is9xA1IkbUeDd7755dNNI/PzSf2Pew==" crossorigin="anonymous"></script>
+      
+
+      
+      
+
+      
+
+      
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js" integrity="sha512-Ypjm0o7jOxAd4hpdoppSEN0TQOC19UtPAqD+4s5AlXmUvbmmS/YMxYqAqarQYyxTnB6/rqip9qcxlNB/3U9Wdg==" crossorigin="anonymous"></script>
+        
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/r.min.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/python.min.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/latex.min.js" crossorigin="anonymous"></script>
+        
+      
+
+    
+
+    
+    
+    
+      <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js" integrity="" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+      
+      <script id="search-hit-fuse-template" type="text/x-template">
+        <div class="search-hit" id="summary-{{key}}">
+          <div class="search-hit-content">
+            <div class="search-hit-name">
+              <a href="{{relpermalink}}">{{title}}</a>
+              <div class="article-metadata search-hit-type">{{type}}</div>
+              <p class="search-hit-description">{{snippet}}</p>
+            </div>
+          </div>
+        </div>
+      </script>
+      
+        <script src="https://cdn.jsdelivr.net/gh/krisk/Fuse@v3.2.1/dist/fuse.min.js" integrity="sha512-o38bmzBGX+hD3JHWUFCDA09btWaqrNmoJ3RXLlrysA7PP01Kgs4UlE4MhelE1v5dJR3+cxlR4qQlotsW7jKsnw==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/julmot/mark.js@8.11.1/dist/jquery.mark.min.js" integrity="sha512-mhbv5DqBMgrWL+32MmsDOt/OAvqr/cHimk6B8y/bx/xS88MVkYGPiVv2ixKVrkywF2qHplNRUvFsAHUdxZ3Krg==" crossorigin="anonymous"></script>
+      
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+      
+      
+      
+      
+      
+      
+      
+    
+
+    
+
+    
+    
+    
+    <script id="page-data" type="application/json">{"use_headroom":true}</script>
+
+    
+    
+      <script src="/js/wowchemy-headroom.208bf5db800f4a4e5a38cf3b67a99a51.js" type="module"></script>
+    
+    
+    
+    
+    
+    
+    
+      
+      
+    
+    
+    <script src="/en/js/wowchemy.min.63639926e24ecfb8040ea052c1077969.js"></script>
+
+    
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+
+
+
+</body>
+</html>

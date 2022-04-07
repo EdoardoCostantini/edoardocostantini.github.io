@@ -1,0 +1,1561 @@
+<!DOCTYPE html><html lang="en-us" >
+
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  
+  
+    <meta name="generator" content="Wowchemy 5.4.0 for Hugo" />
+  
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Edoardo Costantini (Edo)" />
+
+  
+  
+  
+    
+  
+  <meta name="description" content="1 Introduction 2 Learn by coding  2.1 Coding a sweep function in R 2.2 Using the sweep operator to estimate regression models  2.2.1 Compute the augmented covariance matrix 2." />
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://symphonious-crostata-aa195e.netlify.app/post/sweep/" />
+
+  
+  
+  
+    <meta name="theme-color" content="#1565c0" />
+  
+
+  
+  
+    
+    <script src="/js/mathjax-config.js"></script>
+  
+
+  
+
+  <link rel="stylesheet" href="/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css" media="print" onload="this.media='all'">
+
+  
+  
+  
+    
+    
+
+    
+    
+    
+    
+      
+      
+    
+    
+    
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/github.min.css" crossorigin="anonymous" title="hl-light" media="print" onload="this.media='all'">
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" media="print" onload="this.media='all'" disabled>
+        
+      
+    
+
+    
+    
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.css" integrity="" crossorigin="anonymous" media="print" onload="this.media='all'">
+    
+
+    
+
+    
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+  
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.3f856681d393c81bcc1788511efeeb64.css" />
+
+  
+
+
+
+  
+
+  
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+    <link rel="manifest" href="/manifest.webmanifest" />
+  
+
+  <link rel="icon" type="image/png" href="/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_32x32_fill_lanczos_center_3.png" />
+  <link rel="apple-touch-icon" type="image/png" href="/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_180x180_fill_lanczos_center_3.png" />
+
+  <link rel="canonical" href="https://symphonious-crostata-aa195e.netlify.app/post/sweep/" />
+
+  
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+
+  
+  
+    
+    
+  
+  <meta property="twitter:card" content="summary" />
+  
+  <meta property="og:site_name" content="Edo" />
+  <meta property="og:url" content="https://symphonious-crostata-aa195e.netlify.app/post/sweep/" />
+  <meta property="og:title" content="The sweep operator | Edo" />
+  <meta property="og:description" content="1 Introduction 2 Learn by coding  2.1 Coding a sweep function in R 2.2 Using the sweep operator to estimate regression models  2.2.1 Compute the augmented covariance matrix 2." /><meta property="og:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png" />
+    <meta property="twitter:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
+  
+    
+      <meta
+        property="article:published_time"
+        content="2021-11-17T00:00:00&#43;00:00"
+      />
+    
+    <meta property="article:modified_time" content="2022-04-02T15:33:01&#43;02:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://symphonious-crostata-aa195e.netlify.app/post/sweep/"
+  },
+  "headline": "The sweep operator",
+  
+  "datePublished": "2021-11-17T00:00:00Z",
+  "dateModified": "2022-04-02T15:33:01+02:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Edoardo Costantini (Edo)"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "Edo",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_192x192_fill_lanczos_center_3.png"
+    }
+  },
+  "description": "1 Introduction 2 Learn by coding  2.1 Coding a sweep function in R 2.2 Using the sweep operator to estimate regression models  2.2.1 Compute the augmented covariance matrix 2."
+}
+</script>
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+  <title>The sweep operator | Edo</title>
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper   " data-wc-page-id="e7ade286a1e858aadfd2e69770bb61ac" >
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="/js/wowchemy-init.min.13d3c1ccc66961c64e937f4e854fdd1e.js"></script>
+
+  
+
+
+<aside class="search-modal" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#" aria-label="Close"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control"
+        aria-label="Search...">
+        
+      </div>
+
+      
+      
+
+      
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+
+  <div class="page-header">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="header--fixed">
+  <nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+    <div class="container-xl">
+
+      
+      <div class="d-none d-lg-inline-flex">
+        <a class="navbar-brand" href="/">Edo</a>
+      </div>
+      
+
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+      <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+      
+      <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+        <a class="navbar-brand" href="/">Edo</a>
+      </div>
+      
+
+      
+      
+      <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+        
+        <ul class="navbar-nav d-md-inline-flex">
+          
+
+          
+
+          
+          
+          
+            
+          
+
+          
+
+          
+          
+          
+          
+
+          
+            
+              
+              
+            
+            
+          
+
+          <li class="nav-item">
+            <a class="nav-link  active" href="/post/"><span>Posts</span></a>
+          </li>
+
+          
+          
+
+        
+
+          
+        </ul>
+      </div>
+
+      <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+
+        
+        
+          
+        
+
+        
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+        
+        <li class="nav-item dropdown theme-dropdown">
+          <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+          </a>
+          <div class="dropdown-menu">
+            <a href="#" class="dropdown-item js-set-theme-light">
+              <span>Light</span>
+            </a>
+            <a href="#" class="dropdown-item js-set-theme-dark">
+              <span>Dark</span>
+            </a>
+            <a href="#" class="dropdown-item js-set-theme-auto">
+              <span>Automatic</span>
+            </a>
+          </div>
+        </li>
+        
+
+        
+        
+
+      </ul>
+
+    </div>
+  </nav>
+</header>
+
+
+  </div>
+
+  <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>The sweep operator</h1>
+
+  
+
+  
+    
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Apr 2, 2022
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder mr-1"></i><a href="/category/tutorials/">Tutorials</a>, <a href="/category/drafts/">Drafts</a></span>
+  
+
+</div>
+
+    
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+<script src="https://symphonious-crostata-aa195e.netlify.app/post/sweep/index_files/header-attrs/header-attrs.js"></script>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#learn-by-coding"><span class="toc-section-number">2</span> Learn by coding</a>
+<ul>
+<li><a href="#coding-a-sweep-function-in-r"><span class="toc-section-number">2.1</span> Coding a sweep function in R</a></li>
+<li><a href="#using-the-sweep-operator-to-estimate-regression-models"><span class="toc-section-number">2.2</span> Using the sweep operator to estimate regression models</a>
+<ul>
+<li><a href="#compute-the-augmented-covariance-matrix"><span class="toc-section-number">2.2.1</span> Compute the augmented covariance matrix</a></li>
+<li><a href="#estimate-multivariate-linear-models"><span class="toc-section-number">2.2.2</span> Estimate multivariate linear models</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#tldr-just-give-me-the-code"><span class="toc-section-number">3</span> TL;DR, just give me the code!</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>The sweep operator is a matrix transformation commonly used to estimate regression models.
+It performs elementary row operations on a <span class="math inline">\(p \times p\)</span> matrix which happen to be particularly useful for the estimation of multivariate linear models.
+Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span> defined it as follows:</p>
+<blockquote>
+<p>The sweep operator is defined for symmetric matrices as follows. A <span class="math inline">\(p \times p\)</span> symmetric matrix G is said to be swept on row and column k if it is replaced by another symmetric <span class="math inline">\(p \times p\)</span> matrix H with elements defined as follows:
+<span class="math display">\[
+h_{kk} = -1/g_{kk}
+\]</span>
+<span class="math display">\[
+h_{jk} = h_{kj} = \frac{g_{jk}}{g_{kk}}, j \neq k
+\]</span>
+<span class="math display">\[
+h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k
+\]</span></p>
+</blockquote>
+<p>The notation indicating this transformation is usually a variation of SWEEP(k)[G], which can be read as sweeping matrix G on row and column k.
+The notation SWEEP(1, 2, …, K)[G] indicates successive applications of SWEEP(k)[G] with <span class="math inline">\(k = 1, \dots, K\)</span>.
+Sweeps on multiple positions do not need be carried out in any particular order.
+The sweep operator is commutative.</p>
+<p><span class="math display">\[
+\text{SWEEP}(k_2)[\text{SWEEP}(k_1)[G]] = \text{SWEEP}(k_1)[\text{SWEEP}(k_2)[G]]
+\]</span></p>
+<p>In this post, I’m interested in exploring how we use the sweep operator to estimate the parameters of regressions models.
+If you are interested in the mathematical details, I recommend reading the full sweep operator description in one of the following resources: Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p154</a>)</span>, Schafer <span class="citation">(<a href="#ref-schafer:1997" role="doc-biblioref">1997</a>)</span>, Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span>.</p>
+<p>Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p150</a>)</span> is a particularly helpful paper as it describes an easy to implement algorithm to perform the sweep operator.
+Following Goodnight, given an originally symmetric positive definite matrix G, SWEEP(k)[G] modifies a matrix G as follows:</p>
+<ul>
+<li>Step 1: Let <span class="math inline">\(D = g_{kk}\)</span></li>
+<li>Step 2: Divide row <span class="math inline">\(k\)</span> by <span class="math inline">\(D\)</span>.</li>
+<li>Step 3: For every other row <span class="math inline">\(i \neq k\)</span>, let <span class="math inline">\(B = g_{ik}\)</span>. Sub-tract <span class="math inline">\(B \times\)</span> row <span class="math inline">\(k\)</span> from row <span class="math inline">\(i\)</span>. Set <span class="math inline">\(g_{ik} = -B/D\)</span>.</li>
+<li>Step 4: Set <span class="math inline">\(g_{kk} = 1/D\)</span>.</li>
+</ul>
+</div>
+<div id="learn-by-coding" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Learn by coding</h1>
+<div id="coding-a-sweep-function-in-r" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Coding a sweep function in R</h2>
+<p>Let’s start by coding a simple function that performs the operations described by Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p150</a>)</span>.
+We want a function that takes as inputs a symmetric matrix (argument <code>G</code>) and a vector of positions to sweep over (argument <code>K</code>).
+The function below takes these two inputs and performs the four sweep steps for every element of <code>K</code>.</p>
+<pre class="r"><code># Write an R function implementing SWEEP(k)[G] according to Goodnight ----------
+
+sweepGoodnight &lt;- function (G, K){
+
+  for(k in K){
+    # Step 1: Let D = g_kk
+    D &lt;- G[k, k]
+
+    # Step 2: Divide row k by D.
+    G[k, ] &lt;- G[k, ] / D
+
+    # Step 3:
+    # - For every other row i != k, let B = g_ik
+    # - Subtract B \times row k from row i.
+    # - set g_ik = -B/D.
+    for(i in 1:nrow(G)){
+      if(i != k){
+        B &lt;- G[i, k]
+        G[i, ] &lt;- G[i, ] - B * G[k, ]
+        G[i, k] &lt;- -1 * B / D
+      }
+    }
+    # Step 4: Set g_kk = 1/D
+    G[k, k] = 1/D
+  }
+
+  # Output
+  return(G)
+}</code></pre>
+<p>Let’s check that this function returns what we want by comparing it with a function implemented by someone else.</p>
+<pre class="r"><code># Compare sweepGoodnight with other implementations ----------------------------
+
+# Install the `fastmatrix` package (run if you don&#39;t have it yet)
+# install.packages(&quot;fastmatrix&quot;)
+
+# Load fastmatrix
+library(fastmatrix)
+
+# Define an example dataset
+X &lt;- matrix(c(1, 1, 1, 1,
+              1, 2, 1, 3,
+              1, 3, 1, 3,
+              1, 1,-1, 2,
+              1, 2,-1, 2,
+              1, 3,-1, 1), ncol = 4, byrow = TRUE)
+
+# Define the G matrix
+G &lt;- crossprod(X)
+
+# Define a vector of position to sweep over
+K &lt;- 1:3
+
+# Perform Sweep[K](G) with fastmatrix sweep.operator
+H_fm &lt;- sweep.operator(G, k = K)
+
+# Perform Sweep[K](G) with our sweepGoodnight implementation
+H_sg &lt;- sweepGoodnight(G, K = K)
+
+# Compare the two
+H_fm - H_sg</code></pre>
+<p>You will notice that <code>H_fm - H_sg</code> returns a <span class="math inline">\(4 \times 4\)</span> matrix of 0s: mission accomplished.</p>
+</div>
+<div id="using-the-sweep-operator-to-estimate-regression-models" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Using the sweep operator to estimate regression models</h2>
+<p>To understand the sweep operator we will use it to compute the regression coefficient of a multivariate linear model estimated on an example dataset.
+For this post, we will work with the data used by Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p152</a>)</span>.</p>
+<pre class="r"><code># Load Little Rubin data -------------------------------------------------------
+
+# Create data
+  X &lt;- as.data.frame(
+          matrix(
+                  data = c(7, 1, 11, 11, 7, 11, 3, 1, 2, 21, 1, 11, 10, 26,
+                           29, 56, 31, 52, 55, 71 ,31, 54, 47, 40, 66, 68,
+                           6, 15, 8, 8, 6, 9, 17, 22, 18, 4, 23, 9, 8,
+                           60, 52, 20, 47, 33, 22,6,44,22,26,34,12,12,
+                           78.5, 74.3, 104.3, 87.6, 95.9, 109.2, 102.7,
+                           72.5, 93.1, 115.9, 83.8, 113.3, 109.4),
+                  ncol = 5
+          )
+  )
+
+# Store useful information
+  n &lt;- nrow(X)
+  p &lt;- ncol(X)</code></pre>
+<p>Let’s take a quick look at the first rows of the data to get an idea of what we are working with.</p>
+<pre class="r"><code># Glace at the first 6 rows of the data
+  head(X)</code></pre>
+<pre><code>##   V1 V2 V3 V4    V5
+## 1  7 26  6 60  78.5
+## 2  1 29 15 52  74.3
+## 3 11 56  8 20 104.3
+## 4 11 31  8 47  87.6
+## 5  7 52  6 33  95.9
+## 6 11 55  9 22 109.2</code></pre>
+<div id="compute-the-augmented-covariance-matrix" class="section level3" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> Compute the augmented covariance matrix</h3>
+<p>The sweep operator gets us the regression coefficients of a multivairate linear model when applied to what is known as the augmented covariance matrix of the data (<span class="math inline">\(\Theta\)</span>).
+This is a <span class="math inline">\((p+1) \times (p+1)\)</span> matrix storing the covariance matrix and the means of the dataset.
+It usually looks like this:</p>
+<p><span class="math display">\[
+\Theta =
+\begin{bmatrix}
+-1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
+\mu_1 &amp; \sigma^2_1 &amp; ... &amp; \sigma_{1p}\\
+... &amp; ... &amp; ... &amp; ...\\
+\mu_p &amp; \sigma_{1p} &amp; ... &amp; \sigma^2_{p}
+\end{bmatrix}
+\]</span></p>
+<p>with <span class="math inline">\(\mu_1, \dots, \mu_p\)</span>, <span class="math inline">\(\sigma^2_1, \dots, \sigma^2_p\)</span>, and <span class="math inline">\(\sigma_{jk}\)</span> being the means, variances and covariances of the variables in our dataset, respectively.</p>
+<p>In R, we can obtain this matrix in just a few steps starting from our dataset <code>X</code>:</p>
+<ul>
+<li><p><strong>Augment the original data</strong> with a column of 1s on the left</p>
+<pre class="r"><code># Obtain the augmented covariance matrix ---------------------------------------
+
+# Augment X
+  X_aug &lt;- cbind(int = 1, as.matrix(X))
+
+# Glance at the first 6 rows of X_aug
+  head(X_aug)</code></pre>
+<pre><code>##      int V1 V2 V3 V4    V5
+## [1,]   1  7 26  6 60  78.5
+## [2,]   1  1 29 15 52  74.3
+## [3,]   1 11 56  8 20 104.3
+## [4,]   1 11 31  8 47  87.6
+## [5,]   1  7 52  6 33  95.9
+## [6,]   1 11 55  9 22 109.2</code></pre></li>
+<li><p>Compute the <strong>augmented matrix of sufficient statistics <span class="math inline">\(T\)</span></strong>.</p>
+<p><span class="math inline">\(T\)</span> is the matrix having as elements the sum of the cross-products of the columns of <code>X_aug</code>.
+Since the first column of <code>X_aug</code> is a column of 1s, the first element of T is the number of rows in the data, the first column and rows store the sum of scores on each variable (sufficient statistics for the mean), and the other elements store the sum of products between the columns of <code>X</code> (sufficient statistics for the covariance matrix of <code>X</code>).</p>
+<p><span class="math display">\[
+T =
+\begin{bmatrix}
+n &amp; \sum{x_1} &amp; ... &amp; \sum{x_p}\\
+\sum{x_1} &amp; \sum{x_1^2} &amp; ... &amp; \sum{x_1 x_p}\\
+... &amp; ... &amp; ... &amp; ...\\
+\sum{x_p} &amp; \sum{x_1 x_p} &amp; ... &amp; \sum{x_p^2}
+\end{bmatrix}
+\]</span>
+In R, we can compute it easily with the cross-product function</p>
+<pre class="r"><code># Compute the matrix of sufficient statistics (T matrix)
+  Tmat &lt;- crossprod(X_aug)</code></pre></li>
+<li><p><strong>Transform T to G</strong></p>
+<p><span class="math inline">\(G\)</span> is simply <span class="math inline">\(T / n\)</span></p>
+<p><span class="math display">\[
+G =
+\begin{bmatrix}
+ 1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
+ \mu_1 &amp; \frac{\sum{x_1^2}}{n} &amp; ... &amp; \frac{\sum{x_1 x_p}}{n}\\
+ ... &amp; ... &amp; ... &amp; ...\\
+ \mu_p &amp; \frac{\sum{x_1 x_p}}{n} &amp; ... &amp; \frac{\sum{x_p^2}}{n}
+\end{bmatrix}
+\]</span></p>
+<pre class="r"><code># Compute G
+  G &lt;- Tmat / n</code></pre></li>
+<li><p><strong>Compute <span class="math inline">\(\Theta\)</span></strong> by sweeping G over the first row and column.</p>
+<p>Let’s use our <code>sweepGoodnight()</code> function to perform SWEEP(1)[G] and obtain <span class="math inline">\(\Theta\)</span></p>
+<p><span class="math display">\[
+\Theta =
+\begin{bmatrix}
+-1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
+\mu_1 &amp; \sigma^2_1 &amp; ... &amp; \sigma_{1p}\\
+... &amp; ... &amp; ... &amp; ...\\
+\mu_p &amp; \sigma_{1p} &amp; ... &amp; \sigma^2_{p}
+\end{bmatrix}
+\]</span></p>
+<p>In R:</p>
+<pre class="r"><code># Sweep G over the first position
+  Theta &lt;- sweepGoodnight(G, 1)
+
+# Check how it looks
+  Theta</code></pre>
+<pre><code>##            int         V1         V2         V3          V4         V5
+## int   1.000000   7.461538   48.15385  11.769231   30.000000   95.42308
+## V1   -7.461538  31.940828   19.31361 -28.662722  -22.307692   59.68935
+## V2  -48.153846  19.313609  223.51479 -12.810651 -233.923077  176.38107
+## V3  -11.769231 -28.662722  -12.81065  37.869822    2.923077  -47.55621
+## V4  -30.000000 -22.307692 -233.92308   2.923077  258.615385 -190.90000
+## V5  -95.423077  59.689349  176.38107 -47.556213 -190.900000  208.90485</code></pre>
+<pre class="r"><code># Check Theta is storing the means in the first row and column
+  colMeans(X)</code></pre>
+<pre><code>##        V1        V2        V3        V4        V5 
+##  7.461538 48.153846 11.769231 30.000000 95.423077</code></pre>
+<pre class="r"><code># Check Theta is storing the ML covariance matrix everywhere else
+  cov(X) * (n-1) / n</code></pre>
+<pre><code>##           V1         V2         V3          V4         V5
+## V1  31.94083   19.31361 -28.662722  -22.307692   59.68935
+## V2  19.31361  223.51479 -12.810651 -233.923077  176.38107
+## V3 -28.66272  -12.81065  37.869822    2.923077  -47.55621
+## V4 -22.30769 -233.92308   2.923077  258.615385 -190.90000
+## V5  59.68935  176.38107 -47.556213 -190.900000  208.90485</code></pre>
+<p>Pay attention to a few of things:</p>
+<ul>
+<li>The covariance matrix store in <span class="math inline">\(\Theta\)</span> is the Maximum Likelihood version (denominator should be <code>n</code> instead of the default <code>n-1</code>)</li>
+<li>The first element of the <code>Theta</code> object is negative, which indicates the matrix has been swept over that row and column.</li>
+<li>We could have constructed the object <code>Theta</code> just by using <code>colMeans(X)</code> and <code>cov(X) * (n-1) / n</code> directly.
+However, it is important to note the relationship between <code>Tmat</code>, <code>G</code>, and <code>Theta</code>.
+In particular, pay attention to the fact that <code>Theta</code> is the result of sweeping <code>G</code> in the first position.
+When I started looking into this topic I did not understand this, and I kept sweeping <code>Theta</code> over the first position, resulting in a confusing double sweep of the first column and row.
+I will get back to this point in a sec.</li>
+</ul></li>
+</ul>
+</div>
+<div id="estimate-multivariate-linear-models" class="section level3" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> Estimate multivariate linear models</h3>
+<p>Now let’s see how we can use <span class="math inline">\(\Theta\)</span> to estimate any multivariate linear model involving the variables in our dataset.
+First, let’s see how we would obtain these linear models in R with standard procedures.
+Say we want to regress V1 and V3 on V2, V4, and V5.
+We will start by creating a formula for an <code>lm</code> function return the model we want.</p>
+<pre class="r"><code># Fit some multivariate linear models ------------------------------------------
+
+  # Define the dependent variables (dvs) of the multivairate linear models
+  dvs &lt;- c(&quot;V1&quot;, &quot;V3&quot;)
+
+  # Define the predictors (ivs) of the multivairate linear models
+  ivs &lt;- c(&quot;V2&quot;, &quot;V4&quot;, &quot;V5&quot;)
+
+  # Create the formula (complicated but flexible way)
+  formula_lm &lt;- paste0(&quot;cbind(&quot;,
+                       paste0(dvs, collapse = &quot;, &quot;),
+                       &quot;) ~ &quot;,
+                       paste0(ivs, collapse = &quot; + &quot;))
+
+  # Check the formula
+  formula_lm</code></pre>
+<pre><code>## [1] &quot;cbind(V1, V3) ~ V2 + V4 + V5&quot;</code></pre>
+<p>Next,</p>
+<pre class="r"><code>  # Fit the model with the MLM
+  mlm0 &lt;- lm(formula_lm, data = X)
+  coef(mlm0)</code></pre>
+<pre><code>##                      V1          V3
+## (Intercept) -45.7660931 135.1150663
+## V2           -0.2747666  -0.6559719
+## V4            0.1455375  -1.0485195
+## V5            0.6507081  -0.6319507</code></pre>
+<p>These are our intercepts, and regression coefficients for the multivariate linear model.
+Given a <span class="math inline">\(\Theta\)</span> matrix, we can sweep on the positions of the independent variables to obtain the regression coefficients of all the multivariate linear model with the variables we did not sweep over as dependent variables.
+First, let’s define a vector of positions to sweep over based on the variable names we stored in <code>ivs</code>.</p>
+<pre class="r"><code># Fit some multivariate linear models using sweep ------------------------------
+
+  # Define positions to sweep over
+  sweep_over &lt;- which(colnames(Theta) %in% ivs)</code></pre>
+<p>Then, let’s simply sweep our <span class="math inline">\(\Theta\)</span> over these positions.</p>
+<pre class="r"><code>  # Sweep theta
+  H &lt;- sweepGoodnight(Theta, K = sweep_over)
+
+  # Check out the result
+  H</code></pre>
+<pre><code>##             int          V1           V2          V3           V4           V5
+## int  612.422481 -45.7660931 -5.874822779 135.1150663 -6.469828251 -1.408803042
+## V1    45.766093   1.6538239  0.274766592  -1.6628629 -0.145537538 -0.650708148
+## V2    -5.874823  -0.2747666  0.085293622  -0.6559719  0.073716182 -0.004651691
+## V3  -135.115066  -1.6628629  0.655971950   2.4781175  1.048519534  0.631950668
+## V4    -6.469828   0.1455375  0.073716182  -1.0485195  0.075591156  0.006836668
+## V5    -1.408803   0.6507081 -0.004651691  -0.6319507  0.006836668  0.014961788</code></pre>
+<p>Our regression coefficients are here in this new matrix.
+We just need to find them.
+We know that the dependent variables are V1 and V3, and that the independent variables are V2, V4, and V5.
+Let’s index the columns of <code>H</code> with the names of the dvs and the rows with the names of the ivs.</p>
+<pre class="r"><code>  # Extract the regression coefficients from H
+  H[c(&quot;int&quot;, ivs), dvs]</code></pre>
+<pre><code>##              V1          V3
+## int -45.7660931 135.1150663
+## V2   -0.2747666  -0.6559719
+## V4    0.1455375  -1.0485195
+## V5    0.6507081  -0.6319507</code></pre>
+<pre class="r"><code>  # Compare with coefficients from lm function
+  coef(mlm0)</code></pre>
+<pre><code>##                      V1          V3
+## (Intercept) -45.7660931 135.1150663
+## V2           -0.2747666  -0.6559719
+## V4            0.1455375  -1.0485195
+## V5            0.6507081  -0.6319507</code></pre>
+<p>Note that, we are sweeping <span class="math inline">\(\Theta\)</span> only over the predictors, but we also get the estimate of the intercept.
+Remember that <span class="math inline">\(\Theta\)</span> is the result of sweeping G over the first position, which is the position where the intercept estimate appears.
+You could obtain the same result by directly sweeping G over position 1, and the position of the predictors.
+In code:</p>
+<pre class="r"><code>  # Sweep G
+  sweepGoodnight(G, c(1, sweep_over))[c(&quot;int&quot;, ivs), dvs]</code></pre>
+<pre><code>##              V1          V3
+## int -45.7660931 135.1150663
+## V2   -0.2747666  -0.6559719
+## V4    0.1455375  -1.0485195
+## V5    0.6507081  -0.6319507</code></pre>
+<pre class="r"><code>  # Sweep theta (notice we do not sweep over 1)
+  sweepGoodnight(Theta, sweep_over)[c(&quot;int&quot;, ivs), dvs]</code></pre>
+<pre><code>##              V1          V3
+## int -45.7660931 135.1150663
+## V2   -0.2747666  -0.6559719
+## V4    0.1455375  -1.0485195
+## V5    0.6507081  -0.6319507</code></pre>
+<p>Therefore, you can think of finding the coefficients of a multivariate linear model using the sweep operator as:</p>
+<ul>
+<li>SWEEP(<span class="math inline">\(k_1, \dots, k_K\)</span>)[SWEEP(1)[G]] or as,</li>
+<li>SWEEP(<span class="math inline">\(k_1, \dots, k_K\)</span>)[<span class="math inline">\(\Theta\)</span>]</li>
+</ul>
+<p>with <span class="math inline">\(k_1, \dots, k_K\)</span> being the positions of the <span class="math inline">\(K\)</span> predictors in matrix <span class="math inline">\(G\)</span>.</p>
+<p>Finally, just play around with what variables you consider as dvs and ivs.
+You will discover the magic of the sweep operator.</p>
+<pre class="r"><code># Play around with variable roles ------------------------------------------
+
+  # Define different dependent variables (dvs) for the multivairate linear models
+  dvs &lt;- c(&quot;V1&quot;, &quot;V2&quot;, &quot;V5&quot;)
+
+  # Define different predictors (ivs) for the multivairate linear models
+  ivs &lt;- c(&quot;V3&quot;, &quot;V4&quot;)
+
+  # Create the formula (complicated but flexible way)
+  formula_lm &lt;- paste0(&quot;cbind(&quot;,
+                       paste0(dvs, collapse = &quot;, &quot;),
+                       &quot;) ~ &quot;,
+                       paste0(ivs, collapse = &quot; + &quot;))
+
+  # Fit the model with the MLM
+  mlm1 &lt;- lm(formula_lm, data = X)
+  coef(mlm1)</code></pre>
+<pre><code>##                      V1         V2          V5
+## (Intercept) 18.63186149 78.3607367 131.2824064
+## V3          -0.75087203 -0.2686979  -1.1998512
+## V4          -0.07777123 -0.9014841  -0.7246001</code></pre>
+<pre class="r"><code>  # Define positions to sweep over
+  sweep_over &lt;- which(colnames(Theta) %in% ivs)
+
+  # Sweep Theta over new positions
+  sweepGoodnight(Theta, K = sweep_over)[c(&quot;int&quot;, ivs), dvs]</code></pre>
+<pre><code>##              V1         V2          V5
+## int 18.63186149 78.3607367 131.2824064
+## V3  -0.75087203 -0.2686979  -1.1998512
+## V4  -0.07777123 -0.9014841  -0.7246001</code></pre>
+</div>
+</div>
+</div>
+<div id="tldr-just-give-me-the-code" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> TL;DR, just give me the code!</h1>
+<pre class="r"><code># Packages and functions
+source(&quot;sweepGoodnight.R&quot;) # main sweep function
+library(ISR3)                  # for SWP functions
+library(fastmatrix)            # alternative sweep
+
+# Take the mtcars data
+y &lt;- mtcars[, &quot;mpg&quot;]
+X &lt;- mtcars[, -1]
+
+# Create a few shorthands we will use
+n &lt;- nrow(X)
+p &lt;- ncol(X)
+
+# Write an R function implementing SWEEP(k)[G] according to Goodnight ----------
+
+sweepGoodnight &lt;- function (G, K){
+
+  for(k in K){
+    # Step 1: Let D = g_kk
+    D &lt;- G[k, k]
+
+    # Step 2: Divide row k by D.
+    G[k, ] &lt;- G[k, ] / D
+
+    # Step 3:
+    # - For every other row i != k, let B = g_ik
+    # - Subtract B \times row k from row i.
+    # - set g_ik = -B/D.
+    for(i in 1:nrow(G)){
+      if(i != k){
+        B &lt;- G[i, k]
+        G[i, ] &lt;- G[i, ] - B * G[k, ]
+        G[i, k] &lt;- -1 * B / D
+      }
+    }
+    # Step 4: Set g_kk = 1/D
+    G[k, k] = 1/D
+  }
+
+  # Output
+  return(G)
+}
+
+# Compare sweepGoodnight with other implementations ----------------------------
+
+# Install the `fastmatrix` package (run if you don&#39;t have it yet)
+# install.packages(&quot;fastmatrix&quot;)
+
+# Load fastmatrix
+library(fastmatrix)
+
+# Define an example dataset
+X &lt;- matrix(c(1, 1, 1, 1,
+              1, 2, 1, 3,
+              1, 3, 1, 3,
+              1, 1,-1, 2,
+              1, 2,-1, 2,
+              1, 3,-1, 1), ncol = 4, byrow = TRUE)
+
+# Define the G matrix
+G &lt;- crossprod(X)
+
+# Define a vector of position to sweep over
+K &lt;- 1:3
+
+# Perform Sweep[K](G) with fastmatrix sweep.operator
+H_fm &lt;- sweep.operator(G, k = K)
+
+# Perform Sweep[K](G) with our sweepGoodnight implementation
+H_sg &lt;- sweepGoodnight(G, K = K)
+
+# Compare the two
+H_fm - H_sg
+
+# Load Little Rubin data -------------------------------------------------------
+
+# Create data
+  X &lt;- as.data.frame(
+          matrix(
+                  data = c(7, 1, 11, 11, 7, 11, 3, 1, 2, 21, 1, 11, 10, 26,
+                           29, 56, 31, 52, 55, 71 ,31, 54, 47, 40, 66, 68,
+                           6, 15, 8, 8, 6, 9, 17, 22, 18, 4, 23, 9, 8,
+                           60, 52, 20, 47, 33, 22,6,44,22,26,34,12,12,
+                           78.5, 74.3, 104.3, 87.6, 95.9, 109.2, 102.7,
+                           72.5, 93.1, 115.9, 83.8, 113.3, 109.4),
+                  ncol = 5
+          )
+  )
+
+# Store useful information
+  n &lt;- nrow(X)
+  p &lt;- ncol(X)
+
+# Glace at the first 6 rows of the data
+  head(X)
+
+# Obtain the augmented covariance matrix ---------------------------------------
+
+# Augment X
+  X_aug &lt;- cbind(int = 1, as.matrix(X))
+
+# Glance at the first 6 rows of X_aug
+  head(X_aug)
+
+# Compute the matrix of sufficient statistics (T matrix)
+  Tmat &lt;- crossprod(X_aug)
+
+# Compute G
+  G &lt;- Tmat / n
+
+# Sweep G over the first position
+  Theta &lt;- sweepGoodnight(G, 1)
+
+# Check how it looks
+  Theta
+
+# Check Theta is storing the means in the first row and column
+  colMeans(X)
+
+# Check Theta is storing the ML covariance matrix everywhere else
+  cov(X) * (n-1) / n
+
+# Fit some multivariate linear models ------------------------------------------
+
+  # Define the dependent variables (dvs) of the multivairate linear models
+  dvs &lt;- c(&quot;V1&quot;, &quot;V3&quot;)
+
+  # Define the predictors (ivs) of the multivairate linear models
+  ivs &lt;- c(&quot;V2&quot;, &quot;V4&quot;, &quot;V5&quot;)
+
+  # Create the formula (complicated but flexible way)
+  formula_lm &lt;- paste0(&quot;cbind(&quot;,
+                       paste0(dvs, collapse = &quot;, &quot;),
+                       &quot;) ~ &quot;,
+                       paste0(ivs, collapse = &quot; + &quot;))
+
+  # Check the formula
+  formula_lm
+
+  # Fit the model with the MLM
+  mlm0 &lt;- lm(formula_lm, data = X)
+  coef(mlm0)
+
+# Fit some multivariate linear models using sweep ------------------------------
+
+  # Define positions to sweep over
+  sweep_over &lt;- which(colnames(Theta) %in% ivs)
+
+  # Sweep theta
+  H &lt;- sweepGoodnight(Theta, K = sweep_over)
+
+  # Check out the result
+  H
+
+  # Extract the regression coefficients from H
+  H[c(&quot;int&quot;, ivs), dvs]
+
+  # Compare with coefficients from lm function
+  coef(mlm0)
+
+  # Sweep G
+  sweepGoodnight(G, c(1, sweep_over))[c(&quot;int&quot;, ivs), dvs]
+
+  # Sweep theta (notice we do not sweep over 1)
+  sweepGoodnight(Theta, sweep_over)[c(&quot;int&quot;, ivs), dvs]
+
+# Play around with variable roles ------------------------------------------
+
+  # Define different dependent variables (dvs) for the multivairate linear models
+  dvs &lt;- c(&quot;V1&quot;, &quot;V2&quot;, &quot;V5&quot;)
+
+  # Define different predictors (ivs) for the multivairate linear models
+  ivs &lt;- c(&quot;V3&quot;, &quot;V4&quot;)
+
+  # Create the formula (complicated but flexible way)
+  formula_lm &lt;- paste0(&quot;cbind(&quot;,
+                       paste0(dvs, collapse = &quot;, &quot;),
+                       &quot;) ~ &quot;,
+                       paste0(ivs, collapse = &quot; + &quot;))
+
+  # Fit the model with the MLM
+  mlm1 &lt;- lm(formula_lm, data = X)
+  coef(mlm1)
+
+  # Define positions to sweep over
+  sweep_over &lt;- which(colnames(Theta) %in% ivs)
+
+  # Sweep Theta over new positions
+  sweepGoodnight(Theta, K = sweep_over)[c(&quot;int&quot;, ivs), dvs]</code></pre>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-goodnight:1979" class="csl-entry">
+Goodnight, James H. 1979. <span>“A Tutorial on the SWEEP Operator.”</span> <em>The American Statistician</em> 33 (3): 149–58.
+</div>
+<div id="ref-littleRubin:2002" class="csl-entry">
+Little, R. J. A., and D. B. Rubin. 2002. <em>Statistical Analysis with Missing Data</em>. 2nd ed. Hoboken, NJ: Wiley-Interscience.
+</div>
+<div id="ref-schafer:1997" class="csl-entry">
+Schafer, Joseph L. 1997. <em>Analysis of Incomplete Multivariate Data</em>. Vol. 72. Boca Raton, FL: Chapman &amp; Hall/<span>CRC</span>.
+</div>
+</div>
+</div>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/statistics/">statistics</a>
+  
+  <a class="badge badge-light" href="/tag/regression/">regression</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://symphonious-crostata-aa195e.netlify.app/"><img class="avatar mr-3 avatar-circle" src="/author/edoardo-costantini-edo/avatar_hubc644763d821b4643633e77d54abca59_619947_270x270_fill_q75_lanczos_center.jpg" alt="Edoardo Costantini (Edo)"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://symphonious-crostata-aa195e.netlify.app/">Edoardo Costantini (Edo)</a></h5>
+      <h6 class="card-subtitle">PhD Researcher</h6>
+      <p class="card-text">My research interests are imputation of missing data and principal component analysis.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:e.costantini@tilburguniversity.edu" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/EdoardoCostantini?tab=repositories" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/edoardo-costantini-78352b137/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/ridge/">Estimating ridge regression in R</a></li>
+      
+      <li><a href="/post/covmatwt/">Estimating the weighted covariance matrix in R</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+  </div>
+
+  <div class="page-footer">
+    
+    
+    <div class="container">
+      <footer class="site-footer">
+
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    
+    
+      
+      
+      
+      
+      
+      
+      Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a> — the free, <a href="https://github.com/wowchemy/wowchemy-hugo-themes" target="_blank" rel="noopener">open source</a> website builder that empowers creators.
+    
+  </p>
+</footer>
+
+    </div>
+    
+  </div>
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      
+
+    
+    <script src="/js/vendor-bundle.min.3d946de2e8784a477845261d87025092.js"></script>
+
+    
+    
+    
+      
+      
+        <script src="https://cdn.jsdelivr.net/gh/desandro/imagesloaded@v4.1.4/imagesloaded.pkgd.min.js" integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/metafizzy/isotope@v3.0.6/dist/isotope.pkgd.min.js" integrity="sha512-Zq2BOxyhvnRFXu0+WE6ojpZLOU2jdnqbrM1hmVdGzyeCa1DgM3X5Q4A/Is9xA1IkbUeDd7755dNNI/PzSf2Pew==" crossorigin="anonymous"></script>
+      
+
+      
+      
+
+      
+
+      
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js" integrity="sha512-Ypjm0o7jOxAd4hpdoppSEN0TQOC19UtPAqD+4s5AlXmUvbmmS/YMxYqAqarQYyxTnB6/rqip9qcxlNB/3U9Wdg==" crossorigin="anonymous"></script>
+        
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/r.min.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/python.min.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/latex.min.js" crossorigin="anonymous"></script>
+        
+      
+
+    
+
+    
+    
+    
+      <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js" integrity="" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+      
+      <script id="search-hit-fuse-template" type="text/x-template">
+        <div class="search-hit" id="summary-{{key}}">
+          <div class="search-hit-content">
+            <div class="search-hit-name">
+              <a href="{{relpermalink}}">{{title}}</a>
+              <div class="article-metadata search-hit-type">{{type}}</div>
+              <p class="search-hit-description">{{snippet}}</p>
+            </div>
+          </div>
+        </div>
+      </script>
+      
+        <script src="https://cdn.jsdelivr.net/gh/krisk/Fuse@v3.2.1/dist/fuse.min.js" integrity="sha512-o38bmzBGX+hD3JHWUFCDA09btWaqrNmoJ3RXLlrysA7PP01Kgs4UlE4MhelE1v5dJR3+cxlR4qQlotsW7jKsnw==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/julmot/mark.js@8.11.1/dist/jquery.mark.min.js" integrity="sha512-mhbv5DqBMgrWL+32MmsDOt/OAvqr/cHimk6B8y/bx/xS88MVkYGPiVv2ixKVrkywF2qHplNRUvFsAHUdxZ3Krg==" crossorigin="anonymous"></script>
+      
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+      
+      
+      
+      
+      
+      
+      
+    
+
+    
+
+    
+    
+    
+    <script id="page-data" type="application/json">{"use_headroom":true}</script>
+
+    
+    
+      <script src="/js/wowchemy-headroom.208bf5db800f4a4e5a38cf3b67a99a51.js" type="module"></script>
+    
+    
+    
+    
+    
+    
+    
+      
+      
+    
+    
+    <script src="/en/js/wowchemy.min.63639926e24ecfb8040ea052c1077969.js"></script>
+
+    
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+
+
+
+</body>
+</html>

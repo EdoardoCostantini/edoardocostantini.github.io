@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>weights | Edo</title>
+    <link>https://symphonious-crostata-aa195e.netlify.app/tag/weights/</link>
+      <atom:link href="https://symphonious-crostata-aa195e.netlify.app/tag/weights/index.xml" rel="self" type="application/rss+xml" />
+    <description>weights</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 14 Mar 2022 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>https://symphonious-crostata-aa195e.netlify.app/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url>
+      <title>weights</title>
+      <link>https://symphonious-crostata-aa195e.netlify.app/tag/weights/</link>
+    </image>
+    
+    <item>
+      <title>Estimating the weighted covariance matrix in R</title>
+      <link>https://symphonious-crostata-aa195e.netlify.app/post/covmatwt/</link>
+      <pubDate>Mon, 14 Mar 2022 00:00:00 +0000</pubDate>
+      <guid>https://symphonious-crostata-aa195e.netlify.app/post/covmatwt/</guid>
+      <description>
+&lt;script src=&#34;https://symphonious-crostata-aa195e.netlify.app/post/covmatwt/index_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+&lt;div id=&#34;TOC&#34;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#introduction&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;1&lt;/span&gt; Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#learn-by-coding&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2&lt;/span&gt; Learn by coding&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#example&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.1&lt;/span&gt; Example&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#computing-the-weighted-covariance-matrix-manually&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2&lt;/span&gt; Computing the weighted covariance matrix manually&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#exploring-the-statscov.wt-function-code&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.1&lt;/span&gt; Exploring the &lt;code&gt;stats::cov.wt()&lt;/code&gt; function code&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#reproducing-the-internal-steps&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.2&lt;/span&gt; Reproducing the internal steps&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#mathematical-formula-and-alternative-r-computations&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.3&lt;/span&gt; Mathematical formula and alternative R computations&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#unbiased-weighted-covariance-matrix&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.3.1&lt;/span&gt; Unbiased weighted covariance matrix&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#maximum-likelihood-weighted-covariance-matrix&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.3.2&lt;/span&gt; Maximum Likelihood weighted covariance matrix&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#relationship-with-the-matrix-of-sufficient-statistics&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.4&lt;/span&gt; Relationship with the matrix of sufficient statistics&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#tldr-just-give-me-the-code&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;3&lt;/span&gt; TL;DR, just give me the code!&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;div id=&#34;introduction&#34; class=&#34;section level1&#34; number=&#34;1&#34;&gt;
+&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;1&lt;/span&gt; Introduction&lt;/h1&gt;
+&lt;p&gt;In a sample made of groups of different sizes, descriptive statistics like the mean and the covariance between variables can be computed by assigning proper weights to account for the difference in group sizes.
+Wights are generally normalized (i.e., &lt;span class=&#34;math inline&#34;&gt;\(\sum_{i = 1}^{n} w_i = 1\)&lt;/span&gt;).&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;learn-by-coding&#34; class=&#34;section level1&#34; number=&#34;2&#34;&gt;
+&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;2&lt;/span&gt; Learn by coding&lt;/h1&gt;
+&lt;div id=&#34;example&#34; class=&#34;section level2&#34; number=&#34;2.1&#34;&gt;
+&lt;h2&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.1&lt;/span&gt; Example&lt;/h2&gt;
+&lt;p&gt;Now, let’s consider a very simple example.
+Say that you have a dataset with two variables and that you have a vector of weights defining how important each observation should be.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Initial simple example -------------------------------------------------------
+
+  # Get the dataset used in the example of stats::cov.wt()
+  xy &amp;lt;- cbind(x = 1:10, y = c(1:3, 8:5, 8:10))
+
+  # Define non-negative weights (as in example of stats::cov.wt())
+  wi &amp;lt;- c(0,0,0,1,1,1,1,1,0,0)
+
+  # Get the weighted estimate with the default methods
+  covwt_stats &amp;lt;- stats::cov.wt(xy, wt = wi) # i.e. method = &amp;quot;unbiased&amp;quot;
+
+  # Compare unweighted and weighted means
+  data.frame(uw = colMeans(xy),
+             select = colMeans(xy[wi == 1, ]),
+             wg = covwt_stats$center)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##    uw select  wg
+## x 5.5    6.0 6.0
+## y 5.9    6.8 6.8&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Compare unweighted and weighted covariance matrix
+  data.frame(uw = c(cov(xy)),
+             select = c(cov(xy[wi == 1, ])),
+             wg = c(covwt_stats$cov),
+             row.names = c(sapply(colnames(cov(xy)), paste0, rownames(cov(xy))))
+  )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          uw select   wg
+## xx 9.166667    2.5  2.5
+## xy 8.055556   -0.5 -0.5
+## yx 8.055556   -0.5 -0.5
+## yy 9.433333    1.7  1.7&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note how by weighting with a vector of 0 and 1s we are basically saying that the observations with a 0 will be excluded from the count.
+They are weighted to have 0 impact on the computation of the descriptive statistics.
+This is clear when you compare the results of the &lt;code&gt;select&lt;/code&gt; and &lt;code&gt;wg&lt;/code&gt; columns.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;computing-the-weighted-covariance-matrix-manually&#34; class=&#34;section level2&#34; number=&#34;2.2&#34;&gt;
+&lt;h2&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2&lt;/span&gt; Computing the weighted covariance matrix manually&lt;/h2&gt;
+&lt;p&gt;We could replicate the results of the weighting simply by selecting a subset of the original data because all observations were either weighted 0 or equally (1).
+When this is not the case, weighting is slightly more complicated.&lt;/p&gt;
+&lt;div id=&#34;exploring-the-statscov.wt-function-code&#34; class=&#34;section level3&#34; number=&#34;2.2.1&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.1&lt;/span&gt; Exploring the &lt;code&gt;stats::cov.wt()&lt;/code&gt; function code&lt;/h3&gt;
+&lt;p&gt;Let’s look at how the &lt;code&gt;cov.wt()&lt;/code&gt; function works more in depth.
+The internal code of the function is the following:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Examine the internal code of stats::cov.wt() ---------------------------------
+
+  cov.wt&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## function (x, wt = rep(1/nrow(x), nrow(x)), cor = FALSE, center = TRUE, 
+##     method = c(&amp;quot;unbiased&amp;quot;, &amp;quot;ML&amp;quot;)) 
+## {
+##     if (is.data.frame(x)) 
+##         x &amp;lt;- as.matrix(x)
+##     else if (!is.matrix(x)) 
+##         stop(&amp;quot;&amp;#39;x&amp;#39; must be a matrix or a data frame&amp;quot;)
+##     if (!all(is.finite(x))) 
+##         stop(&amp;quot;&amp;#39;x&amp;#39; must contain finite values only&amp;quot;)
+##     n &amp;lt;- nrow(x)
+##     if (with.wt &amp;lt;- !missing(wt)) {
+##         if (length(wt) != n) 
+##             stop(&amp;quot;length of &amp;#39;wt&amp;#39; must equal the number of rows in &amp;#39;x&amp;#39;&amp;quot;)
+##         if (any(wt &amp;lt; 0) || (s &amp;lt;- sum(wt)) == 0) 
+##             stop(&amp;quot;weights must be non-negative and not all zero&amp;quot;)
+##         wt &amp;lt;- wt/s
+##     }
+##     if (is.logical(center)) {
+##         center &amp;lt;- if (center) 
+##             colSums(wt * x)
+##         else 0
+##     }
+##     else {
+##         if (length(center) != ncol(x)) 
+##             stop(&amp;quot;length of &amp;#39;center&amp;#39; must equal the number of columns in &amp;#39;x&amp;#39;&amp;quot;)
+##     }
+##     x &amp;lt;- sqrt(wt) * sweep(x, 2, center, check.margin = FALSE)
+##     cov &amp;lt;- switch(match.arg(method), unbiased = crossprod(x)/(1 - 
+##         sum(wt^2)), ML = crossprod(x))
+##     y &amp;lt;- list(cov = cov, center = center, n.obs = n)
+##     if (with.wt) 
+##         y$wt &amp;lt;- wt
+##     if (cor) {
+##         Is &amp;lt;- 1/sqrt(diag(cov))
+##         R &amp;lt;- cov
+##         R[] &amp;lt;- Is * cov * rep(Is, each = nrow(cov))
+##         y$cor &amp;lt;- R
+##     }
+##     y
+## }
+## &amp;lt;bytecode: 0x7fd229e352d0&amp;gt;
+## &amp;lt;environment: namespace:stats&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note the following:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The first thing to pay attention to is that the function can &lt;strong&gt;compute&lt;/strong&gt; the weighted covariance matrix &lt;strong&gt;in two ways&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;unbiased, using &lt;code&gt;corssprod(x) / (1 - sum(wt^2))&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;ML (or maximum likelihood), using &lt;code&gt;corssprod(x)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Note that the &lt;code&gt;wt&lt;/code&gt; object is divided by the sum of the values it is storing, which amounts to &lt;strong&gt;normalising&lt;/strong&gt; the weights.
+This happens with &lt;code&gt;wt &amp;lt;- wt/s&lt;/code&gt; with &lt;code&gt;s&lt;/code&gt; being created inside an if statement as &lt;code&gt;s &amp;lt;- sum(wt)&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;x&lt;/code&gt; is &lt;strong&gt;centered&lt;/strong&gt; on the normalized weigthed means using the &lt;code&gt;sweep&lt;/code&gt; function&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;x&lt;/code&gt; is &lt;strong&gt;weighted&lt;/strong&gt; by multiplying by &lt;code&gt;sqrt(wt)&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div id=&#34;reproducing-the-internal-steps&#34; class=&#34;section level3&#34; number=&#34;2.2.2&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.2&lt;/span&gt; Reproducing the internal steps&lt;/h3&gt;
+&lt;p&gt;First, we’ll &lt;strong&gt;set up&lt;/strong&gt; a few objects we need to replicate manually what happens inside the &lt;code&gt;stats::cov.wt()&lt;/code&gt; function.
+We need to define a dataset, a vector of weights, a method to compute descriptives, and based on these we will also create an object to store the number of rows (&lt;code&gt;n&lt;/code&gt;).
+As a vector of weights we sample random values between 0 and 1.
+We can think of this as an attempt to weight each observation for the probability of sampling them from a population.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set up manual computation of cov.wt() ----------------------------------------
+
+  # Assign values to the function arguments
+  x      &amp;lt;- xy                     # data
+  set.seed(20220314)
+  wi     &amp;lt;- runif(length(wi), min = 0, max = 1)
+  method &amp;lt;- &amp;quot;ML&amp;quot;                   # use Maximum Likelihood for estimation
+
+  # Assign values to some of the internal objects
+  n &amp;lt;- nrow(x)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, we want to make sure we &lt;strong&gt;normalize the weights&lt;/strong&gt;.
+In other words we want to make sure the weights sum to 1.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Normalize weights ------------------------------------------------------------
+
+  # Normalise weights (to sum to 1)
+  wn &amp;lt;- wi / sum(wi)
+
+  # Check they sum to 1
+  sum(wn) == 1&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] TRUE&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then, we want to compute the &lt;strong&gt;vector of &lt;a href=&#34;https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#:~:text=Mathematical%20definition%5Bedit%5D&#34;&gt;weighted means&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Compute the weighted means ---------------------------------------------------
+
+  # Center on weighted mean if required
+  center &amp;lt;- colSums(wn * x)
+
+  # Center X on the weigthed mean
+  x_cent &amp;lt;- sweep(x, 2, center, check.margin = FALSE)
+
+  # Note that the sweep is subtracting the &amp;quot;center&amp;quot; to each value
+  all.equal(
+    sweep(x, 2, center, check.margin = FALSE),
+    t(apply(x, 1, function (i) i - center))
+  )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] TRUE&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note that the weighted mean is computed as:
+&lt;span class=&#34;math display&#34;&gt;\[
+\bar{x} = \sum_{i = 1}^{n} w_i x_i
+\]&lt;/span&gt;
+and that &lt;code&gt;center &amp;lt;- colSums(wn * x)&lt;/code&gt; is doing exactly this.&lt;/p&gt;
+&lt;p&gt;Finally, we want to compute the &lt;strong&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Sample_mean_and_covariance#:~:text=weighted%20covariance%20matrix&#34;&gt;weighted covariance matrix&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Compute the weighted covariance matrix ---------------------------------------
+
+  # Weight (centered) data
+  x_weighted &amp;lt;- sqrt(wn) * x_cent
+
+  # Compute the ML weigthed covariance matrix manually
+  covwt_man &amp;lt;- crossprod(x_weighted)
+
+  # Print the manual weigthed covariance matrix
+  covwt_man&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Compute the ML weigthed covariance matrix with stats::cov.wt()
+  covwt_stats &amp;lt;- cov.wt(xy, wt = wi, method = &amp;quot;ML&amp;quot;, center = TRUE)$cov
+
+  # Compare manual and stats weigthed covariance matrices
+  covwt_man - covwt_stats&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##   x y
+## x 0 0
+## y 0 0&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;mathematical-formula-and-alternative-r-computations&#34; class=&#34;section level2&#34; number=&#34;2.3&#34;&gt;
+&lt;h2&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.3&lt;/span&gt; Mathematical formula and alternative R computations&lt;/h2&gt;
+&lt;div id=&#34;unbiased-weighted-covariance-matrix&#34; class=&#34;section level3&#34; number=&#34;2.3.1&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.3.1&lt;/span&gt; Unbiased weighted covariance matrix&lt;/h3&gt;
+&lt;p&gt;For a given population covariance matrix &lt;span class=&#34;math inline&#34;&gt;\(Q\)&lt;/span&gt;, each element &lt;span class=&#34;math inline&#34;&gt;\(q_{ik}\)&lt;/span&gt; of the &lt;strong&gt;unbiased&lt;/strong&gt; estimation of the weighted covariance matrix &lt;span class=&#34;math inline&#34;&gt;\(\hat{Q}\)&lt;/span&gt; can be computed with the following formula:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[
+q_{ik} = \frac{1}{1 - \sum_{i = 1}^{n} w_i^2} \sum_{i = 1}^{n} w_i (x_{ij} - \bar{x}_j) (x_{ij} - \bar{x}_k)
+\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;with &lt;span class=&#34;math inline&#34;&gt;\(\bar{x}_j\)&lt;/span&gt; being the weighted mean for variable &lt;span class=&#34;math inline&#34;&gt;\(j\)&lt;/span&gt;, and &lt;span class=&#34;math inline&#34;&gt;\(w_i\)&lt;/span&gt; being the normalized weight for a given observation (which we store in the vector &lt;code&gt;wn&lt;/code&gt;).
+The following are alternative ways of computing it with mathematical or R shortcuts:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Alternative computations of the unbiased weighted covariance mat -------------
+
+  # Literal translation of equation
+  1 / (1 - sum(wn^2)) * t(wn * x_cent) %*% (x_cent)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Rearrange denominator
+  t(wn * x_cent) %*% (x_cent) / (1 - sum(wn^2))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Spread wn
+  t(sqrt(wn) * x_cent) %*% (sqrt(wn)*x_cent) / (1 - sum(wn^2))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Replace manual cross-product with R cross-product
+  crossprod(sqrt(wn) * x_cent)/(1 - sum(wn^2))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Compute with stats::cov.wt()
+  cov.wt(xy, wt = wi, method = &amp;quot;unbiased&amp;quot;, center = TRUE)$cov&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 8.320767 6.363485
+## y 6.363485 7.275922&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;maximum-likelihood-weighted-covariance-matrix&#34; class=&#34;section level3&#34; number=&#34;2.3.2&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.3.2&lt;/span&gt; Maximum Likelihood weighted covariance matrix&lt;/h3&gt;
+&lt;p&gt;Each element &lt;span class=&#34;math inline&#34;&gt;\(q_{ik}\)&lt;/span&gt; of the &lt;strong&gt;maximum likelihood&lt;/strong&gt; weighted covariance matrix estimate &lt;span class=&#34;math inline&#34;&gt;\(\hat{Q}\)&lt;/span&gt; can be computed manually with the following formula:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[
+q_{ik} = \frac{1}{\sum_{i = 1}^{n} w_i} \sum_{i = 1}^{n} w_i (x_{ij} - \bar{x}_j) (x_{ij} - \bar{x}_k)
+\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;with &lt;span class=&#34;math inline&#34;&gt;\(\bar{x}_j\)&lt;/span&gt; being the weighted mean for variable &lt;span class=&#34;math inline&#34;&gt;\(j\)&lt;/span&gt;, and &lt;span class=&#34;math inline&#34;&gt;\(w_i\)&lt;/span&gt; being the normalized weight for a given observation.
+The following are alternative ways of computing it with mathematical or R shortcuts:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Alternative computations of the ML weighted covariance mat -------------------
+
+  # R manual cross-product using un-normalised weights
+  1 / sum(wi) * t(wi * x_cent) %*% (x_cent)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Using the normalised weights
+  1 / sum(wn) * t(wn * x_cent) %*% (x_cent)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Dropp the term = 1
+  t(wn * x_cent) %*% (x_cent)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Spread wn
+  t(sqrt(wn) * x_cent) %*% (sqrt(wn) * x_cent)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Replace manual cross-product with R cross-product
+  crossprod(sqrt(wn) * x_cent)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # R cross-product matrix
+  crossprod(x_weighted)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Compute with stats::cov.wt()
+  cov.wt(xy, wt = wi, method = &amp;quot;ML&amp;quot;, center = TRUE)$cov&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 7.102015 5.431419
+## y 5.431419 6.210209&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;relationship-with-the-matrix-of-sufficient-statistics&#34; class=&#34;section level2&#34; number=&#34;2.4&#34;&gt;
+&lt;h2&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.4&lt;/span&gt; Relationship with the matrix of sufficient statistics&lt;/h2&gt;
+&lt;p&gt;Note the relationship between the covariance matrix and the matrix of sufficient statistics is the same as in the &lt;em&gt;unweighted&lt;/em&gt; case: &lt;span class=&#34;math inline&#34;&gt;\(\text{cov} = \frac{T_{\text{obs}}}{n}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Obtain the matrix of sufficient statistics Tobs ------------------------------
+
+  # Define a new weigthing object
+  set.seed(20220314)
+  wi &amp;lt;- runif(length(wi), min = 0, max = 1)
+  wn &amp;lt;- wi / sum(wi)
+
+  # Compute the weighted means of X again
+  center &amp;lt;- colSums(wn * x)
+  x_cent &amp;lt;- sweep(x, 2, center, check.margin = FALSE)
+
+  # &amp;quot;Effective&amp;quot; sample size
+  n &amp;lt;- sum(wi)
+
+  # Number of columns
+  p &amp;lt;- ncol(x)
+
+  # Obtain matrix of sufficient statistics (Tobs)
+  Tobs_lopp &amp;lt;- matrix(0, p, p)
+  for(i in 1:nrow(x)){
+    Tobs_lopp &amp;lt;- Tobs_lopp + wi[i] * (x_cent[i, ]) %*% t(x_cent[i, ])
+  }
+
+  # Obtain matrix of sufficient statistics (Tobs) w/ cross-product shortcut
+  Tobs_cp &amp;lt;- t(wi * x_cent) %*% x_cent
+
+  # Compare loop version and cross-product shortcut
+  Tobs_lopp - Tobs_cp&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##      x            y
+## [1,] 0 3.552714e-15
+## [2,] 0 0.000000e+00&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Assign simpler name and print Tobs
+  (Tobs &amp;lt;- Tobs_cp)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          x        y
+## x 31.08417 23.77229
+## y 23.77229 27.18091&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Convert to a covariance matrix
+  covmat &amp;lt;- Tobs / n
+
+  # Check it&amp;#39;s what you were expecting
+  covmat - cov.wt(xy, wt = wi, method = &amp;quot;ML&amp;quot;, center = TRUE)$cov&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##   x             y
+## x 0 -8.881784e-16
+## y 0 -8.881784e-16&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note the following:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;we are using the normalized weights &lt;code&gt;wn&lt;/code&gt; to center the data, but we are using the un-normalised weights to scale the data contribution to &lt;code&gt;Tobs&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;if we had used the normalized weights, &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; would have been equal to 1 and &lt;code&gt;covmat&lt;/code&gt; would be equal to &lt;code&gt;Tobs&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Obtain the matrix of sufficient statistics Tobs (normalised weights) ---------
+
+  # Convert to a covariance matrix
+  covmat - t(wn * x_cent) %*% x_cent&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##              x y
+## x 0.000000e+00 0
+## y 8.881784e-16 0&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Then, covmat relates to Tobs as
+  (t(wn * x_cent) %*% x_cent * n) - Tobs_cp&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##               x y
+## x  0.000000e+00 0
+## y -3.552714e-15 0&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # So we could say
+  Tobs &amp;lt;- t(wn * x_cent) %*% x_cent * n&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level1&#34; number=&#34;3&#34;&gt;
+&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;3&lt;/span&gt; TL;DR, just give me the code!&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Initial simple example -------------------------------------------------------
+
+  # Get the dataset used in the example of stats::cov.wt()
+  xy &amp;lt;- cbind(x = 1:10, y = c(1:3, 8:5, 8:10))
+
+  # Define non-negative weights (as in example of stats::cov.wt())
+  wi &amp;lt;- c(0,0,0,1,1,1,1,1,0,0)
+
+  # Get the weighted estimate with the default methods
+  covwt_stats &amp;lt;- stats::cov.wt(xy, wt = wi) # i.e. method = &amp;quot;unbiased&amp;quot;
+
+  # Compare unweighted and weighted means
+  data.frame(uw = colMeans(xy),
+             select = colMeans(xy[wi == 1, ]),
+             wg = covwt_stats$center)
+
+  # Compare unweighted and weighted covariance matrix
+  data.frame(uw = c(cov(xy)),
+             select = c(cov(xy[wi == 1, ])),
+             wg = c(covwt_stats$cov),
+             row.names = c(sapply(colnames(cov(xy)), paste0, rownames(cov(xy))))
+  )
+
+# Examine the internal code of stats::cov.wt() ---------------------------------
+
+  cov.wt
+
+# Set up manual computation of cov.wt() ----------------------------------------
+
+  # Assign values to the function arguments
+  x      &amp;lt;- xy                     # data
+  set.seed(20220314)
+  wi     &amp;lt;- runif(length(wi), min = 0, max = 1)
+  method &amp;lt;- &amp;quot;ML&amp;quot;                   # use Maximum Likelihood for estimation
+
+  # Assign values to some of the internal objects
+  n &amp;lt;- nrow(x)
+
+# Normalize weights ------------------------------------------------------------
+
+  # Normalise weights (to sum to 1)
+  wn &amp;lt;- wi / sum(wi)
+
+  # Check they sum to 1
+  sum(wn) == 1
+
+
+# Compute the weighted means ---------------------------------------------------
+
+  # Center on weighted mean if required
+  center &amp;lt;- colSums(wn * x)
+
+  # Center X on the weigthed mean
+  x_cent &amp;lt;- sweep(x, 2, center, check.margin = FALSE)
+
+  # Note that the sweep is subtracting the &amp;quot;center&amp;quot; to each value
+  all.equal(
+    sweep(x, 2, center, check.margin = FALSE),
+    t(apply(x, 1, function (i) i - center))
+  )
+
+
+# Compute the weighted covariance matrix ---------------------------------------
+
+  # Weight (centered) data
+  x_weighted &amp;lt;- sqrt(wn) * x_cent
+
+  # Compute the ML weigthed covariance matrix manually
+  covwt_man &amp;lt;- crossprod(x_weighted)
+
+  # Print the manual weigthed covariance matrix
+  covwt_man
+
+  # Compute the ML weigthed covariance matrix with stats::cov.wt()
+  covwt_stats &amp;lt;- cov.wt(xy, wt = wi, method = &amp;quot;ML&amp;quot;, center = TRUE)$cov
+
+  # Compare manual and stats weigthed covariance matrices
+  covwt_man - covwt_stats
+
+# Alternative computations of the unbiased weighted covariance mat -------------
+
+  # Literal translation of equation
+  1 / (1 - sum(wn^2)) * t(wn * x_cent) %*% (x_cent)
+
+  # Rearrange denominator
+  t(wn * x_cent) %*% (x_cent) / (1 - sum(wn^2))
+
+  # Spread wn
+  t(sqrt(wn) * x_cent) %*% (sqrt(wn)*x_cent) / (1 - sum(wn^2))
+
+  # Replace manual cross-product with R cross-product
+  crossprod(sqrt(wn) * x_cent)/(1 - sum(wn^2))
+
+  # Compute with stats::cov.wt()
+  cov.wt(xy, wt = wi, method = &amp;quot;unbiased&amp;quot;, center = TRUE)$cov
+
+# Alternative computations of the ML weighted covariance mat -------------------
+
+  # R manual cross-product using un-normalised weights
+  1 / sum(wi) * t(wi * x_cent) %*% (x_cent)
+
+  # Using the normalised weights
+  1 / sum(wn) * t(wn * x_cent) %*% (x_cent)
+
+  # Dropp the term = 1
+  t(wn * x_cent) %*% (x_cent)
+
+  # Spread wn
+  t(sqrt(wn) * x_cent) %*% (sqrt(wn) * x_cent)
+
+  # Replace manual cross-product with R cross-product
+  crossprod(sqrt(wn) * x_cent)
+
+  # R cross-product matrix
+  crossprod(x_weighted)
+
+  # Compute with stats::cov.wt()
+  cov.wt(xy, wt = wi, method = &amp;quot;ML&amp;quot;, center = TRUE)$cov
+
+# Obtain the matrix of sufficient statistics Tobs ------------------------------
+
+  # Define a new weigthing object
+  set.seed(20220314)
+  wi &amp;lt;- runif(length(wi), min = 0, max = 1)
+  wn &amp;lt;- wi / sum(wi)
+
+  # Compute the weighted means of X again
+  center &amp;lt;- colSums(wn * x)
+  x_cent &amp;lt;- sweep(x, 2, center, check.margin = FALSE)
+
+  # &amp;quot;Effective&amp;quot; sample size
+  n &amp;lt;- sum(wi)
+
+  # Number of columns
+  p &amp;lt;- ncol(x)
+
+  # Obtain matrix of sufficient statistics (Tobs)
+  Tobs_lopp &amp;lt;- matrix(0, p, p)
+  for(i in 1:nrow(x)){
+    Tobs_lopp &amp;lt;- Tobs_lopp + wi[i] * (x_cent[i, ]) %*% t(x_cent[i, ])
+  }
+
+  # Obtain matrix of sufficient statistics (Tobs) w/ cross-product shortcut
+  Tobs_cp &amp;lt;- t(wi * x_cent) %*% x_cent
+
+  # Compare loop version and cross-product shortcut
+  Tobs_lopp - Tobs_cp
+
+  # Assign simpler name and print Tobs
+  (Tobs &amp;lt;- Tobs_cp)
+
+  # Convert to a covariance matrix
+  covmat &amp;lt;- Tobs / n
+
+  # Check it&amp;#39;s what you were expecting
+  covmat - cov.wt(xy, wt = wi, method = &amp;quot;ML&amp;quot;, center = TRUE)$cov
+
+# Obtain the matrix of sufficient statistics Tobs (normalised weights) ---------
+
+  # Convert to a covariance matrix
+  covmat - t(wn * x_cent) %*% x_cent
+
+  # Then, covmat relates to Tobs as
+  (t(wn * x_cent) %*% x_cent * n) - Tobs_cp
+
+  # So we could say
+  Tobs &amp;lt;- t(wn * x_cent) %*% x_cent * n&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
