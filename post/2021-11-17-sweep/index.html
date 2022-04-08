@@ -1,639 +1,4 @@
-<!DOCTYPE html><html lang="en-us" >
-
-
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  
-  
-  
-    <meta name="generator" content="Wowchemy 5.4.0 for Hugo" />
-  
-
-  
-  
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-  
-  
-
-  
-  
-  
-
-  
-  
-  
-  
-  
-    
-    
-    
-  
-  
-
-  <meta name="author" content="Edoardo Costantini (Edo)" />
-
-  
-  
-  
-    
-  
-  <meta name="description" content="1 Introduction 2 Learn by coding  2.1 Coding a sweep function in R 2.2 Using the sweep operator to estimate regression models  2.2.1 Compute the augmented covariance matrix 2." />
-
-  
-  <link rel="alternate" hreflang="en-us" href="https://symphonious-crostata-aa195e.netlify.app/post/sweep/" />
-
-  
-  
-  
-    <meta name="theme-color" content="#1565c0" />
-  
-
-  
-  
-    
-    <script src="/js/mathjax-config.js"></script>
-  
-
-  
-
-  <link rel="stylesheet" href="/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css" media="print" onload="this.media='all'">
-
-  
-  
-  
-    
-    
-
-    
-    
-    
-    
-      
-      
-    
-    
-    
-
-    
-    
-    
-      
-    
-    
-      
-      
-        
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/github.min.css" crossorigin="anonymous" title="hl-light" media="print" onload="this.media='all'">
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" media="print" onload="this.media='all'" disabled>
-        
-      
-    
-
-    
-    
-    
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.css" integrity="" crossorigin="anonymous" media="print" onload="this.media='all'">
-    
-
-    
-
-    
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-      
-      
-
-      
-      
-
-      
-    
-  
-
-  
-  
-  
-  
-  
-  <link rel="stylesheet" href="/css/wowchemy.3f856681d393c81bcc1788511efeeb64.css" />
-
-  
-
-
-
-  
-
-  
-
-  
-
-
-
-
-  
-  
-  
-
-  
-
-  
-    <link rel="manifest" href="/manifest.webmanifest" />
-  
-
-  <link rel="icon" type="image/png" href="/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_32x32_fill_lanczos_center_3.png" />
-  <link rel="apple-touch-icon" type="image/png" href="/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_180x180_fill_lanczos_center_3.png" />
-
-  <link rel="canonical" href="https://symphonious-crostata-aa195e.netlify.app/post/sweep/" />
-
-  
-  
-  
-  
-  
-  
-  
-  
-    
-    
-  
-  
-
-  
-  
-    
-    
-  
-  <meta property="twitter:card" content="summary" />
-  
-  <meta property="og:site_name" content="Edo" />
-  <meta property="og:url" content="https://symphonious-crostata-aa195e.netlify.app/post/sweep/" />
-  <meta property="og:title" content="The sweep operator | Edo" />
-  <meta property="og:description" content="1 Introduction 2 Learn by coding  2.1 Coding a sweep function in R 2.2 Using the sweep operator to estimate regression models  2.2.1 Compute the augmented covariance matrix 2." /><meta property="og:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
-    <meta property="twitter:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
-  
-    
-      <meta
-        property="article:published_time"
-        content="2021-11-17T00:00:00&#43;00:00"
-      />
-    
-    <meta property="article:modified_time" content="2022-04-02T15:33:01&#43;02:00">
-  
-
-  
-
-
-    
-
-
-
-
-
-
-  
-
-
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://symphonious-crostata-aa195e.netlify.app/post/sweep/"
-  },
-  "headline": "The sweep operator",
-  
-  "datePublished": "2021-11-17T00:00:00Z",
-  "dateModified": "2022-04-02T15:33:01+02:00",
-  
-  "author": {
-    "@type": "Person",
-    "name": "Edoardo Costantini (Edo)"
-  },
-  
-  "publisher": {
-    "@type": "Organization",
-    "name": "Edo",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://symphonious-crostata-aa195e.netlify.app/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_192x192_fill_lanczos_center_3.png"
-    }
-  },
-  "description": "1 Introduction 2 Learn by coding  2.1 Coding a sweep function in R 2.2 Using the sweep operator to estimate regression models  2.2.1 Compute the augmented covariance matrix 2."
-}
-</script>
-
-  
-
-  
-
-  
-
-  
-
-
-
-
-
-  <title>The sweep operator | Edo</title>
-</head>
-
-
-<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper   " data-wc-page-id="e7ade286a1e858aadfd2e69770bb61ac" >
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  <script src="/js/wowchemy-init.min.13d3c1ccc66961c64e937f4e854fdd1e.js"></script>
-
-  
-
-
-<aside class="search-modal" id="search">
-  <div class="container">
-    <section class="search-header">
-
-      <div class="row no-gutters justify-content-between mb-3">
-        <div class="col-6">
-          <h1>Search</h1>
-        </div>
-        <div class="col-6 col-search-close">
-          <a class="js-search" href="#" aria-label="Close"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
-        </div>
-      </div>
-
-      <div id="search-box">
-        
-        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
-        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control"
-        aria-label="Search...">
-        
-      </div>
-
-      
-      
-
-      
-
-    </section>
-    <section class="section-search-results">
-
-      <div id="search-hits">
-        
-      </div>
-
-    </section>
-  </div>
-</aside>
-
-
-
-  <div class="page-header">
-    
-
-
-
-
-
-
-
-
-
-
-
-
-<header class="header--fixed">
-  <nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
-    <div class="container-xl">
-
-      
-      <div class="d-none d-lg-inline-flex">
-        <a class="navbar-brand" href="/">Edo</a>
-      </div>
-      
-
-      
-      <button type="button" class="navbar-toggler" data-toggle="collapse"
-              data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
-      <span><i class="fas fa-bars"></i></span>
-      </button>
-      
-
-      
-      <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
-        <a class="navbar-brand" href="/">Edo</a>
-      </div>
-      
-
-      
-      
-      <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
-
-        
-        <ul class="navbar-nav d-md-inline-flex">
-          
-
-          
-
-          
-          
-          
-            
-          
-
-          
-
-          
-          
-          
-          
-
-          
-            
-              
-              
-            
-            
-          
-
-          <li class="nav-item">
-            <a class="nav-link  active" href="/post/"><span>Posts</span></a>
-          </li>
-
-          
-          
-
-        
-
-          
-        </ul>
-      </div>
-
-      <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
-
-        
-        
-          
-        
-
-        
-        
-        <li class="nav-item">
-          <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
-        </li>
-        
-
-        
-        
-        <li class="nav-item dropdown theme-dropdown">
-          <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
-            <i class="fas fa-moon" aria-hidden="true"></i>
-          </a>
-          <div class="dropdown-menu">
-            <a href="#" class="dropdown-item js-set-theme-light">
-              <span>Light</span>
-            </a>
-            <a href="#" class="dropdown-item js-set-theme-dark">
-              <span>Dark</span>
-            </a>
-            <a href="#" class="dropdown-item js-set-theme-auto">
-              <span>Automatic</span>
-            </a>
-          </div>
-        </li>
-        
-
-        
-        
-
-      </ul>
-
-    </div>
-  </nav>
-</header>
-
-
-  </div>
-
-  <div class="page-body">
-    <article class="article">
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-  
-  
-<div class="article-container pt-3">
-  <h1>The sweep operator</h1>
-
-  
-
-  
-    
-
-
-<div class="article-metadata">
-
-  
-  
-
-  
-  <span class="article-date">
-    
-    
-      
-          Last updated on
-      
-    
-    Apr 2, 2022
-  </span>
-  
-
-  
-
-  
-
-  
-  
-  
-  
-  
-  
-
-  
-  
-  <span class="middot-divider"></span>
-  <span class="article-categories">
-    <i class="fas fa-folder mr-1"></i><a href="/category/tutorials/">Tutorials</a>, <a href="/category/drafts/">Drafts</a></span>
-  
-
-</div>
-
-    
-
-
-
-
-
-  
-</div>
-
-
-
-  <div class="article-container">
-
-    <div class="article-style">
-      
-<script src="https://symphonious-crostata-aa195e.netlify.app/post/sweep/index_files/header-attrs/header-attrs.js"></script>
+<script src="index_files/header-attrs-2.11/header-attrs.js"></script>
 
 <div id="TOC">
 <ul>
@@ -805,11 +170,17 @@ It usually looks like this:</p>
 <p>with <span class="math inline">\(\mu_1, \dots, \mu_p\)</span>, <span class="math inline">\(\sigma^2_1, \dots, \sigma^2_p\)</span>, and <span class="math inline">\(\sigma_{jk}\)</span> being the means, variances and covariances of the variables in our dataset, respectively.</p>
 <p>In R, we can obtain this matrix in just a few steps starting from our dataset <code>X</code>:</p>
 <ul>
-<li><p><strong>Augment the original data</strong> with a column of 1s on the left</p>
+<li><p><strong>Augment the original data</strong> with a column of 1s on the left.</p>
+<p>In R, we can use the <code>cbind()</code> function to append a column of 1s to the left of X.
+Keep in mind that we need to perform matrix operations with the resulting object.
+Therefore, we need to make sure we are working with an R object of the class <code>matrix</code> instead of <code>data.frame</code>.</p>
 <pre class="r"><code># Obtain the augmented covariance matrix ---------------------------------------
 
 # Augment X
-  X_aug &lt;- cbind(int = 1, as.matrix(X))
+  X_aug &lt;- cbind(int = 1, X)
+
+# Transform data.frame to matrix
+  X_aug &lt;- as.matrix(X_aug)
 
 # Glance at the first 6 rows of X_aug
   head(X_aug)</code></pre>
@@ -853,7 +224,7 @@ G =
 <p><span class="math display">\[
 \Theta =
 \begin{bmatrix}
--1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
+1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
 \mu_1 &amp; \sigma^2_1 &amp; ... &amp; \sigma_{1p}\\
 ... &amp; ... &amp; ... &amp; ...\\
 \mu_p &amp; \sigma_{1p} &amp; ... &amp; \sigma^2_{p}
@@ -887,7 +258,6 @@ G =
 <p>Pay attention to a few of things:</p>
 <ul>
 <li>The covariance matrix store in <span class="math inline">\(\Theta\)</span> is the Maximum Likelihood version (denominator should be <code>n</code> instead of the default <code>n-1</code>)</li>
-<li>The first element of the <code>Theta</code> object is negative, which indicates the matrix has been swept over that row and column.</li>
 <li>We could have constructed the object <code>Theta</code> just by using <code>colMeans(X)</code> and <code>cov(X) * (n-1) / n</code> directly.
 However, it is important to note the relationship between <code>Tmat</code>, <code>G</code>, and <code>Theta</code>.
 In particular, pay attention to the fact that <code>Theta</code> is the result of sweeping <code>G</code> in the first position.
@@ -900,7 +270,7 @@ I will get back to this point in a sec.</li>
 <h3><span class="header-section-number">2.2.2</span> Estimate multivariate linear models</h3>
 <p>Now let’s see how we can use <span class="math inline">\(\Theta\)</span> to estimate any multivariate linear model involving the variables in our dataset.
 First, let’s see how we would obtain these linear models in R with standard procedures.
-Say we want to regress V1 and V3 on V2, V4, and V5.
+Say we want to regress V1 and V3 on V2, V4, and V5 from the <code>X</code> dataset.
 We will start by creating a formula for an <code>lm</code> function return the model we want.</p>
 <pre class="r"><code># Fit some multivariate linear models ------------------------------------------
 
@@ -911,17 +281,17 @@ We will start by creating a formula for an <code>lm</code> function return the m
   ivs &lt;- c(&quot;V2&quot;, &quot;V4&quot;, &quot;V5&quot;)
 
   # Create the formula (complicated but flexible way)
-  formula_lm &lt;- paste0(&quot;cbind(&quot;,
+  formula_mlm &lt;- paste0(&quot;cbind(&quot;,
                        paste0(dvs, collapse = &quot;, &quot;),
                        &quot;) ~ &quot;,
                        paste0(ivs, collapse = &quot; + &quot;))
 
   # Check the formula
-  formula_lm</code></pre>
+  formula_mlm</code></pre>
 <pre><code>## [1] &quot;cbind(V1, V3) ~ V2 + V4 + V5&quot;</code></pre>
-<p>Next,</p>
-<pre class="r"><code>  # Fit the model with the MLM
-  mlm0 &lt;- lm(formula_lm, data = X)
+<p>Next, fit the multivariate linear model with the <code>lm()</code> R function:</p>
+<pre class="r"><code>  # Fit the model with the lm function
+  mlm0 &lt;- lm(formula_mlm, data = X)
   coef(mlm0)</code></pre>
 <pre><code>##                      V1          V3
 ## (Intercept) -45.7660931 135.1150663
@@ -929,7 +299,7 @@ We will start by creating a formula for an <code>lm</code> function return the m
 ## V4            0.1455375  -1.0485195
 ## V5            0.6507081  -0.6319507</code></pre>
 <p>These are our intercepts, and regression coefficients for the multivariate linear model.
-Given a <span class="math inline">\(\Theta\)</span> matrix, we can sweep on the positions of the independent variables to obtain the regression coefficients of all the multivariate linear model with the variables we did not sweep over as dependent variables.
+Given a <span class="math inline">\(\Theta\)</span> matrix, we can sweep on the positions of the independent variables and obtain the regression coefficients of the multivariate linear model with the variables we did not sweep over as dependent variables.
 First, let’s define a vector of positions to sweep over based on the variable names we stored in <code>ivs</code>.</p>
 <pre class="r"><code># Fit some multivariate linear models using sweep ------------------------------
 
@@ -951,7 +321,7 @@ First, let’s define a vector of positions to sweep over based on the variable 
 <p>Our regression coefficients are here in this new matrix.
 We just need to find them.
 We know that the dependent variables are V1 and V3, and that the independent variables are V2, V4, and V5.
-Let’s index the columns of <code>H</code> with the names of the dvs and the rows with the names of the ivs.</p>
+Let’s index the rows of <code>H</code> with the names of the ivs (and the name of the intercept row) and the columns with the names of the dvs.</p>
 <pre class="r"><code>  # Extract the regression coefficients from H
   H[c(&quot;int&quot;, ivs), dvs]</code></pre>
 <pre><code>##              V1          V3
@@ -977,15 +347,9 @@ In code:</p>
 ## V2   -0.2747666  -0.6559719
 ## V4    0.1455375  -1.0485195
 ## V5    0.6507081  -0.6319507</code></pre>
-<pre class="r"><code>  # Sweep theta (notice we do not sweep over 1)
-  sweepGoodnight(Theta, sweep_over)[c(&quot;int&quot;, ivs), dvs]</code></pre>
-<pre><code>##              V1          V3
-## int -45.7660931 135.1150663
-## V2   -0.2747666  -0.6559719
-## V4    0.1455375  -1.0485195
-## V5    0.6507081  -0.6319507</code></pre>
 <p>Therefore, you can think of finding the coefficients of a multivariate linear model using the sweep operator as:</p>
 <ul>
+<li>SWEEP(1, <span class="math inline">\(k_1, \dots, k_K\)</span>)[G] or as,</li>
 <li>SWEEP(<span class="math inline">\(k_1, \dots, k_K\)</span>)[SWEEP(1)[G]] or as,</li>
 <li>SWEEP(<span class="math inline">\(k_1, \dots, k_K\)</span>)[<span class="math inline">\(\Theta\)</span>]</li>
 </ul>
@@ -1001,13 +365,13 @@ You will discover the magic of the sweep operator.</p>
   ivs &lt;- c(&quot;V3&quot;, &quot;V4&quot;)
 
   # Create the formula (complicated but flexible way)
-  formula_lm &lt;- paste0(&quot;cbind(&quot;,
+  formula_mlm &lt;- paste0(&quot;cbind(&quot;,
                        paste0(dvs, collapse = &quot;, &quot;),
                        &quot;) ~ &quot;,
                        paste0(ivs, collapse = &quot; + &quot;))
 
   # Fit the model with the MLM
-  mlm1 &lt;- lm(formula_lm, data = X)
+  mlm1 &lt;- lm(formula_mlm, data = X)
   coef(mlm1)</code></pre>
 <pre><code>##                      V1         V2          V5
 ## (Intercept) 18.63186149 78.3607367 131.2824064
@@ -1126,7 +490,10 @@ H_fm - H_sg
 # Obtain the augmented covariance matrix ---------------------------------------
 
 # Augment X
-  X_aug &lt;- cbind(int = 1, as.matrix(X))
+  X_aug &lt;- cbind(int = 1, X)
+
+# Transform data.frame to matrix
+  X_aug &lt;- as.matrix(X_aug)
 
 # Glance at the first 6 rows of X_aug
   head(X_aug)
@@ -1158,16 +525,16 @@ H_fm - H_sg
   ivs &lt;- c(&quot;V2&quot;, &quot;V4&quot;, &quot;V5&quot;)
 
   # Create the formula (complicated but flexible way)
-  formula_lm &lt;- paste0(&quot;cbind(&quot;,
+  formula_mlm &lt;- paste0(&quot;cbind(&quot;,
                        paste0(dvs, collapse = &quot;, &quot;),
                        &quot;) ~ &quot;,
                        paste0(ivs, collapse = &quot; + &quot;))
 
   # Check the formula
-  formula_lm
+  formula_mlm
 
-  # Fit the model with the MLM
-  mlm0 &lt;- lm(formula_lm, data = X)
+  # Fit the model with the lm function
+  mlm0 &lt;- lm(formula_mlm, data = X)
   coef(mlm0)
 
 # Fit some multivariate linear models using sweep ------------------------------
@@ -1190,9 +557,6 @@ H_fm - H_sg
   # Sweep G
   sweepGoodnight(G, c(1, sweep_over))[c(&quot;int&quot;, ivs), dvs]
 
-  # Sweep theta (notice we do not sweep over 1)
-  sweepGoodnight(Theta, sweep_over)[c(&quot;int&quot;, ivs), dvs]
-
 # Play around with variable roles ------------------------------------------
 
   # Define different dependent variables (dvs) for the multivairate linear models
@@ -1202,13 +566,13 @@ H_fm - H_sg
   ivs &lt;- c(&quot;V3&quot;, &quot;V4&quot;)
 
   # Create the formula (complicated but flexible way)
-  formula_lm &lt;- paste0(&quot;cbind(&quot;,
+  formula_mlm &lt;- paste0(&quot;cbind(&quot;,
                        paste0(dvs, collapse = &quot;, &quot;),
                        &quot;) ~ &quot;,
                        paste0(ivs, collapse = &quot; + &quot;))
 
   # Fit the model with the MLM
-  mlm1 &lt;- lm(formula_lm, data = X)
+  mlm1 &lt;- lm(formula_mlm, data = X)
   coef(mlm1)
 
   # Define positions to sweep over
@@ -1231,331 +595,3 @@ Schafer, Joseph L. 1997. <em>Analysis of Incomplete Multivariate Data</em>. Vol.
 </div>
 </div>
 </div>
-
-    </div>
-
-    
-
-
-
-
-
-
-<div class="article-tags">
-  
-  <a class="badge badge-light" href="/tag/statistics/">statistics</a>
-  
-  <a class="badge badge-light" href="/tag/regression/">regression</a>
-  
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-
-
-
-  
-  
-  
-    
-  
-  
-  
-  <div class="media author-card content-widget-hr">
-    
-      
-      <a href="https://symphonious-crostata-aa195e.netlify.app/"><img class="avatar mr-3 avatar-circle" src="/author/edoardo-costantini-edo/avatar_hubc644763d821b4643633e77d54abca59_619947_270x270_fill_q75_lanczos_center.jpg" alt="Edoardo Costantini (Edo)"></a>
-    
-
-    <div class="media-body">
-      <h5 class="card-title"><a href="https://symphonious-crostata-aa195e.netlify.app/">Edoardo Costantini (Edo)</a></h5>
-      <h6 class="card-subtitle">PhD Researcher</h6>
-      <p class="card-text">My research interests are imputation of missing data and principal component analysis.</p>
-      <ul class="network-icon" aria-hidden="true">
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
-    <li>
-      <a href="mailto:e.costantini@tilburguniversity.edu" >
-        <i class="fas fa-envelope"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
-      
-    
-    <li>
-      <a href="https://github.com/EdoardoCostantini?tab=repositories" target="_blank" rel="noopener">
-        <i class="fab fa-github"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
-      
-    
-    <li>
-      <a href="https://www.linkedin.com/in/edoardo-costantini-78352b137/" target="_blank" rel="noopener">
-        <i class="fab fa-linkedin"></i>
-      </a>
-    </li>
-  
-</ul>
-
-    </div>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <div class="article-widget content-widget-hr">
-    <h3>Related</h3>
-    <ul>
-      
-      <li><a href="/post/ridge/">Estimating ridge regression in R</a></li>
-      
-      <li><a href="/post/covmatwt/">Estimating the weighted covariance matrix in R</a></li>
-      
-    </ul>
-  </div>
-  
-
-
-
-
-
-  </div>
-</article>
-  </div>
-
-  <div class="page-footer">
-    
-    
-    <div class="container">
-      <footer class="site-footer">
-
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-
-
-
-
-
-
-  <p class="powered-by">
-    
-    
-    
-      
-      
-      
-      
-      
-      
-      Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a> — the free, <a href="https://github.com/wowchemy/wowchemy-hugo-themes" target="_blank" rel="noopener">open source</a> website builder that empowers creators.
-    
-  </p>
-</footer>
-
-    </div>
-    
-  </div>
-
-  
-<div id="modal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Cite</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <pre><code class="tex hljs"></code></pre>
-      </div>
-      <div class="modal-footer">
-        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
-          <i class="fas fa-copy"></i> Copy
-        </a>
-        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
-          <i class="fas fa-download"></i> Download
-        </a>
-        <div id="modal-error"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-      
-
-    
-    <script src="/js/vendor-bundle.min.3d946de2e8784a477845261d87025092.js"></script>
-
-    
-    
-    
-      
-      
-        <script src="https://cdn.jsdelivr.net/gh/desandro/imagesloaded@v4.1.4/imagesloaded.pkgd.min.js" integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/gh/metafizzy/isotope@v3.0.6/dist/isotope.pkgd.min.js" integrity="sha512-Zq2BOxyhvnRFXu0+WE6ojpZLOU2jdnqbrM1hmVdGzyeCa1DgM3X5Q4A/Is9xA1IkbUeDd7755dNNI/PzSf2Pew==" crossorigin="anonymous"></script>
-      
-
-      
-      
-
-      
-
-      
-        
-        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js" integrity="sha512-Ypjm0o7jOxAd4hpdoppSEN0TQOC19UtPAqD+4s5AlXmUvbmmS/YMxYqAqarQYyxTnB6/rqip9qcxlNB/3U9Wdg==" crossorigin="anonymous"></script>
-        
-        
-        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/r.min.js" crossorigin="anonymous"></script>
-        
-        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/python.min.js" crossorigin="anonymous"></script>
-        
-        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/latex.min.js" crossorigin="anonymous"></script>
-        
-      
-
-    
-
-    
-    
-    
-      <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js" integrity="" crossorigin="anonymous"></script>
-    
-
-    
-    
-
-    
-    
-    
-      
-      <script id="search-hit-fuse-template" type="text/x-template">
-        <div class="search-hit" id="summary-{{key}}">
-          <div class="search-hit-content">
-            <div class="search-hit-name">
-              <a href="{{relpermalink}}">{{title}}</a>
-              <div class="article-metadata search-hit-type">{{type}}</div>
-              <p class="search-hit-description">{{snippet}}</p>
-            </div>
-          </div>
-        </div>
-      </script>
-      
-        <script src="https://cdn.jsdelivr.net/gh/krisk/Fuse@v3.2.1/dist/fuse.min.js" integrity="sha512-o38bmzBGX+hD3JHWUFCDA09btWaqrNmoJ3RXLlrysA7PP01Kgs4UlE4MhelE1v5dJR3+cxlR4qQlotsW7jKsnw==" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/gh/julmot/mark.js@8.11.1/dist/jquery.mark.min.js" integrity="sha512-mhbv5DqBMgrWL+32MmsDOt/OAvqr/cHimk6B8y/bx/xS88MVkYGPiVv2ixKVrkywF2qHplNRUvFsAHUdxZ3Krg==" crossorigin="anonymous"></script>
-      
-    
-
-    
-    
-
-    
-    
-    
-    
-
-    
-    
-      
-      
-      
-      
-      
-      
-      
-    
-
-    
-
-    
-    
-    
-    <script id="page-data" type="application/json">{"use_headroom":true}</script>
-
-    
-    
-      <script src="/js/wowchemy-headroom.208bf5db800f4a4e5a38cf3b67a99a51.js" type="module"></script>
-    
-    
-    
-    
-    
-    
-    
-      
-      
-    
-    
-    <script src="/en/js/wowchemy.min.63639926e24ecfb8040ea052c1077969.js"></script>
-
-    
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
-
-
-
-
-</body>
-</html>
