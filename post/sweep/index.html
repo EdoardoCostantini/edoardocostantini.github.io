@@ -648,7 +648,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-categories">
-    <i class="fas fa-folder mr-1"></i><a href="/category/tutorials/">Tutorials</a>, <a href="/category/drafts/">Drafts</a></span>
+    <i class="fas fa-folder mr-1"></i><a href="/category/tutorials/">Tutorials</a></span>
   
 
 </div>
@@ -690,7 +690,7 @@
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
 <p>The sweep operator is a matrix transformation commonly used to estimate regression models.
-It performs elementary row operations on a <span class="math inline">\(p \times p\)</span> matrix which happen to be particularly useful for the estimation of multivariate linear models.
+It performs elementary row operations on a <span class="math inline">\(p \times p\)</span> matrix which happen to be particularly useful to estimate multivariate linear models.
 Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span> defined it as follows:</p>
 <blockquote>
 <p>The sweep operator is defined for symmetric matrices as follows. A <span class="math inline">\(p \times p\)</span> symmetric matrix G is said to be swept on row and column k if it is replaced by another symmetric <span class="math inline">\(p \times p\)</span> matrix H with elements defined as follows:
@@ -704,9 +704,9 @@ h_{jk} = h_{kj} = \frac{g_{jk}}{g_{kk}}, j \neq k
 h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k
 \]</span></p>
 </blockquote>
-<p>The notation indicating this transformation is usually a variation of SWEEP(k)[G], which can be read as sweeping matrix G on row and column k.
-The notation SWEEP(1, 2, …, K)[G] indicates successive applications of SWEEP(k)[G] with <span class="math inline">\(k = 1, \dots, K\)</span>.
-Sweeps on multiple positions do not need be carried out in any particular order.
+<p>The notation indicating this transformation is usually a variation of (k)[G]$, which can be read as sweeping matrix <span class="math inline">\(G\)</span> on row and column <span class="math inline">\(k\)</span>.
+The notation (1, 2, …, K)[G]$ indicates successive applications of <span class="math inline">\(\text{SWEEP}(k)[G]\)</span> with <span class="math inline">\(k = 1, \dots, K\)</span>.
+Sweeps on multiple positions do not need to be carried out in any particular order.
 The sweep operator is commutative.</p>
 <p><span class="math display">\[
 \text{SWEEP}(k_2)[\text{SWEEP}(k_1)[G]] = \text{SWEEP}(k_1)[\text{SWEEP}(k_2)[G]]
@@ -714,11 +714,11 @@ The sweep operator is commutative.</p>
 <p>In this post, I’m interested in exploring how we use the sweep operator to estimate the parameters of regressions models.
 If you are interested in the mathematical details, I recommend reading the full sweep operator description in one of the following resources: Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p154</a>)</span>, Schafer <span class="citation">(<a href="#ref-schafer:1997" role="doc-biblioref">1997</a>)</span>, Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span>.</p>
 <p>Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p150</a>)</span> is a particularly helpful paper as it describes an easy to implement algorithm to perform the sweep operator.
-Following Goodnight, given an originally symmetric positive definite matrix G, SWEEP(k)[G] modifies a matrix G as follows:</p>
+Following Goodnight, given an originally symmetric positive definite matrix G, <span class="math inline">\(\text{SWEEP}(k)[G]\)</span> modifies a matrix G as follows:</p>
 <ul>
 <li>Step 1: Let <span class="math inline">\(D = g_{kk}\)</span></li>
 <li>Step 2: Divide row <span class="math inline">\(k\)</span> by <span class="math inline">\(D\)</span>.</li>
-<li>Step 3: For every other row <span class="math inline">\(i \neq k\)</span>, let <span class="math inline">\(B = g_{ik}\)</span>. Sub-tract <span class="math inline">\(B \times\)</span> row <span class="math inline">\(k\)</span> from row <span class="math inline">\(i\)</span>. Set <span class="math inline">\(g_{ik} = -B/D\)</span>.</li>
+<li>Step 3: For every other row <span class="math inline">\(i \neq k\)</span>, let <span class="math inline">\(B = g_{ik}\)</span>. Subtract <span class="math inline">\(B \times \text{row } k\)</span> from row <span class="math inline">\(i\)</span>. Set <span class="math inline">\(g_{ik} = -B/D\)</span>.</li>
 <li>Step 4: Set <span class="math inline">\(g_{kk} = 1/D\)</span>.</li>
 </ul>
 </div>
@@ -765,9 +765,9 @@ sweepGoodnight &lt;- function (G, K){
 # install.packages(&quot;fastmatrix&quot;)
 
 # Load fastmatrix
-library(fastmatrix)</code></pre>
-<pre><code>## Warning: package &#39;fastmatrix&#39; was built under R version 4.1.2</code></pre>
-<pre class="r"><code># Define an example dataset
+library(fastmatrix)
+
+# Define an example dataset
 X &lt;- matrix(c(1, 1, 1, 1,
               1, 2, 1, 3,
               1, 3, 1, 3,
@@ -778,23 +778,23 @@ X &lt;- matrix(c(1, 1, 1, 1,
 # Define the G matrix
 G &lt;- crossprod(X)
 
-# Define a vector of position to sweep over
+# Define a vector of positions to sweep over
 K &lt;- 1:3
 
-# Perform Sweep[K](G) with fastmatrix sweep.operator
+# Perform SWEEP[K](G) with fastmatrix sweep.operator
 H_fm &lt;- sweep.operator(G, k = K)
 
-# Perform Sweep[K](G) with our sweepGoodnight implementation
+# Perform SWEEP[K](G) with our sweepGoodnight implementation
 H_sg &lt;- sweepGoodnight(G, K = K)
 
 # Compare the two
-H_fm - H_sg</code></pre>
-<p>You will notice that <code>H_fm - H_sg</code> returns a <span class="math inline">\(4 \times 4\)</span> matrix of 0s: mission accomplished.</p>
+all.equal(H_fm, H_sg)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>The functions <code>fastmatrix::sweep.operator()</code> and <code>sweepGoodnight()</code> return the same <code>H</code> matrix by sweeping matrix <code>G</code> over the positions defined in <code>K</code>.</p>
 </div>
 <div id="using-the-sweep-operator-to-estimate-regression-models" class="section level2" number="2.2">
 <h2><span class="header-section-number">2.2</span> Using the sweep operator to estimate regression models</h2>
-<p>To understand the sweep operator we will use it to compute the regression coefficient of a multivariate linear model estimated on an example dataset.
-For this post, we will work with the data used by Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p152</a>)</span>.</p>
+<p>To understand how the sweep operator relates to the estimation of multivariate linear models, we will work with a data set used by Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p152</a>)</span>.</p>
 <pre class="r"><code># Load Little Rubin data -------------------------------------------------------
 
 # Create data
@@ -814,7 +814,7 @@ For this post, we will work with the data used by Little and Rubin <span class="
   n &lt;- nrow(X)
   p &lt;- ncol(X)</code></pre>
 <p>Let’s take a quick look at the first rows of the data to get an idea of what we are working with.</p>
-<pre class="r"><code># Glace at the first 6 rows of the data
+<pre class="r"><code># Glance at the first 6 rows of the data
   head(X)</code></pre>
 <pre><code>##   V1 V2 V3 V4    V5
 ## 1  7 26  6 60  78.5
@@ -825,32 +825,29 @@ For this post, we will work with the data used by Little and Rubin <span class="
 ## 6 11 55  9 22 109.2</code></pre>
 <div id="compute-the-augmented-covariance-matrix" class="section level3" number="2.2.1">
 <h3><span class="header-section-number">2.2.1</span> Compute the augmented covariance matrix</h3>
-<p>The sweep operator gets us the regression coefficients of a multivairate linear model when applied to what is known as the augmented covariance matrix of the data (<span class="math inline">\(\Theta\)</span>).
+<p>To obtain the estimates of the regression coefficients of a multivariate linear model, we need to sweep over the positions of the predictors the augmented covariance matrix of the data (<span class="math inline">\(\Theta\)</span>).
 This is a <span class="math inline">\((p+1) \times (p+1)\)</span> matrix storing the covariance matrix and the means of the dataset.
 It usually looks like this:</p>
 <p><span class="math display">\[
 \Theta =
 \begin{bmatrix}
--1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
+1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
 \mu_1 &amp; \sigma^2_1 &amp; ... &amp; \sigma_{1p}\\
 ... &amp; ... &amp; ... &amp; ...\\
 \mu_p &amp; \sigma_{1p} &amp; ... &amp; \sigma^2_{p}
 \end{bmatrix}
 \]</span></p>
-<p>with <span class="math inline">\(\mu_1, \dots, \mu_p\)</span>, <span class="math inline">\(\sigma^2_1, \dots, \sigma^2_p\)</span>, and <span class="math inline">\(\sigma_{jk}\)</span> being the means, variances and covariances of the variables in our dataset, respectively.</p>
+<p>with <span class="math inline">\(\mu_1, \dots, \mu_p\)</span>, <span class="math inline">\(\sigma^2_1, \dots, \sigma^2_p\)</span>, and <span class="math inline">\(\sigma_{jk}\)</span> being the means, variances, and covariances of the variables in our dataset, respectively.</p>
 <p>In R, we can obtain this matrix in just a few steps starting from our dataset <code>X</code>:</p>
 <ul>
 <li><p><strong>Augment the original data</strong> with a column of 1s on the left.</p>
-<p>In R, we can use the <code>cbind()</code> function to append a column of 1s to the left of X.
+<p>We can use the <code>cbind()</code> function to append a column of 1s to the left of X.
 Keep in mind that we need to perform matrix operations with the resulting object.
 Therefore, we need to make sure we are working with an R object of the class <code>matrix</code> instead of <code>data.frame</code>.</p>
 <pre class="r"><code># Obtain the augmented covariance matrix ---------------------------------------
 
 # Augment X
-  X_aug &lt;- cbind(int = 1, X)
-
-# Transform data.frame to matrix
-  X_aug &lt;- as.matrix(X_aug)
+  X_aug &lt;- cbind(int = 1, as.matrix(X))
 
 # Glance at the first 6 rows of X_aug
   head(X_aug)</code></pre>
@@ -861,9 +858,8 @@ Therefore, we need to make sure we are working with an R object of the class <co
 ## [4,]   1 11 31  8 47  87.6
 ## [5,]   1  7 52  6 33  95.9
 ## [6,]   1 11 55  9 22 109.2</code></pre></li>
-<li><p>Compute the <strong>augmented matrix of sufficient statistics <span class="math inline">\(T\)</span></strong>.</p>
-<p><span class="math inline">\(T\)</span> is the matrix having as elements the sum of the cross-products of the columns of <code>X_aug</code>.
-Since the first column of <code>X_aug</code> is a column of 1s, the first element of T is the number of rows in the data, the first column and rows store the sum of scores on each variable (sufficient statistics for the mean), and the other elements store the sum of products between the columns of <code>X</code> (sufficient statistics for the covariance matrix of <code>X</code>).</p>
+<li><p>Compute the <strong>augmented matrix of <a href="https://en.wikipedia.org/wiki/Sufficient_statistic">sufficient statistics</a> <span class="math inline">\(T\)</span></strong>.</p>
+<p><span class="math inline">\(T\)</span> is the matrix having as elements the sum of the cross-products of the columns of <code>X_aug</code>.</p>
 <p><span class="math display">\[
 T =
 \begin{bmatrix}
@@ -872,8 +868,9 @@ n &amp; \sum{x_1} &amp; ... &amp; \sum{x_p}\\
 ... &amp; ... &amp; ... &amp; ...\\
 \sum{x_p} &amp; \sum{x_1 x_p} &amp; ... &amp; \sum{x_p^2}
 \end{bmatrix}
-\]</span>
-In R, we can compute it easily with the cross-product function</p>
+\]</span></p>
+<p>Since the first column of <code>X_aug</code> is a column of 1s, the first element of T is the number of rows in the data, the first column and rows store the sum of scores on each variable (sufficient statistics for the mean), and the other elements store the sum of products between the columns of <code>X</code> (sufficient statistics for the covariance matrix of <code>X</code>).</p>
+<p>In R, we can compute it easily with the cross-product function:</p>
 <pre class="r"><code># Compute the matrix of sufficient statistics (T matrix)
   Tmat &lt;- crossprod(X_aug)</code></pre></li>
 <li><p><strong>Transform T to G</strong></p>
@@ -925,13 +922,13 @@ G =
 ## V3 -28.66272  -12.81065  37.869822    2.923077  -47.55621
 ## V4 -22.30769 -233.92308   2.923077  258.615385 -190.90000
 ## V5  59.68935  176.38107 -47.556213 -190.900000  208.90485</code></pre>
-<p>Pay attention to a few of things:</p>
+<p>Pay attention to a couple of things:</p>
 <ul>
-<li>The covariance matrix store in <span class="math inline">\(\Theta\)</span> is the Maximum Likelihood version (denominator should be <code>n</code> instead of the default <code>n-1</code>)</li>
+<li>The covariance matrix stored in <span class="math inline">\(\Theta\)</span> is the Maximum Likelihood version (denominator should be <code>n</code> instead of the default <code>n-1</code>)</li>
 <li>We could have constructed the object <code>Theta</code> just by using <code>colMeans(X)</code> and <code>cov(X) * (n-1) / n</code> directly.
 However, it is important to note the relationship between <code>Tmat</code>, <code>G</code>, and <code>Theta</code>.
 In particular, pay attention to the fact that <code>Theta</code> is the result of sweeping <code>G</code> in the first position.
-When I started looking into this topic I did not understand this, and I kept sweeping <code>Theta</code> over the first position, resulting in a confusing double sweep of the first column and row.
+When I started looking into this topic I did not understand this, and I kept sweeping <code>Theta</code> over the first position, resulting in a confusing double sweeping of the first column and row.
 I will get back to this point in a sec.</li>
 </ul></li>
 </ul>
@@ -941,7 +938,7 @@ I will get back to this point in a sec.</li>
 <p>Now let’s see how we can use <span class="math inline">\(\Theta\)</span> to estimate any multivariate linear model involving the variables in our dataset.
 First, let’s see how we would obtain these linear models in R with standard procedures.
 Say we want to regress V1 and V3 on V2, V4, and V5 from the <code>X</code> dataset.
-We will start by creating a formula for an <code>lm</code> function return the model we want.</p>
+We will start by creating a formula for an <code>lm</code> function to estimate the model we want.</p>
 <pre class="r"><code># Fit some multivariate linear models ------------------------------------------
 
   # Define the dependent variables (dvs) of the multivairate linear models
@@ -959,7 +956,7 @@ We will start by creating a formula for an <code>lm</code> function return the m
   # Check the formula
   formula_mlm</code></pre>
 <pre><code>## [1] &quot;cbind(V1, V3) ~ V2 + V4 + V5&quot;</code></pre>
-<p>Next, fit the multivariate linear model with the <code>lm()</code> R function:</p>
+<p>Next, we will fit the multivariate linear model with the <code>lm()</code> function:</p>
 <pre class="r"><code>  # Fit the model with the lm function
   mlm0 &lt;- lm(formula_mlm, data = X)
   coef(mlm0)</code></pre>
@@ -969,7 +966,7 @@ We will start by creating a formula for an <code>lm</code> function return the m
 ## V4            0.1455375  -1.0485195
 ## V5            0.6507081  -0.6319507</code></pre>
 <p>These are our intercepts, and regression coefficients for the multivariate linear model.
-Given a <span class="math inline">\(\Theta\)</span> matrix, we can sweep on the positions of the independent variables and obtain the regression coefficients of the multivariate linear model with the variables we did not sweep over as dependent variables.
+We can sweep <span class="math inline">\(\Theta\)</span> over the positions of the independent variables to obtain the the same intercept and regression coefficients.
 First, let’s define a vector of positions to sweep over based on the variable names we stored in <code>ivs</code>.</p>
 <pre class="r"><code># Fit some multivariate linear models using sweep ------------------------------
 
@@ -991,7 +988,7 @@ First, let’s define a vector of positions to sweep over based on the variable 
 <p>Our regression coefficients are here in this new matrix.
 We just need to find them.
 We know that the dependent variables are V1 and V3, and that the independent variables are V2, V4, and V5.
-Let’s index the rows of <code>H</code> with the names of the ivs (and the name of the intercept row) and the columns with the names of the dvs.</p>
+Let’s index the rows of <code>H</code> with the names of the ivs (and the name of the intercept row), and the columns of <code>H</code> with the names of the dvs.</p>
 <pre class="r"><code>  # Extract the regression coefficients from H
   H[c(&quot;int&quot;, ivs), dvs]</code></pre>
 <pre><code>##              V1          V3
@@ -1110,17 +1107,17 @@ X &lt;- matrix(c(1, 1, 1, 1,
 # Define the G matrix
 G &lt;- crossprod(X)
 
-# Define a vector of position to sweep over
+# Define a vector of positions to sweep over
 K &lt;- 1:3
 
-# Perform Sweep[K](G) with fastmatrix sweep.operator
+# Perform SWEEP[K](G) with fastmatrix sweep.operator
 H_fm &lt;- sweep.operator(G, k = K)
 
-# Perform Sweep[K](G) with our sweepGoodnight implementation
+# Perform SWEEP[K](G) with our sweepGoodnight implementation
 H_sg &lt;- sweepGoodnight(G, K = K)
 
 # Compare the two
-H_fm - H_sg
+all.equal(H_fm, H_sg)
 
 # Load Little Rubin data -------------------------------------------------------
 
@@ -1141,16 +1138,13 @@ H_fm - H_sg
   n &lt;- nrow(X)
   p &lt;- ncol(X)
 
-# Glace at the first 6 rows of the data
+# Glance at the first 6 rows of the data
   head(X)
 
 # Obtain the augmented covariance matrix ---------------------------------------
 
 # Augment X
-  X_aug &lt;- cbind(int = 1, X)
-
-# Transform data.frame to matrix
-  X_aug &lt;- as.matrix(X_aug)
+  X_aug &lt;- cbind(int = 1, as.matrix(X))
 
 # Glance at the first 6 rows of X_aug
   head(X_aug)
