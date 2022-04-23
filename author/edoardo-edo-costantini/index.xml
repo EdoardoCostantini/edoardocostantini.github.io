@@ -1121,8 +1121,8 @@ h_{jk} = h_{kj} = \frac{g_{jk}}{g_{kk}}, j \neq k
 h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k
 \]&lt;/span&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;The notation indicating this transformation is usually a variation of (k)[G]$, which can be read as sweeping matrix &lt;span class=&#34;math inline&#34;&gt;\(G\)&lt;/span&gt; on row and column &lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt;.
-The notation (1, 2, …, K)[G]$ indicates successive applications of &lt;span class=&#34;math inline&#34;&gt;\(\text{SWEEP}(k)[G]\)&lt;/span&gt; with &lt;span class=&#34;math inline&#34;&gt;\(k = 1, \dots, K\)&lt;/span&gt;.
+&lt;p&gt;The notation indicating this transformation is usually a variation of &lt;span class=&#34;math inline&#34;&gt;\(\text{SWEEP}(k)[G]\)&lt;/span&gt;, which can be read as sweeping matrix &lt;span class=&#34;math inline&#34;&gt;\(G\)&lt;/span&gt; on row and column &lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt;.
+The notation &lt;span class=&#34;math inline&#34;&gt;\(\text{SWEEP}(1, 2, ..., K)[G]\)&lt;/span&gt; indicates successive applications of &lt;span class=&#34;math inline&#34;&gt;\(\text{SWEEP}(k)[G]\)&lt;/span&gt; with &lt;span class=&#34;math inline&#34;&gt;\(k = 1, \dots, K\)&lt;/span&gt;.
 Sweeps on multiple positions do not need to be carried out in any particular order.
 The sweep operator is commutative.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[
