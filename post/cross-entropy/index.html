@@ -52,10 +52,10 @@
   
     
   
-  <meta name="description" content="" />
+  <meta name="description" content="1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy quantifies the difference between two probability distributions." />
 
   
-  <link rel="alternate" hreflang="en-us" href="https://symphonious-crostata-aa195e.netlify.app/about/" />
+  <link rel="alternate" hreflang="en-us" href="https://symphonious-crostata-aa195e.netlify.app/post/cross-entropy/" />
 
   
   
@@ -84,10 +84,6 @@
     
     
       
-      
-      
-      
-        
       
     
     
@@ -273,7 +269,7 @@
   <link rel="icon" type="image/png" href="/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_32x32_fill_lanczos_center_3.png" />
   <link rel="apple-touch-icon" type="image/png" href="/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_180x180_fill_lanczos_center_3.png" />
 
-  <link rel="canonical" href="https://symphonious-crostata-aa195e.netlify.app/about/" />
+  <link rel="canonical" href="https://symphonious-crostata-aa195e.netlify.app/post/cross-entropy/" />
 
   
   
@@ -296,34 +292,82 @@
   <meta property="twitter:card" content="summary" />
   
   <meta property="og:site_name" content="Edo" />
-  <meta property="og:url" content="https://symphonious-crostata-aa195e.netlify.app/about/" />
-  <meta property="og:title" content="Edo" />
-  <meta property="og:description" content="" /><meta property="og:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
+  <meta property="og:url" content="https://symphonious-crostata-aa195e.netlify.app/post/cross-entropy/" />
+  <meta property="og:title" content="Cross-entropy as a measure of predictive accuracy | Edo" />
+  <meta property="og:description" content="1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy quantifies the difference between two probability distributions." /><meta property="og:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
     <meta property="twitter:image" content="https://symphonious-crostata-aa195e.netlify.app/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
   
     
-    <meta property="article:modified_time" content="2022-04-11T23:20:15&#43;02:00">
+      <meta
+        property="article:published_time"
+        content="2022-04-22T00:00:00&#43;00:00"
+      />
+    
+    <meta property="article:modified_time" content="2022-04-24T00:41:19&#43;02:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://symphonious-crostata-aa195e.netlify.app/post/cross-entropy/"
+  },
+  "headline": "Cross-entropy as a measure of predictive accuracy",
+  
+  "datePublished": "2022-04-22T00:00:00Z",
+  "dateModified": "2022-04-24T00:41:19+02:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Edoardo (Edo) Costantini"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "Edo",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://symphonious-crostata-aa195e.netlify.app/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_192x192_fill_lanczos_center_3.png"
+    }
+  },
+  "description": "1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy quantifies the difference between two probability distributions."
+}
+</script>
+
+  
+
+  
+
   
 
   
 
 
 
-  
-
-  
-
-  
 
 
-
-
-
-  <title>Edo</title>
+  <title>Cross-entropy as a measure of predictive accuracy | Edo</title>
 </head>
 
 
-<body id="top" data-spy="scroll" data-offset="70" data-target="#navbar-main" class="page-wrapper   " data-wc-page-id="8576ec274c98b3831668a172fa632d80" >
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper   " data-wc-page-id="dff6d4f0d8712b8c1607d3618073920e" >
 
   
   
@@ -447,7 +491,7 @@
           
 
           <li class="nav-item">
-            <a class="nav-link " href="/post/"><span>Posts</span></a>
+            <a class="nav-link  active" href="/post/"><span>Posts</span></a>
           </li>
 
           
@@ -482,7 +526,7 @@
           
 
           <li class="nav-item">
-            <a class="nav-link " href="/about/#about" data-target="#about"><span>About me</span></a>
+            <a class="nav-link " href="/about/#about"><span>About me</span></a>
           </li>
 
           
@@ -541,35 +585,50 @@
   </div>
 
   <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>Cross-entropy as a measure of predictive accuracy</h1>
+
+  
+
+  
     
-<span class="js-widget-page d-none"></span>
 
 
+<div class="article-metadata">
 
-
-
-  
-  
-  
-  
-
-
-
-
-  
-  
   
   
 
   
-
-  
-
-  
-  
-  
-  
-
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Apr 24, 2022
+  </span>
   
 
   
@@ -578,17 +637,6 @@
 
   
   
-
-  
-
-  
-  
-
-  
-  
-  
-
-  
   
   
   
@@ -596,194 +644,335 @@
 
   
   
-
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder mr-1"></i><a href="/category/drafts/">Drafts</a>, <a href="/category/tutorials/">Tutorials</a></span>
   
 
-  
-  
-
-  
-  
-
-  
-  <section id="about" class="home-section wg-about  "  >
-   <div class="home-section-bg " >
-     
-   </div>
-    <div class="container">
+</div>
 
     
 
-      
 
 
 
 
   
-
-
-
-
-
-
-
-
-
-
-<div class="row">
-  <div class="col-12 col-lg-4">
-    <div id="profile">
-
-      
-      
-      <img class="avatar avatar-circle"
-           width="270" height="270"
-           src="/author/edoardo-edo-costantini/avatar_hubc644763d821b4643633e77d54abca59_619947_270x270_fill_q75_lanczos_center.jpg" alt="Edoardo (Edo) Costantini">
-      
-
-      <div class="portrait-title">
-        
-        <h2>Edoardo (Edo) Costantini</h2>
-        
-        <h3>PhD Researcher</h3>
-
-        
-        <h3>
-          <a href="https://www.tilburguniversity.edu/about/schools/socialsciences/organization/departments/methodology-statistics" target="_blank" rel="noopener">
-          <span>Tilburg University, Dept Methodology and Statistics</span>
-          </a>
-        </h3>
-        
-      </div>
-
-      <ul class="network-icon" aria-hidden="true">
-        
-        
-        
-        
-          
-        
-        
-        
-        
-        
-        <li>
-          <a href="mailto:e.costantini@tilburguniversity.edu"  aria-label="envelope">
-            <i class="fas fa-envelope big-icon"></i>
-          </a>
-        </li>
-        
-        
-        
-        
-          
-        
-        
-        
-        
-        
-          
-        
-        <li>
-          <a href="https://github.com/EdoardoCostantini?tab=repositories" target="_blank" rel="noopener" aria-label="github">
-            <i class="fab fa-github big-icon"></i>
-          </a>
-        </li>
-        
-        
-        
-        
-          
-        
-        
-        
-        
-        
-          
-        
-        <li>
-          <a href="https://www.linkedin.com/in/edoardo-costantini-78352b137/" target="_blank" rel="noopener" aria-label="linkedin">
-            <i class="fab fa-linkedin big-icon"></i>
-          </a>
-        </li>
-        
-      </ul>
-
-    </div>
-  </div>
-  <div class="col-12 col-lg-8">
-
-    
-    <h1>About me</h1>
-
-    <div class="article-style">
-      <p>I&rsquo;m a PhD researcher at Tilburg University working on multiple imputation algorithms for survey data.</p>
-<p>
-  <i class="fas fa-download  pr-1 fa-fw"></i> Download my <a href="/uploads/resume.pdf" target="_blank">resumé</a>.</p>
-
-    </div>
-
-    <div class="row">
-
-      
-      <div class="col-md-5">
-        <div class="section-subheading">Interests</div>
-        <ul class="ul-interests mb-0">
-          
-          <li>Missing data</li>
-          
-          <li>Imputation</li>
-          
-          <li>Principal component analysis</li>
-          
-        </ul>
-      </div>
-      
-
-      
-      <div class="col-md-7">
-        <div class="section-subheading">Education</div>
-        <ul class="ul-edu fa-ul mb-0">
-          
-          <li>
-            <i class="fa-li fas fa-graduation-cap"></i>
-            <div class="description">
-              <p class="course">PhD in Statistics, 2023</p>
-              <p class="institution">Tilburg University, The Netherlands</p>
-            </div>
-          </li>
-          
-          <li>
-            <i class="fa-li fas fa-graduation-cap"></i>
-            <div class="description">
-              <p class="course">Research Master in Social and Behavioral Sciences, 2019</p>
-              <p class="institution">Tilburg University, The Netherlands</p>
-            </div>
-          </li>
-          
-          <li>
-            <i class="fa-li fas fa-graduation-cap"></i>
-            <div class="description">
-              <p class="course">BSc in Sociology, 2017</p>
-              <p class="institution">Trento University, Italy</p>
-            </div>
-          </li>
-          
-        </ul>
-      </div>
-      
-
-    </div>
-  </div>
 </div>
 
 
-    
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+<script src="https://symphonious-crostata-aa195e.netlify.app/post/cross-entropy/index_files/header-attrs/header-attrs.js"></script>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#learn-by-coding"><span class="toc-section-number">2</span> Learn by coding</a></li>
+<li><a href="#tldr-just-give-me-the-code"><span class="toc-section-number">3</span> TL;DR, just give me the code!</a></li>
+<li><a href="#other-resources"><span class="toc-section-number">4</span> Other resources</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>Cross-entropy quantifies the difference between two probability distributions.
+As such, it comes in handy as a <a href="https://en.wikipedia.org/wiki/Loss_function">loss function</a> in multi-class classification tasks (e.g., multinomial logistic regression).
+Cross-entropy also provides an elegant solution for determining the difference between actual and predicted categorical data point values.</p>
+</div>
+<div id="learn-by-coding" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Learn by coding</h1>
+<p>Bla bla</p>
+<pre class="r"><code># Prepare environment ----------------------------------------------------------
+
+# Packages
+library(nnet)
+
+# Data
+dat_bin &lt;- ToothGrowth
+dat_cat &lt;- iris</code></pre>
+<p>First, binary cross entropy</p>
+<pre class="r"><code># Binary cross entropy ---------------------------------------------------------
+
+# Fit model
+glm_log &lt;- glm(supp ~ .,
+               family = binomial(link = &#39;logit&#39;),
+               data = ToothGrowth)
+
+# Predictions
+preds_log &lt;- predict(glm_log, type = &quot;response&quot;)
+
+# Compute entropy
+p &lt;- as.numeric(ToothGrowth$supp)-1 #
+phat &lt;- preds_log
+
+x &lt;- 0
+for (i in 1:length(p)){
+  x &lt;- x + (p[i] * log(phat[i]))
+}
+
+- x</code></pre>
+<pre><code>##        1 
+## 17.99278</code></pre>
+<p>Then</p>
+<pre class="r"><code># Multi-categorical cross entropy ----------------------------------------------
+
+# Fit model
+glm_mln &lt;- multinom(Species ~ ., data = iris)</code></pre>
+<pre><code>## # weights:  18 (10 variable)
+## initial  value 164.791843 
+## iter  10 value 16.177348
+## iter  20 value 7.111438
+## iter  30 value 6.182999
+## iter  40 value 5.984028
+## iter  50 value 5.961278
+## iter  60 value 5.954900
+## iter  70 value 5.951851
+## iter  80 value 5.950343
+## iter  90 value 5.949904
+## iter 100 value 5.949867
+## final  value 5.949867 
+## stopped after 100 iterations</code></pre>
+<pre class="r"><code># Predictions
+preds_mln &lt;- predict(glm_mln, type = &quot;probs&quot;)
+
+# Compute entropy
+p &lt;- FactoMineR::tab.disjonctif(iris$Species)
+phat &lt;- preds_mln
+
+x &lt;- 0
+for (i in 1:nrow(p)){
+  for (j in 1:ncol(p)){
+    x &lt;- x + (p[i, ] * log(phat[i, ]))
+  }
+}
+
+- sum(x)</code></pre>
+<pre><code>## [1] 17.8496</code></pre>
+<p>Finally</p>
+<pre class="r"><code># Fast way to compute both -----------------------------------------------------
+
+ce &lt;- - sum(
+  diag(
+    p %*% t(log(phat))
+  )
+)</code></pre>
+</div>
+<div id="tldr-just-give-me-the-code" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> TL;DR, just give me the code!</h1>
+<pre class="r"><code># Prepare environment ----------------------------------------------------------
+
+# Packages
+library(nnet)
+
+# Data
+dat_bin &lt;- ToothGrowth
+dat_cat &lt;- iris
+
+# Binary cross entropy ---------------------------------------------------------
+
+# Fit model
+glm_log &lt;- glm(supp ~ .,
+               family = binomial(link = &#39;logit&#39;),
+               data = ToothGrowth)
+
+# Predictions
+preds_log &lt;- predict(glm_log, type = &quot;response&quot;)
+
+# Compute entropy
+p &lt;- as.numeric(ToothGrowth$supp)-1 #
+phat &lt;- preds_log
+
+x &lt;- 0
+for (i in 1:length(p)){
+  x &lt;- x + (p[i] * log(phat[i]))
+}
+
+- x
+
+# Multi-categorical cross entropy ----------------------------------------------
+
+# Fit model
+glm_mln &lt;- multinom(Species ~ ., data = iris)
+
+# Predictions
+preds_mln &lt;- predict(glm_mln, type = &quot;probs&quot;)
+
+# Compute entropy
+p &lt;- FactoMineR::tab.disjonctif(iris$Species)
+phat &lt;- preds_mln
+
+x &lt;- 0
+for (i in 1:nrow(p)){
+  for (j in 1:ncol(p)){
+    x &lt;- x + (p[i, ] * log(phat[i, ]))
+  }
+}
+
+- sum(x)
+
+# Fast way to compute both -----------------------------------------------------
+
+ce &lt;- - sum(
+  diag(
+    p %*% t(log(phat))
+  )
+)</code></pre>
+</div>
+<div id="other-resources" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Other resources</h1>
+<ul>
+<li><a href="https://rpubs.com/juanhklopper/cross_entropy">Cross-entropy in RPubs</a></li>
+<li><a href="https://machinelearningmastery.com/cross-entropy-for-machine-learning/">A Gentle Introduction to Cross-Entropy for Machine Learning</a></li>
+<li><a href="https://gombru.github.io/2018/05/23/cross_entropy_loss/">Understanding Categorical Cross-Entropy Loss, Binary Cross-Entropy Loss, Softmax Loss, Logistic Loss, Focal Loss and all those confusing names</a></li>
+</ul>
+</div>
 
     </div>
-  </section>
+
+    
 
 
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/prediction/">prediction</a>
+  
+  <a class="badge badge-light" href="/tag/machine-learning/">machine learning</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://symphonious-crostata-aa195e.netlify.app/"><img class="avatar mr-3 avatar-circle" src="/author/edoardo-edo-costantini/avatar_hubc644763d821b4643633e77d54abca59_619947_270x270_fill_q75_lanczos_center.jpg" alt="Edoardo (Edo) Costantini"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://symphonious-crostata-aa195e.netlify.app/">Edoardo (Edo) Costantini</a></h5>
+      <h6 class="card-subtitle">PhD Researcher</h6>
+      
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:e.costantini@tilburguniversity.edu" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/EdoardoCostantini?tab=repositories" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/edoardo-costantini-78352b137/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/covmatwt/">Estimating the weighted covariance matrix in R</a></li>
+      
+      <li><a href="/post/ridge/">Estimating ridge regression in R</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
   </div>
 
   <div class="page-footer">
