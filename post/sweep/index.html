@@ -303,7 +303,7 @@
         content="2021-11-17T00:00:00&#43;00:00"
       />
     
-    <meta property="article:modified_time" content="2022-04-24T00:45:31&#43;02:00">
+    <meta property="article:modified_time" content="2022-05-03T18:22:22&#43;02:00">
   
 
   
@@ -332,7 +332,7 @@
   "headline": "The sweep operator",
   
   "datePublished": "2021-11-17T00:00:00Z",
-  "dateModified": "2022-04-24T00:45:31+02:00",
+  "dateModified": "2022-05-03T18:22:22+02:00",
   
   "author": {
     "@type": "Person",
@@ -637,7 +637,7 @@
           Last updated on
       
     
-    Apr 24, 2022
+    May 3, 2022
   </span>
   
 
@@ -712,17 +712,25 @@ h_{jk} = h_{kj} = \frac{g_{jk}}{g_{kk}}, j \neq k
 h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k
 \]</span></p>
 </blockquote>
-<p>The notation indicating this transformation is usually a variation of <span class="math inline">\(\text{SWEEP}(k)[G]\)</span>, which can be read as sweeping matrix <span class="math inline">\(G\)</span> on row and column <span class="math inline">\(k\)</span>.
-The notation <span class="math inline">\(\text{SWEEP}(1, 2, ..., K)[G]\)</span> indicates successive applications of <span class="math inline">\(\text{SWEEP}(k)[G]\)</span> with <span class="math inline">\(k = 1, \dots, K\)</span>.
-Sweeps on multiple positions do not need to be carried out in any particular order.
-The sweep operator is commutative.</p>
+<p>The notation indicating this transformation is usually a variation of <span class="math inline">\(\text{SWEEP}[k]G\)</span>, which can be read as sweeping matrix <span class="math inline">\(G\)</span> on column (and row) <span class="math inline">\(k\)</span>.
+It is important to know that:</p>
+<ul>
+<li>Any symmetric matrix <span class="math inline">\(G\)</span> can be swept over <span class="math inline">\(l\)</span> multiple positions.
+The notation <span class="math inline">\(\text{SWEEP}[k_1, k_2, ..., k_l]G\)</span> indicates successive applications of <span class="math inline">\(\text{SWEEP}[k]G\)</span> with <span class="math inline">\(k = k_1, \dots, k_l\)</span>.</li>
+<li>The sweep operator is commutative.
+Sweeps on multiple positions do not need to be carried out in any particular order:</li>
+</ul>
 <p><span class="math display">\[
-\text{SWEEP}(k_2)[\text{SWEEP}(k_1)[G]] = \text{SWEEP}(k_1)[\text{SWEEP}(k_2)[G]]
+\text{SWEEP}[k_2]\text{SWEEP}[k_1]G = \text{SWEEP}[k_1]\text{SWEEP}[k_2]G
 \]</span></p>
-<p>In this post, I’m interested in exploring how we use the sweep operator to estimate the parameters of regressions models.
-If you are interested in the mathematical details, I recommend reading the full sweep operator description in one of the following resources: Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p154</a>)</span>, Schafer <span class="citation">(<a href="#ref-schafer:1997" role="doc-biblioref">1997</a>)</span>, Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span>.</p>
-<p>Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p150</a>)</span> is a particularly helpful paper as it describes an easy to implement algorithm to perform the sweep operator.
-Following Goodnight, given an originally symmetric positive definite matrix G, <span class="math inline">\(\text{SWEEP}(k)[G]\)</span> modifies a matrix G as follows:</p>
+<ul>
+<li>The <span class="math inline">\(l\)</span> sweeping positions do not need to be consecutive.
+For example, <span class="math inline">\(k_1\)</span> could indicate the third column and <span class="math inline">\(k_2\)</span> could indicate the sixth column.</li>
+</ul>
+<p>In this post, I want to show how the sweep operator can be used to estimate the parameters of any linear regressions model.
+If you are interested in the mathematical details, I recommend reading the full sweep operator description in Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p154</a>)</span>, Schafer <span class="citation">(<a href="#ref-schafer:1997" role="doc-biblioref">1997</a>)</span>, or Little and Rubin <span class="citation">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span>.</p>
+<p>Goodnight <span class="citation">(<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p150</a>)</span> is a particularly helpful paper as it describes an easy implementation of the sweep operator.
+Following Goodnight, given an originally symmetric positive definite matrix G, <span class="math inline">\(\text{SWEEP}[k]G\)</span> modifies a matrix G as follows:</p>
 <ul>
 <li>Step 1: Let <span class="math inline">\(D = g_{kk}\)</span></li>
 <li>Step 2: Divide row <span class="math inline">\(k\)</span> by <span class="math inline">\(D\)</span>.</li>
@@ -789,10 +797,10 @@ G &lt;- crossprod(X)
 # Define a vector of positions to sweep over
 K &lt;- 1:3
 
-# Perform SWEEP[K](G) with fastmatrix sweep.operator
+# Perform SWEEP[K]G with fastmatrix sweep.operator
 H_fm &lt;- sweep.operator(G, k = K)
 
-# Perform SWEEP[K](G) with our sweepGoodnight implementation
+# Perform SWEEP[K]G with our sweepGoodnight implementation
 H_sg &lt;- sweepGoodnight(G, K = K)
 
 # Compare the two
@@ -895,7 +903,7 @@ G =
 <pre class="r"><code># Compute G
   G &lt;- Tmat / n</code></pre></li>
 <li><p><strong>Compute <span class="math inline">\(\Theta\)</span></strong> by sweeping G over the first row and column.</p>
-<p>Let’s use our <code>sweepGoodnight()</code> function to perform SWEEP(1)[G] and obtain <span class="math inline">\(\Theta\)</span></p>
+<p>Let’s use our <code>sweepGoodnight()</code> function to perform SWEEP[1]G and obtain <span class="math inline">\(\Theta\)</span></p>
 <p><span class="math display">\[
 \Theta =
 \begin{bmatrix}
@@ -1024,11 +1032,11 @@ In code:</p>
 ## V5    0.6507081  -0.6319507</code></pre>
 <p>Therefore, you can think of finding the coefficients of a multivariate linear model using the sweep operator as:</p>
 <ul>
-<li>SWEEP(1, <span class="math inline">\(k_1, \dots, k_K\)</span>)[G] or as,</li>
-<li>SWEEP(<span class="math inline">\(k_1, \dots, k_K\)</span>)[SWEEP(1)[G]] or as,</li>
-<li>SWEEP(<span class="math inline">\(k_1, \dots, k_K\)</span>)[<span class="math inline">\(\Theta\)</span>]</li>
+<li>SWEEP(1, <span class="math inline">\(k_1, \dots, k_l\)</span>)[G] or as,</li>
+<li>SWEEP(<span class="math inline">\(k_1, \dots, k_l\)</span>)[SWEEP(1)[G]] or as,</li>
+<li>SWEEP(<span class="math inline">\(k_1, \dots, k_l\)</span>)[<span class="math inline">\(\Theta\)</span>]</li>
 </ul>
-<p>with <span class="math inline">\(k_1, \dots, k_K\)</span> being the positions of the <span class="math inline">\(K\)</span> predictors in matrix <span class="math inline">\(G\)</span>.</p>
+<p>with <span class="math inline">\(k_1, \dots, k_l\)</span> being the positions of the <span class="math inline">\(K\)</span> predictors in matrix <span class="math inline">\(G\)</span>.</p>
 <p>Finally, just play around with what variables you consider as dvs and ivs.
 You will discover the magic of the sweep operator.</p>
 <pre class="r"><code># Play around with variable roles ------------------------------------------
@@ -1118,10 +1126,10 @@ G &lt;- crossprod(X)
 # Define a vector of positions to sweep over
 K &lt;- 1:3
 
-# Perform SWEEP[K](G) with fastmatrix sweep.operator
+# Perform SWEEP[K]G with fastmatrix sweep.operator
 H_fm &lt;- sweep.operator(G, k = K)
 
-# Perform SWEEP[K](G) with our sweepGoodnight implementation
+# Perform SWEEP[K]G with our sweepGoodnight implementation
 H_sg &lt;- sweepGoodnight(G, K = K)
 
 # Compare the two
