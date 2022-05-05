@@ -52,7 +52,7 @@
   
     
   
-  <meta name="description" content="Introduction Learn by coding  Fitting ridge regression manually Fit ridge regression with glmnet   TL;DR, just give me the code!  Introduction When there are many correlated predictors in a linear regression model, their regression coefficients can become poorly determined and exhibit high variance." />
+  <meta name="description" content="1 1 Introduction 2 2 Learn by coding  2.1 2.1 Fitting ridge regression manually  2.1.1 2.1.1 An alternative way to avoid penalising the intercept   2.2 2." />
 
   
   <link rel="alternate" hreflang="en-us" href="https://edoardocostantini.github.io/post/quarto/" />
@@ -294,7 +294,7 @@
   <meta property="og:site_name" content="Edo" />
   <meta property="og:url" content="https://edoardocostantini.github.io/post/quarto/" />
   <meta property="og:title" content="Hello, Quarto | Edo" />
-  <meta property="og:description" content="Introduction Learn by coding  Fitting ridge regression manually Fit ridge regression with glmnet   TL;DR, just give me the code!  Introduction When there are many correlated predictors in a linear regression model, their regression coefficients can become poorly determined and exhibit high variance." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
+  <meta property="og:description" content="1 1 Introduction 2 2 Learn by coding  2.1 2.1 Fitting ridge regression manually  2.1.1 2.1.1 An alternative way to avoid penalising the intercept   2.2 2." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
     <meta property="twitter:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
   
     
@@ -303,7 +303,7 @@
         content="2012-04-06T00:00:00&#43;00:00"
       />
     
-    <meta property="article:modified_time" content="2012-04-06T00:00:00&#43;00:00">
+    <meta property="article:modified_time" content="2022-05-05T13:05:29&#43;02:00">
   
 
   
@@ -332,7 +332,7 @@
   "headline": "Hello, Quarto",
   
   "datePublished": "2012-04-06T00:00:00Z",
-  "dateModified": "2012-04-06T00:00:00Z",
+  "dateModified": "2022-05-05T13:05:29+02:00",
   
   "author": {
     "@type": "Person",
@@ -347,7 +347,7 @@
       "url": "https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_192x192_fill_lanczos_center_3.png"
     }
   },
-  "description": "Introduction Learn by coding  Fitting ridge regression manually Fit ridge regression with glmnet   TL;DR, just give me the code!  Introduction When there are many correlated predictors in a linear regression model, their regression coefficients can become poorly determined and exhibit high variance."
+  "description": "1 1 Introduction 2 2 Learn by coding  2.1 2.1 Fitting ridge regression manually  2.1.1 2.1.1 An alternative way to avoid penalising the intercept   2.2 2."
 }
 </script>
 
@@ -629,13 +629,23 @@
   
   
 
-  
+
+
+  <span class="article-date">
+    
+    
+  Published on Apr 6, 2012
+  </span>
+
   <span class="article-date">
     
     
       
+      <span class="middot-divider"></span>
+         Last updated on
+         May 5, 2022
+      
     
-    Apr 6, 2012
   </span>
   
 
@@ -674,16 +684,27 @@
 
     <div class="article-style">
       <ul>
-<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
-<li><a href="#learn-by-coding" id="toc-learn-by-coding">Learn by coding</a>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> <span class="header-section-number">1</span> Introduction</a></li>
+<li><a href="#learn-by-coding" id="toc-learn-by-coding"><span class="toc-section-number">2</span> <span class="header-section-number">2</span> Learn by coding</a>
 <ul>
-<li><a href="#fitting-ridge-regression-manually" id="toc-fitting-ridge-regression-manually">Fitting ridge regression manually</a></li>
-<li><a href="#fit-ridge-regression-with-glmnet" id="toc-fit-ridge-regression-with-glmnet">Fit ridge regression with glmnet</a></li>
+<li><a href="#fitting-ridge-regression-manually" id="toc-fitting-ridge-regression-manually"><span class="toc-section-number">2.1</span> <span class="header-section-number">2.1</span> Fitting ridge regression manually</a>
+<ul>
+<li><a href="#an-alternative-way-to-avoid-penalising-the-intercept" id="toc-an-alternative-way-to-avoid-penalising-the-intercept"><span class="toc-section-number">2.1.1</span> <span class="header-section-number">2.1.1</span> An alternative way to avoid penalising the intercept</a></li>
 </ul>
 </li>
-<li><a href="#tldr-just-give-me-the-code" id="toc-tldr-just-give-me-the-code">TL;DR, just give me the code!</a></li>
+<li><a href="#fit-ridge-regression-with-glmnet" id="toc-fit-ridge-regression-with-glmnet"><span class="toc-section-number">2.2</span> <span class="header-section-number">2.2</span> Fit ridge regression with glmnet</a>
+<ul>
+<li><a href="#use-the-biased-estimation-of-variance" id="toc-use-the-biased-estimation-of-variance"><span class="toc-section-number">2.2.1</span> <span class="header-section-number">2.2.1</span> Use the biased estimation of variance</a></li>
+<li><a href="#return-the-unstandardized-coefficients" id="toc-return-the-unstandardized-coefficients"><span class="toc-section-number">2.2.2</span> <span class="header-section-number">2.2.2</span> Return the unstandardized coefficients</a></li>
+<li><a href="#adjust-the-parametrization-of-lambda-for-glmnet" id="toc-adjust-the-parametrization-of-lambda-for-glmnet"><span class="toc-section-number">2.2.3</span> <span class="header-section-number">2.2.3</span> Adjust the parametrization of <img style="vertical-align:middle" src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Clambda" alt="\lambda" title="\lambda" class="math inline" /> for <code>glmnet</code></a></li>
+<li><a href="#compare-manual-and-glmnet-ridge-regression-output" id="toc-compare-manual-and-glmnet-ridge-regression-output"><span class="toc-section-number">2.2.4</span> <span class="header-section-number">2.2.4</span> Compare manual and <code>glmnet</code> ridge regression output</a></li>
 </ul>
-<h1 id="introduction">Introduction</h1>
+</li>
+</ul>
+</li>
+<li><a href="#tldr-just-give-me-the-code" id="toc-tldr-just-give-me-the-code"><span class="toc-section-number">3</span> <span class="header-section-number">3</span> TL;DR, just give me the code!</a></li>
+</ul>
+<h1 id="span-classheader-section-number1span-introduction"><span class="header-section-number">1</span> Introduction</h1>
 <p>When there are many correlated predictors in a linear regression model, their regression coefficients can become poorly determined and exhibit high variance.
 This problem can be alleviated by imposing a size constraint (or penalty) on the coefficients.
 Ridge regression shrinks the regression coefficients by imposing a penalty on their size.
@@ -901,7 +922,7 @@ Furthermore, by centering the predictors, we can separate the solution to the <a
       (&hellip;)^{-1}
     </figcaption></figure>
 ).</p>
-<h1 id="learn-by-coding">Learn by coding</h1>
+<h1 id="span-classheader-section-number2span-learn-by-coding"><span class="header-section-number">2</span> Learn by coding</h1>
 <p>The <code>glmnet</code> package can be used to obtain the ridge regression estimates of the regression coefficients.
 In this section, we will first see how to obtain these estimates &ldquo;manually&rdquo;, that is coding every step on our own, and then we will see how to obtain the same results using the <code>glmnet</code> package.</p>
 <p>Let&rsquo;s start by setting up the R environment.
@@ -921,7 +942,7 @@ X &lt;- mtcars[, -1]
 n &lt;- nrow(X)
 p &lt;- ncol(X)
 </code></pre>
-<h2 id="fitting-ridge-regression-manually">Fitting ridge regression manually</h2>
+<h2 id="span-classheader-section-number21span-fitting-ridge-regression-manually"><span class="header-section-number">2.1</span> Fitting ridge regression manually</h2>
 <p>First, let&rsquo;s make sure the predictors are centered on the mean and scaled to have a variance of 1.</p>
 <pre><code class="language-r"># Fitting ridge regression manually --------------------------------------------
 
@@ -1177,7 +1198,7 @@ b10  -0.460  -0.460
 </code></pre>
 <p>As you see, the intercept would be shrunk toward zero, without any benefit.
 As a result, any prediction would also be offset by the same amount.</p>
-<h3 id="an-alternative-way-to-avoid-penalising-the-intercept">An alternative way to avoid penalising the intercept</h3>
+<h3 id="span-classheader-section-number211span-an-alternative-way-to-avoid-penalising-the-intercept"><span class="header-section-number">2.1.1</span> An alternative way to avoid penalising the intercept</h3>
 <p>It can be handy to obtain estimates of the regression coefficients and intercept in one step.
 We can use matrix algebra and R to simplify the two-step procedure to a single step.
 In particular, we can avoid the penalisation of the intercept by setting to 0 the first element of the &ldquo;penalty&rdquo; matrix <code>lambda * diag(p + 1)</code>.</p>
@@ -1217,7 +1238,7 @@ b8    1.243   1.243
 b9    0.496   0.496
 b10  -0.460  -0.460
 </code></pre>
-<h2 id="fit-ridge-regression-with-glmnet">Fit ridge regression with glmnet</h2>
+<h2 id="span-classheader-section-number22span-fit-ridge-regression-with-glmnet"><span class="header-section-number">2.2</span> Fit ridge regression with glmnet</h2>
 <p>The most popular R package to fit regularised regression is <code>glmnet</code>.
 Let&rsquo;s see how we can replicate the results we obtained with the manual approach with glmnet.
 There are three important differences to consider:</p>
@@ -1249,7 +1270,7 @@ There are three important differences to consider:</p>
 .</li>
 </ul>
 <p>To obtain the same results with the manual approach and <code>glmnet</code> we need to account for these.</p>
-<h3 id="use-the-biased-estimation-of-variance">Use the biased estimation of variance</h3>
+<h3 id="span-classheader-section-number221span-use-the-biased-estimation-of-variance"><span class="header-section-number">2.2.1</span> Use the biased estimation of variance</h3>
 <p>First, let&rsquo;s use the biased sample variance estimate in computing 
 
 
@@ -1316,7 +1337,7 @@ b8   1.224
 b9   0.488
 b10 -0.449
 </code></pre>
-<h3 id="return-the-unstandardized-coefficients">Return the unstandardized coefficients</h3>
+<h3 id="span-classheader-section-number222span-return-the-unstandardized-coefficients"><span class="header-section-number">2.2.2</span> Return the unstandardized coefficients</h3>
 <p>Next, we need to revert these regression coefficients to their original scale.
 Since we are estimating the regression coefficients on the scaled data, they are computed on the standardized scale.</p>
 <pre><code class="language-r"># Return the  unstandardized coefficients --------------------------------------
@@ -1351,7 +1372,7 @@ b8         1.224          2.491
 b9         0.488          0.672
 b10       -0.449         -0.282
 </code></pre>
-<h3 id="adjust-the-parametrization-of-lambdahttpslatexcodecogscomsvglatex5clambda-lambda-for-glmnet">Adjust the parametrization of 
+<h3 id="span-classheader-section-number223span-adjust-the-parametrization-of-lambdahttpslatexcodecogscomsvglatex5clambda-lambda-for-glmnet"><span class="header-section-number">2.2.3</span> Adjust the parametrization of 
 
 
 
@@ -1407,7 +1428,7 @@ sd_y &lt;- sqrt(var(y) * (n - 1) / n)
 # Compute the value glmnet wants for your target lambda
 lambda_glmnet &lt;- sd_y * lambda / n
 </code></pre>
-<h3 id="compare-manual-and-glmnet-ridge-regression-output">Compare manual and <code>glmnet</code> ridge regression output</h3>
+<h3 id="span-classheader-section-number224span-compare-manual-and-glmnet-ridge-regression-output"><span class="header-section-number">2.2.4</span> Compare manual and <code>glmnet</code> ridge regression output</h3>
 <p>Finally, we can compare the results:</p>
 <pre><code class="language-r"># Fitting ridge regression with glmnet -----------------------------------------
 
@@ -1442,7 +1463,7 @@ b.am    2.491  2.491
 b.gear  0.672  0.672
 b.carb -0.282 -0.282
 </code></pre>
-<h1 id="tldr-just-give-me-the-code">TL;DR, just give me the code!</h1>
+<h1 id="span-classheader-section-number3span-tldr-just-give-me-the-code"><span class="header-section-number">3</span> TL;DR, just give me the code!</h1>
 
     </div>
 
@@ -1571,24 +1592,6 @@ b.carb -0.282 -0.282
 
 
 
-
-  
-  
-  <div class="article-widget content-widget-hr">
-    <h3>Related</h3>
-    <ul>
-      
-      <li><a href="/post/ridge/">Estimating ridge regression in R</a></li>
-      
-      <li><a href="/post/sweep/">The sweep operator</a></li>
-      
-      <li><a href="/post/covmatwt/">Estimating the weighted covariance matrix in R</a></li>
-      
-      <li><a href="/post/cross-entropy/">Cross-entropy as a measure of predictive accuracy</a></li>
-      
-    </ul>
-  </div>
-  
 
 
 

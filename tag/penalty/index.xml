@@ -549,16 +549,27 @@ round(
       <pubDate>Fri, 06 Apr 2012 00:00:00 +0000</pubDate>
       <guid>https://edoardocostantini.github.io/post/quarto/</guid>
       <description>&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;#introduction&#34; id=&#34;toc-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#learn-by-coding&#34; id=&#34;toc-learn-by-coding&#34;&gt;Learn by coding&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;#introduction&#34; id=&#34;toc-introduction&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;1&lt;/span&gt; Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#learn-by-coding&#34; id=&#34;toc-learn-by-coding&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;2&lt;/span&gt; Learn by coding&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;#fitting-ridge-regression-manually&#34; id=&#34;toc-fitting-ridge-regression-manually&#34;&gt;Fitting ridge regression manually&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#fit-ridge-regression-with-glmnet&#34; id=&#34;toc-fit-ridge-regression-with-glmnet&#34;&gt;Fit ridge regression with glmnet&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#fitting-ridge-regression-manually&#34; id=&#34;toc-fitting-ridge-regression-manually&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.1&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;2.1&lt;/span&gt; Fitting ridge regression manually&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#an-alternative-way-to-avoid-penalising-the-intercept&#34; id=&#34;toc-an-alternative-way-to-avoid-penalising-the-intercept&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.1.1&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;2.1.1&lt;/span&gt; An alternative way to avoid penalising the intercept&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#tldr-just-give-me-the-code&#34; id=&#34;toc-tldr-just-give-me-the-code&#34;&gt;TL;DR, just give me the code!&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#fit-ridge-regression-with-glmnet&#34; id=&#34;toc-fit-ridge-regression-with-glmnet&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;2.2&lt;/span&gt; Fit ridge regression with glmnet&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#use-the-biased-estimation-of-variance&#34; id=&#34;toc-use-the-biased-estimation-of-variance&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.1&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;2.2.1&lt;/span&gt; Use the biased estimation of variance&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#return-the-unstandardized-coefficients&#34; id=&#34;toc-return-the-unstandardized-coefficients&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.2&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;2.2.2&lt;/span&gt; Return the unstandardized coefficients&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#adjust-the-parametrization-of-lambda-for-glmnet&#34; id=&#34;toc-adjust-the-parametrization-of-lambda-for-glmnet&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.3&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;2.2.3&lt;/span&gt; Adjust the parametrization of &lt;img style=&#34;vertical-align:middle&#34; src=&#34;https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Clambda&#34; alt=&#34;\lambda&#34; title=&#34;\lambda&#34; class=&#34;math inline&#34; /&gt; for &lt;code&gt;glmnet&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#compare-manual-and-glmnet-ridge-regression-output&#34; id=&#34;toc-compare-manual-and-glmnet-ridge-regression-output&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.4&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;2.2.4&lt;/span&gt; Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#tldr-just-give-me-the-code&#34; id=&#34;toc-tldr-just-give-me-the-code&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;header-section-number&#34;&gt;3&lt;/span&gt; TL;DR, just give me the code!&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;span-classheader-section-number1span-introduction&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;1&lt;/span&gt; Introduction&lt;/h1&gt;
 &lt;p&gt;When there are many correlated predictors in a linear regression model, their regression coefficients can become poorly determined and exhibit high variance.
 This problem can be alleviated by imposing a size constraint (or penalty) on the coefficients.
 Ridge regression shrinks the regression coefficients by imposing a penalty on their size.
@@ -776,7 +787,7 @@ Furthermore, by centering the predictors, we can separate the solution to the &l
       (&amp;hellip;)^{-1}
     &lt;/figcaption&gt;&lt;/figure&gt;
 ).&lt;/p&gt;
-&lt;h1 id=&#34;learn-by-coding&#34;&gt;Learn by coding&lt;/h1&gt;
+&lt;h1 id=&#34;span-classheader-section-number2span-learn-by-coding&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;2&lt;/span&gt; Learn by coding&lt;/h1&gt;
 &lt;p&gt;The &lt;code&gt;glmnet&lt;/code&gt; package can be used to obtain the ridge regression estimates of the regression coefficients.
 In this section, we will first see how to obtain these estimates &amp;ldquo;manually&amp;rdquo;, that is coding every step on our own, and then we will see how to obtain the same results using the &lt;code&gt;glmnet&lt;/code&gt; package.&lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s start by setting up the R environment.
@@ -796,7 +807,7 @@ X &amp;lt;- mtcars[, -1]
 n &amp;lt;- nrow(X)
 p &amp;lt;- ncol(X)
 &lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;fitting-ridge-regression-manually&#34;&gt;Fitting ridge regression manually&lt;/h2&gt;
+&lt;h2 id=&#34;span-classheader-section-number21span-fitting-ridge-regression-manually&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.1&lt;/span&gt; Fitting ridge regression manually&lt;/h2&gt;
 &lt;p&gt;First, let&amp;rsquo;s make sure the predictors are centered on the mean and scaled to have a variance of 1.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;# Fitting ridge regression manually --------------------------------------------
 
@@ -1052,7 +1063,7 @@ b10  -0.460  -0.460
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;As you see, the intercept would be shrunk toward zero, without any benefit.
 As a result, any prediction would also be offset by the same amount.&lt;/p&gt;
-&lt;h3 id=&#34;an-alternative-way-to-avoid-penalising-the-intercept&#34;&gt;An alternative way to avoid penalising the intercept&lt;/h3&gt;
+&lt;h3 id=&#34;span-classheader-section-number211span-an-alternative-way-to-avoid-penalising-the-intercept&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.1.1&lt;/span&gt; An alternative way to avoid penalising the intercept&lt;/h3&gt;
 &lt;p&gt;It can be handy to obtain estimates of the regression coefficients and intercept in one step.
 We can use matrix algebra and R to simplify the two-step procedure to a single step.
 In particular, we can avoid the penalisation of the intercept by setting to 0 the first element of the &amp;ldquo;penalty&amp;rdquo; matrix &lt;code&gt;lambda * diag(p + 1)&lt;/code&gt;.&lt;/p&gt;
@@ -1092,7 +1103,7 @@ b8    1.243   1.243
 b9    0.496   0.496
 b10  -0.460  -0.460
 &lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;fit-ridge-regression-with-glmnet&#34;&gt;Fit ridge regression with glmnet&lt;/h2&gt;
+&lt;h2 id=&#34;span-classheader-section-number22span-fit-ridge-regression-with-glmnet&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2&lt;/span&gt; Fit ridge regression with glmnet&lt;/h2&gt;
 &lt;p&gt;The most popular R package to fit regularised regression is &lt;code&gt;glmnet&lt;/code&gt;.
 Let&amp;rsquo;s see how we can replicate the results we obtained with the manual approach with glmnet.
 There are three important differences to consider:&lt;/p&gt;
@@ -1124,7 +1135,7 @@ There are three important differences to consider:&lt;/p&gt;
 .&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;To obtain the same results with the manual approach and &lt;code&gt;glmnet&lt;/code&gt; we need to account for these.&lt;/p&gt;
-&lt;h3 id=&#34;use-the-biased-estimation-of-variance&#34;&gt;Use the biased estimation of variance&lt;/h3&gt;
+&lt;h3 id=&#34;span-classheader-section-number221span-use-the-biased-estimation-of-variance&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.1&lt;/span&gt; Use the biased estimation of variance&lt;/h3&gt;
 &lt;p&gt;First, let&amp;rsquo;s use the biased sample variance estimate in computing 
 
 
@@ -1191,7 +1202,7 @@ b8   1.224
 b9   0.488
 b10 -0.449
 &lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;return-the-unstandardized-coefficients&#34;&gt;Return the unstandardized coefficients&lt;/h3&gt;
+&lt;h3 id=&#34;span-classheader-section-number222span-return-the-unstandardized-coefficients&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.2&lt;/span&gt; Return the unstandardized coefficients&lt;/h3&gt;
 &lt;p&gt;Next, we need to revert these regression coefficients to their original scale.
 Since we are estimating the regression coefficients on the scaled data, they are computed on the standardized scale.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;# Return the  unstandardized coefficients --------------------------------------
@@ -1226,7 +1237,7 @@ b8         1.224          2.491
 b9         0.488          0.672
 b10       -0.449         -0.282
 &lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;adjust-the-parametrization-of-lambdahttpslatexcodecogscomsvglatex5clambda-lambda-for-glmnet&#34;&gt;Adjust the parametrization of 
+&lt;h3 id=&#34;span-classheader-section-number223span-adjust-the-parametrization-of-lambdahttpslatexcodecogscomsvglatex5clambda-lambda-for-glmnet&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.3&lt;/span&gt; Adjust the parametrization of 
 
 
 
@@ -1282,7 +1293,7 @@ sd_y &amp;lt;- sqrt(var(y) * (n - 1) / n)
 # Compute the value glmnet wants for your target lambda
 lambda_glmnet &amp;lt;- sd_y * lambda / n
 &lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;compare-manual-and-glmnet-ridge-regression-output&#34;&gt;Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/h3&gt;
+&lt;h3 id=&#34;span-classheader-section-number224span-compare-manual-and-glmnet-ridge-regression-output&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.4&lt;/span&gt; Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/h3&gt;
 &lt;p&gt;Finally, we can compare the results:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;# Fitting ridge regression with glmnet -----------------------------------------
 
@@ -1317,7 +1328,7 @@ b.am    2.491  2.491
 b.gear  0.672  0.672
 b.carb -0.282 -0.282
 &lt;/code&gt;&lt;/pre&gt;
-&lt;h1 id=&#34;tldr-just-give-me-the-code&#34;&gt;TL;DR, just give me the code!&lt;/h1&gt;
+&lt;h1 id=&#34;span-classheader-section-number3span-tldr-just-give-me-the-code&#34;&gt;&lt;span class=&#34;header-section-number&#34;&gt;3&lt;/span&gt; TL;DR, just give me the code!&lt;/h1&gt;
 </description>
     </item>
     
