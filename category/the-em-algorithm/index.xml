@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>EM | Edo</title>
-    <link>https://edoardocostantini.github.io/category/em/</link>
-      <atom:link href="https://edoardocostantini.github.io/category/em/index.xml" rel="self" type="application/rss+xml" />
-    <description>EM</description>
+    <title>The EM algorithm | Edo</title>
+    <link>https://edoardocostantini.github.io/category/the-em-algorithm/</link>
+      <atom:link href="https://edoardocostantini.github.io/category/the-em-algorithm/index.xml" rel="self" type="application/rss+xml" />
+    <description>The EM algorithm</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Wed, 17 Nov 2021 00:00:00 +0000</lastBuildDate>
     <image>
       <url>https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png</url>
-      <title>EM</title>
-      <link>https://edoardocostantini.github.io/category/em/</link>
+      <title>The EM algorithm</title>
+      <link>https://edoardocostantini.github.io/category/the-em-algorithm/</link>
     </image>
     
     <item>

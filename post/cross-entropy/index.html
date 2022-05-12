@@ -52,7 +52,7 @@
   
     
   
-  <meta name="description" content="1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy quantifies the difference between two probability distributions." />
+  <meta name="description" content="1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy (CE) quantifies the difference between two probability distributions." />
 
   
   <link rel="alternate" hreflang="en-us" href="https://edoardocostantini.github.io/post/cross-entropy/" />
@@ -295,8 +295,8 @@
   
   <meta property="og:site_name" content="Edo" />
   <meta property="og:url" content="https://edoardocostantini.github.io/post/cross-entropy/" />
-  <meta property="og:title" content="Cross-entropy as a measure of predictive accuracy | Edo" />
-  <meta property="og:description" content="1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy quantifies the difference between two probability distributions." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
+  <meta property="og:title" content="Cross-entropy as a measure of predictive performance | Edo" />
+  <meta property="og:description" content="1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy (CE) quantifies the difference between two probability distributions." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
     <meta property="twitter:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
   
     
@@ -305,7 +305,7 @@
         content="2022-04-22T00:00:00&#43;00:00"
       />
     
-    <meta property="article:modified_time" content="2022-04-24T00:41:19&#43;02:00">
+    <meta property="article:modified_time" content="2022-05-12T16:05:38&#43;02:00">
   
 
   
@@ -331,10 +331,10 @@
     "@type": "WebPage",
     "@id": "https://edoardocostantini.github.io/post/cross-entropy/"
   },
-  "headline": "Cross-entropy as a measure of predictive accuracy",
+  "headline": "Cross-entropy as a measure of predictive performance",
   
   "datePublished": "2022-04-22T00:00:00Z",
-  "dateModified": "2022-04-24T00:41:19+02:00",
+  "dateModified": "2022-05-12T16:05:38+02:00",
   
   "author": {
     "@type": "Person",
@@ -349,7 +349,7 @@
       "url": "https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_192x192_fill_lanczos_center_3.png"
     }
   },
-  "description": "1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy quantifies the difference between two probability distributions."
+  "description": "1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy (CE) quantifies the difference between two probability distributions."
 }
 </script>
 
@@ -365,7 +365,7 @@
 
 
 
-  <title>Cross-entropy as a measure of predictive accuracy | Edo</title>
+  <title>Cross-entropy as a measure of predictive performance | Edo</title>
 </head>
 
 
@@ -573,7 +573,7 @@
   
   
 <div class="article-container pt-3">
-  <h1>Cross-entropy as a measure of predictive accuracy</h1>
+  <h1>Cross-entropy as a measure of predictive performance</h1>
 
   
 
@@ -600,7 +600,7 @@
       
       <span class="middot-divider"></span>
          Last updated on
-         Apr 24, 2022
+         May 12, 2022
       
     
   </span>
@@ -621,7 +621,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-categories">
-    <i class="fas fa-folder mr-1"></i><a href="/category/drafts/">Drafts</a>, <a href="/category/tutorials/">Tutorials</a></span>
+    <i class="fas fa-folder mr-1"></i><a href="/category/machine-learning/">Machine Learning</a></span>
   
 
 </div>
@@ -654,87 +654,173 @@
 
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>Cross-entropy quantifies the difference between two probability distributions.
+<p>Cross-entropy (CE) quantifies the difference between two probability distributions.
 As such, it comes in handy as a <a href="https://en.wikipedia.org/wiki/Loss_function">loss function</a> in multi-class classification tasks (e.g., multinomial logistic regression).
-Cross-entropy also provides an elegant solution for determining the difference between actual and predicted categorical data point values.</p>
+It also provides an elegant solution for determining the difference between actual and predicted categorical data point values.
+It can be used to determine the predictive performance of a classification model.
+The value of the cross-entropy is higher when the predicted classes diverge more from the true labels.</p>
 </div>
 <div id="learn-by-coding" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Learn by coding</h1>
-<p>Bla bla</p>
+<p>In a multiclass-classification task, we calculate a separate “loss” for each class for each observation and sum the result:</p>
+<p><span class="math display" id="eq:CE">\[
+CE = - \sum^{N}_{i = 1} \sum^{K}_{k = 1} p_{(i, k)}log(\hat{p}_{(i, k)}) \tag{2.1}
+\]</span></p>
+<p>where</p>
+<ul>
+<li><span class="math inline">\(N\)</span> is the sample size.</li>
+<li><span class="math inline">\(K\)</span> is the number of categories of the variable we are trying to predict.</li>
+<li><span class="math inline">\(p\)</span> is a scalar taking value <span class="math inline">\(0 = \text{no}\)</span> or <span class="math inline">\(1 = \text{yes}\)</span> to indicate whether observation <span class="math inline">\(i\)</span> belongs to class <span class="math inline">\(k\)</span>. This can also be thought of as the true probability of the observation belonging to that class.</li>
+<li><span class="math inline">\(\hat{p}\)</span> is a scalar indicating the predicted probability of observation <span class="math inline">\(i\)</span> belonging to class <span class="math inline">\(k\)</span>.</li>
+<li><span class="math inline">\(log\)</span> is the natural logarithm.</li>
+</ul>
+<p>Let’s see an example in R.
+The <code>iris</code> data records the petal and sepal dimensions for 150 and their species.
+Consider the task of predicting the flowers’ species based on all the numeric predictors available.
+We will fit a multinomial logistic regression on the data and compute the cross-entropy between the observed and predicted class membership.</p>
+<p>To start, we should prepare the R environment by loading a few packages we will use:</p>
+<ul>
+<li><code>nnet</code> to estimate the multinomial logistic model;</li>
+<li><code>MLmetric</code> to check someone else’s implementation of the cross-entropy computation.</li>
+<li><code>FactoMineR</code> to create a <a href="https://www.xlstat.com/en/solutions/features/complete-disjuncive-tables-creating-dummy-variables">disjunctive table</a> from an R factor</li>
+</ul>
 <pre class="r"><code># Prepare environment ----------------------------------------------------------
 
 # Packages
 library(nnet)
+library(MLmetrics)  # for LogLoss() function
+library(FactoMineR) # for tab.disjonctif() function
 
-# Data
-dat_bin &lt;- ToothGrowth
-dat_cat &lt;- iris</code></pre>
-<p>First, binary cross entropy</p>
-<pre class="r"><code># Binary cross entropy ---------------------------------------------------------
-
-# Fit model
-glm_log &lt;- glm(supp ~ .,
-               family = binomial(link = &#39;logit&#39;),
-               data = ToothGrowth)
-
-# Predictions
-preds_log &lt;- predict(glm_log, type = &quot;response&quot;)
-
-# Compute entropy
-p &lt;- as.numeric(ToothGrowth$supp)-1 #
-phat &lt;- preds_log
-
-x &lt;- 0
-for (i in 1:length(p)){
-  x &lt;- x + (p[i] * log(phat[i]))
-}
-
-- x</code></pre>
-<pre><code>##        1 
-## 17.99278</code></pre>
-<p>Then</p>
-<pre class="r"><code># Multi-categorical cross entropy ----------------------------------------------
+# Default rounding for this sessino
+options(&quot;digits&quot; = 5)</code></pre>
+<p>Then, we should estimate the multinomial logistic model of interest.
+We will use this model to create predictions.</p>
+<pre class="r"><code># Fit mulinomial logistic model ------------------------------------------------
 
 # Fit model
-glm_mln &lt;- multinom(Species ~ ., data = iris)</code></pre>
-<pre><code>## # weights:  18 (10 variable)
-## initial  value 164.791843 
-## iter  10 value 16.177348
-## iter  20 value 7.111438
-## iter  30 value 6.182999
-## iter  40 value 5.984028
-## iter  50 value 5.961278
-## iter  60 value 5.954900
-## iter  70 value 5.951851
-## iter  80 value 5.950343
-## iter  90 value 5.949904
-## iter 100 value 5.949867
-## final  value 5.949867 
-## stopped after 100 iterations</code></pre>
-<pre class="r"><code># Predictions
-preds_mln &lt;- predict(glm_mln, type = &quot;probs&quot;)
+glm_mln &lt;- multinom(Species ~ Sepal.Length, data = iris)</code></pre>
+<p>We can now create two R matrices <code>p</code> and <code>p_hat</code> storing all the scalars <span class="math inline">\(p_{ik}\)</span> and <span class="math inline">\(\hat{p}_{ik}\)</span> we need to compute <a href="#eq:CE">(2.1)</a>.</p>
+<ul>
+<li><p>First, we want to store all the <span class="math inline">\(p_{ik}\)</span> in one matrix.
+To do so, we can create a disjunctive table based on the <code>species</code> factor.
+This is an <span class="math inline">\(N \times K\)</span> matrix storing 0s and 1s to indicate which class every observation belongs to.</p>
+<pre class="r"><code># Obtain p and p_har -----------------------------------------------------------
 
-# Compute entropy
+# store true labels in a matrix p
 p &lt;- FactoMineR::tab.disjonctif(iris$Species)
-phat &lt;- preds_mln
 
-x &lt;- 0
-for (i in 1:nrow(p)){
-  for (j in 1:ncol(p)){
-    x &lt;- x + (p[i, ] * log(phat[i, ]))
+# check it
+head(p)</code></pre>
+<pre><code>##   setosa versicolor virginica
+## 1      1          0         0
+## 2      1          0         0
+## 3      1          0         0
+## 4      1          0         0
+## 5      1          0         0
+## 6      1          0         0</code></pre></li>
+<li><p>Second, we want to obtain the predicted class probabilities for every observation:</p>
+<pre class="r"><code># obtain predictions
+p_hat &lt;- predict(glm_mln, type = &quot;probs&quot;)
+
+# check it
+head(p_hat)</code></pre>
+<pre><code>##    setosa versicolor virginica
+## 1 0.80657   0.176155 0.0172792
+## 2 0.91844   0.076558 0.0050018
+## 3 0.96787   0.030792 0.0013399
+## 4 0.98005   0.019262 0.0006841
+## 5 0.87281   0.117765 0.0094276
+## 6 0.47769   0.442466 0.0798435</code></pre></li>
+</ul>
+<p>We can now write a loop to perform the computation in <a href="#eq:CE">(2.1)</a> for every <span class="math inline">\(i\)</span> and <span class="math inline">\(k\)</span>.</p>
+<pre class="r"><code># Compute CE with a loop -------------------------------------------------------
+
+# Define parameters
+N &lt;- nrow(iris) # sample size
+K &lt;- nlevels(iris$Species) # number of classes
+
+# Create storing object for CE
+CE &lt;- 0
+
+# Compute CE with a loop
+for (i in 1:N){
+  for (k in 1:K){
+    CE &lt;- CE - p[i, k] * log(p_hat[i, k])
   }
 }
 
-- sum(x)</code></pre>
-<pre><code>## [1] 17.8496</code></pre>
-<p>Finally</p>
-<pre class="r"><code># Fast way to compute both -----------------------------------------------------
+# Print the value of CE
+CE</code></pre>
+<pre><code>## [1] 91.034</code></pre>
+<p>We can also work with the matrices <code>p</code> and <code>p_hat</code> directly to avoid using a loop:</p>
+<pre class="r"><code># Compute CE using the matrices directly ---------------------------------------
+ce &lt;- -sum(diag(p %*% t(log(p_hat))))
 
-ce &lt;- - sum(
-  diag(
-    p %*% t(log(phat))
-  )
-)</code></pre>
+# Print the value of ce
+ce</code></pre>
+<pre><code>## [1] 91.034</code></pre>
+<p>This approach works for a binary prediction just as well.
+We only need to pay attention to storing the true and predicted probabilities in matrix form.
+For example consider the task of predicting the transmission type (automatic or not) for the cars recorded in the <code>mtcars</code> dataset.</p>
+<pre class="r"><code># Binary cross entropy ---------------------------------------------------------
+
+# Fit model
+glm_log &lt;- glm(am ~ hp + wt,
+               family = binomial(link = &#39;logit&#39;),
+               data = mtcars)
+
+# store true labels in a matrix p
+p &lt;- FactoMineR::tab.disjonctif(mtcars$am)
+
+# obtain predicted probabilites in matrix form
+pred_probs &lt;- predict(glm_log, type = &quot;response&quot;)
+p_hat &lt;- cbind(k_0 = 1 - pred_probs,
+               k_1 = pred_probs)</code></pre>
+<p>The objects <code>p</code> and <code>p_hat</code> are all the information we need to compute the cross-entropy for this binary prediction task:</p>
+<pre class="r"><code># check the first few rows of p
+head(p)</code></pre>
+<pre><code>##   [,1] [,2]
+## 1    0    1
+## 2    0    1
+## 3    0    1
+## 4    1    0
+## 5    1    0
+## 6    1    0</code></pre>
+<pre class="r"><code># check the first few rows of p_hat
+head(p_hat)</code></pre>
+<pre><code>##                        k_0       k_1
+## Mazda RX4         0.157664 0.8423355
+## Mazda RX4 Wag     0.595217 0.4047825
+## Datsun 710        0.029759 0.9702408
+## Hornet 4 Drive    0.958272 0.0417280
+## Hornet Sportabout 0.930612 0.0693881
+## Valiant           0.995012 0.0049882</code></pre>
+<p>We can use these new objects to obtain the binary CE with the same computation we used for the multiclass CE:</p>
+<pre class="r"><code># Compute CE using the matrices directly
+ce &lt;- -sum(diag(p %*% t(log(p_hat))))
+
+# Print the value of ce
+ce</code></pre>
+<pre><code>## [1] 5.0296</code></pre>
+<p>It is not uncommon to devide the value of the cross-entropy by the number of units on which the computation is performed, effectively producing and average loss across the units.</p>
+<pre class="r"><code># Express as average
+ce / nrow(mtcars)</code></pre>
+<pre><code>## [1] 0.15717</code></pre>
+<p>Just to be sure, we can use the <code>LogLoss()</code> function from the <code>MLmetrics</code> package to compute the same binary CE.
+However, this function requires the true and predicted probabilities to be stored as vectors instead of matrices.
+So first we need to obtain the vector versions of <code>p</code> and <code>p_hat</code>.</p>
+<pre class="r"><code># Compute binary CE with MLmetrics implementation ------------------------------
+
+# Obtain vector of true probabilities
+p_vec &lt;- mtcars$am
+
+# Obtain vector of predicted probabilities
+p_hat_vec &lt;- predict(glm_log, type = &quot;response&quot;)</code></pre>
+<p>and then we can simply provide these objects to the <code>LogLoss()</code> function:</p>
+<pre class="r"><code># Compute and print binary CE with MLmetrics implementation
+MLmetrics::LogLoss(y_pred = p_hat_vec,
+                   y_true = p_vec)</code></pre>
+<pre><code>## [1] 0.15717</code></pre>
 </div>
 <div id="tldr-just-give-me-the-code" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> TL;DR, just give me the code!</h1>
@@ -742,60 +828,97 @@ ce &lt;- - sum(
 
 # Packages
 library(nnet)
+library(MLmetrics)  # for LogLoss() function
+library(FactoMineR) # for tab.disjonctif() function
 
-# Data
-dat_bin &lt;- ToothGrowth
-dat_cat &lt;- iris
+# Default rounding for this sessino
+options(&quot;digits&quot; = 5)
+
+# Fit mulinomial logistic model ------------------------------------------------
+
+# Fit model
+glm_mln &lt;- multinom(Species ~ Sepal.Length, data = iris)
+
+# Obtain p and p_har -----------------------------------------------------------
+
+# store true labels in a matrix p
+p &lt;- FactoMineR::tab.disjonctif(iris$Species)
+
+# check it
+head(p)
+
+# obtain predictions
+p_hat &lt;- predict(glm_mln, type = &quot;probs&quot;)
+
+# check it
+head(p_hat)
+
+# Compute CE with a loop -------------------------------------------------------
+
+# Define parameters
+N &lt;- nrow(iris) # sample size
+K &lt;- nlevels(iris$Species) # number of classes
+
+# Create storing object for CE
+CE &lt;- 0
+
+# Compute CE with a loop
+for (i in 1:N){
+  for (k in 1:K){
+    CE &lt;- CE - p[i, k] * log(p_hat[i, k])
+  }
+}
+
+# Print the value of CE
+CE
+
+# Compute CE using the matrices directly ---------------------------------------
+ce &lt;- -sum(diag(p %*% t(log(p_hat))))
+
+# Print the value of ce
+ce
 
 # Binary cross entropy ---------------------------------------------------------
 
 # Fit model
-glm_log &lt;- glm(supp ~ .,
+glm_log &lt;- glm(am ~ hp + wt,
                family = binomial(link = &#39;logit&#39;),
-               data = ToothGrowth)
+               data = mtcars)
 
-# Predictions
-preds_log &lt;- predict(glm_log, type = &quot;response&quot;)
+# store true labels in a matrix p
+p &lt;- FactoMineR::tab.disjonctif(mtcars$am)
 
-# Compute entropy
-p &lt;- as.numeric(ToothGrowth$supp)-1 #
-phat &lt;- preds_log
+# obtain predicted probabilites in matrix form
+pred_probs &lt;- predict(glm_log, type = &quot;response&quot;)
+p_hat &lt;- cbind(k_0 = 1 - pred_probs,
+               k_1 = pred_probs)
 
-x &lt;- 0
-for (i in 1:length(p)){
-  x &lt;- x + (p[i] * log(phat[i]))
-}
+# check the first few rows of p
+head(p)
 
-- x
+# check the first few rows of p_hat
+head(p_hat)
 
-# Multi-categorical cross entropy ----------------------------------------------
+# Compute CE using the matrices directly
+ce &lt;- -sum(diag(p %*% t(log(p_hat))))
 
-# Fit model
-glm_mln &lt;- multinom(Species ~ ., data = iris)
+# Print the value of ce
+ce
 
-# Predictions
-preds_mln &lt;- predict(glm_mln, type = &quot;probs&quot;)
+# Express as average
+ce / nrow(mtcars)
 
-# Compute entropy
-p &lt;- FactoMineR::tab.disjonctif(iris$Species)
-phat &lt;- preds_mln
+# Compute binary CE with MLmetrics implementation ------------------------------
 
-x &lt;- 0
-for (i in 1:nrow(p)){
-  for (j in 1:ncol(p)){
-    x &lt;- x + (p[i, ] * log(phat[i, ]))
-  }
-}
+# Obtain vector of true probabilities
+p_vec &lt;- mtcars$am
 
-- sum(x)
+# Obtain vector of predicted probabilities
+p_hat_vec &lt;- predict(glm_log, type = &quot;response&quot;)
 
-# Fast way to compute both -----------------------------------------------------
-
-ce &lt;- - sum(
-  diag(
-    p %*% t(log(phat))
-  )
-)</code></pre>
+# Compute and print binary CE with MLmetrics implementation
+MLmetrics::LogLoss(y_pred = p_hat_vec,
+                   y_true = p_vec)</code></pre>
 </div>
 <div id="other-resources" class="section level1" number="4">
 <h1><span class="header-section-number">4</span> Other resources</h1>
@@ -803,6 +926,8 @@ ce &lt;- - sum(
 <li><a href="https://rpubs.com/juanhklopper/cross_entropy">Cross-entropy in RPubs</a></li>
 <li><a href="https://machinelearningmastery.com/cross-entropy-for-machine-learning/">A Gentle Introduction to Cross-Entropy for Machine Learning</a></li>
 <li><a href="https://gombru.github.io/2018/05/23/cross_entropy_loss/">Understanding Categorical Cross-Entropy Loss, Binary Cross-Entropy Loss, Softmax Loss, Logistic Loss, Focal Loss and all those confusing names</a></li>
+<li><a href="https://ml-cheatsheet.readthedocs.io/en/latest/loss_functions.html">ML Gloassary</a></li>
+<li><a href="https://medium.com/swlh/cross-entropy-loss-in-pytorch-c010faf97bab">Loss Functions in Machine Learning</a></li>
 </ul>
 </div>
 
@@ -819,7 +944,7 @@ ce &lt;- - sum(
   
   <a class="badge badge-light" href="/tag/prediction/">prediction</a>
   
-  <a class="badge badge-light" href="/tag/machine-learning/">machine learning</a>
+  <a class="badge badge-light" href="/tag/outcome-measures/">outcome measures</a>
   
 </div>
 
