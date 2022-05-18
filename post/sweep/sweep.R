@@ -168,3 +168,88 @@ library(fastmatrix)            # alternative sweep
 
   # Sweep theta (notice we do not sweep over 1)
   sweepGoodnight(theta, sweep_over)[c("int", preds), dvs]
+
+# ---------------------------------------------------------------------- #
+# Sweep following Lange2010
+# ---------------------------------------------------------------------- #
+
+# Multiple regression ----------------------------------------------------------
+
+  # Input data
+  n <- 1e3
+  p <- 5
+  X <- cbind(1, MASS::mvrnorm(n, rep(0, p), diag(p)))
+
+  y <- X %*% rep(1, p+1) + rnorm(n)
+
+  # Fit linear model
+  lm(y ~ -1 + X)
+  summary(lm(y ~ -1 + X))
+  sigma(lm(y ~ -1 + X))^2
+
+  # Construct matrix to sweep
+
+  XtX <- t(X) %*% X
+  Xty <- t(X) %*% y
+  yty <- t(y) %*% y
+
+  mat7.6 <- rbind(
+    cbind(XtX, Xty),
+    cbind(t(Xty), yty)
+  )
+
+  # Sweep matrix
+  mat7.6_swept <- ISR3::SWP(mat7.6, 1:ncol(X))
+
+  # Coefs
+  bhat <- mat7.6_swept[-nrow(mat7.6), ncol(mat7.6)]
+    bhat - coef(lm(y ~ -1 + X))
+
+  # standard errors
+  ses <- sqrt(diag(sigma2 * solve(XtX)))
+    ses - summary(lm(y ~ -1 + X))$coefficients[ , 2]
+
+  # Residual variance
+  sigma2 <- mat7.6_swept[nrow(mat7.6), ncol(mat7.6)] / (n - (p+1))
+    sigma2 - sigma(lm(y ~ -1 + X))^2
+
+# Multivariate regression ------------------------------------------------------
+
+  dat <- as.data.frame(
+    matrix(
+      data = c(7, 1, 11, 11, 7, 11, 3, 1, 2, 21, 1, 11, 10, 26,
+               29, 56, 31, 52, 55, 71 ,31, 54, 47, 40, 66, 68,
+               6, 15, 8, 8, 6, 9, 17, 22, 18, 4, 23, 9, 8,
+               60, 52, 20, 47, 33, 22,6,44,22,26,34,12,12,
+               78.5, 74.3, 104.3, 87.6, 95.9, 109.2, 102.7,
+               72.5, 93.1, 115.9, 83.8, 113.3, 109.4),
+      ncol = 5
+    )
+  )
+  n <- nrow(dat)
+  p <- ncol(dat)
+  dat <- cbind(int = 1, dat)
+
+  # Define the dvs
+  Z <- c("V4", "V5")
+
+  # Define the predictors
+  Y <- c("V1", "V2", "V3")
+
+  # Complicated but flexible way of writing the formula
+  formula_lm <- paste0("cbind(",
+                       paste0(Z, collapse = ", "),
+                       ")",
+                       " ~ ",
+                       preds = paste0(Y, collapse = " + "))
+
+  # Fit the model with the MLM
+  mlm0 <- lm(formula_lm, data = dat)
+
+  #
+  Omega_Y <- cov(dat[, Y]) * (n - 1) / n
+  Omega_Z <- cov(dat[, Z]) * (n - 1) / n
+
+  Omega <- cov(dat) * (n - 1) / n
+  muZ <- colMeans(dat[, Z])
+  colMeans(dat[, Y]) - dat[, Y]

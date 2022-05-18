@@ -5,12 +5,125 @@
     <link>https://edoardocostantini.github.io/category/drafts/</link>
       <atom:link href="https://edoardocostantini.github.io/category/drafts/index.xml" rel="self" type="application/rss+xml" />
     <description>Drafts</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 14 Mar 2022 00:00:00 +0000</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 16 May 2022 00:00:00 +0000</lastBuildDate>
     <image>
       <url>https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png</url>
       <title>Drafts</title>
       <link>https://edoardocostantini.github.io/category/drafts/</link>
     </image>
+    
+    <item>
+      <title>Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test</title>
+      <link>https://edoardocostantini.github.io/post/pca-non-graphical-solutions/</link>
+      <pubDate>Mon, 16 May 2022 00:00:00 +0000</pubDate>
+      <guid>https://edoardocostantini.github.io/post/pca-non-graphical-solutions/</guid>
+      <description>
+&lt;script src=&#34;https://edoardocostantini.github.io/post/pca-non-graphical-solutions/index_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+&lt;div id=&#34;TOC&#34;&gt;
+
+&lt;/div&gt;
+
+&lt;div id=&#34;introduction&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Different solutions:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Kaiser Rule (aka Optimal Coordinate) &lt;span class=&#34;math inline&#34;&gt;\(n_{oc}\)&lt;/span&gt;.
+In its simplest form, the Kaiser’s rule retains only the PCs with variances exceeding 1.
+If a PC has less variance than 1, it means that it explains less total variance than a single variable in the data, which makes it useless.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Acceleration Factor.
+For every &lt;span class=&#34;math inline&#34;&gt;\(j\)&lt;/span&gt;-th eigenvalue, the acceleration factor &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; is calculated as the change in the slope between the line connecting the &lt;span class=&#34;math inline&#34;&gt;\(eig_j\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(eig_{j-1}\)&lt;/span&gt;, and the line connecting &lt;span class=&#34;math inline&#34;&gt;\(eig_j\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(eig_{j+1}\)&lt;/span&gt;
+&lt;span class=&#34;math display&#34;&gt;\[
+a_{j} = (eig_{j+1} - eig_{j}) - (eig_{j} - eig_{j-1})
+\]&lt;/span&gt;
+Once the largest &lt;span class=&#34;math inline&#34;&gt;\(a_j\)&lt;/span&gt; is found, the number of components is set to &lt;span class=&#34;math inline&#34;&gt;\(j-1\)&lt;/span&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div id=&#34;learn-by-coding&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Learn by coding&lt;/h2&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Prepare environment ----------------------------------------------------------
+
+library(nFactors)
+library(psych)
+
+# Perform PCA
+res &amp;lt;- psych::pca(Harman.5)
+
+# Extract eigenvalues
+eigenvalues &amp;lt;- res$values
+
+# Graph
+plotuScree(x = eigenvalues)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://edoardocostantini.github.io/post/pca-non-graphical-solutions/index_files/figure-html/data-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Non-graphical solutions
+ngs &amp;lt;- nScree(x = eigenvalues)
+
+# Kaiser rule\
+nkaiser_man &amp;lt;- sum(eigenvalues &amp;gt; 1)
+
+# Accelration factor
+a &amp;lt;- NULL
+for (j in 2:(length(eigenvalues) - 1)){
+  a[j] &amp;lt;- (eigenvalues[j + 1] - eigenvalues[j]) - (eigenvalues[j] - eigenvalues[j - 1])
+}
+
+naf_man &amp;lt;- which.max(a) - 1
+
+# Compare results
+data.frame(manual = c(naf = naf_man, nkaiser = nkaiser_man),
+           nFactor = c(naf = ngs$Components[[&amp;quot;naf&amp;quot;]],
+                       nkaiser = ngs$Components[[&amp;quot;nkaiser&amp;quot;]]))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         manual nFactor
+## naf          2       2
+## nkaiser      2       2&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;TL;DR, just give me the code!&lt;/h2&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Prepare environment ----------------------------------------------------------
+
+library(nFactors)
+library(psych)
+
+# Perform PCA
+res &amp;lt;- psych::pca(Harman.5)
+
+# Extract eigenvalues
+eigenvalues &amp;lt;- res$values
+
+# Graph
+plotuScree(x = eigenvalues)
+
+# Non-graphical solutions
+ngs &amp;lt;- nScree(x = eigenvalues)
+
+# Kaiser rule\
+nkaiser_man &amp;lt;- sum(eigenvalues &amp;gt; 1)
+
+# Accelration factor
+a &amp;lt;- NULL
+for (j in 2:(length(eigenvalues) - 1)){
+  a[j] &amp;lt;- (eigenvalues[j + 1] - eigenvalues[j]) - (eigenvalues[j] - eigenvalues[j - 1])
+}
+
+naf_man &amp;lt;- which.max(a) - 1
+
+# Compare results
+data.frame(manual = c(naf = naf_man, nkaiser = nkaiser_man),
+           nFactor = c(naf = ngs$Components[[&amp;quot;naf&amp;quot;]],
+                       nkaiser = ngs$Components[[&amp;quot;nkaiser&amp;quot;]]))&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;other-resources&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Other resources&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://rpubs.com/juanhklopper/cross_entropy&#34;&gt;Cross-entropy in RPubs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://machinelearningmastery.com/cross-entropy-for-machine-learning/&#34;&gt;A Gentle Introduction to Cross-Entropy for Machine Learning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://gombru.github.io/2018/05/23/cross_entropy_loss/&#34;&gt;Understanding Categorical Cross-Entropy Loss, Binary Cross-Entropy Loss, Softmax Loss, Logistic Loss, Focal Loss and all those confusing names&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://ml-cheatsheet.readthedocs.io/en/latest/loss_functions.html&#34;&gt;ML Gloassary&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://medium.com/swlh/cross-entropy-loss-in-pytorch-c010faf97bab&#34;&gt;Loss Functions in Machine Learning&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+</description>
+    </item>
     
     <item>
       <title>Estimating the weighted covariance matrix in R</title>
@@ -557,28 +670,11 @@ The following are alternative ways of computing it with mathematical or R shortc
 &lt;script src=&#34;https://edoardocostantini.github.io/post/ridge/index_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
 
 &lt;div id=&#34;TOC&#34;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;#introduction&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;1&lt;/span&gt; Introduction&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#learn-by-coding&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2&lt;/span&gt; Learn by coding&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;#fitting-ridge-regression-manually&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.1&lt;/span&gt; Fitting ridge regression manually&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;#an-alternative-way-to-avoid-penalising-the-intercept&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.1.1&lt;/span&gt; An alternative way to avoid penalising the intercept&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#fit-ridge-regression-with-glmnet&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2&lt;/span&gt; Fit ridge regression with glmnet&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;#use-the-biased-estimation-of-variance&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.1&lt;/span&gt; Use the biased estimation of variance&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#return-the-unstandardized-coefficients&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.2&lt;/span&gt; Return the unstandardized coefficients&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#adjust-the-parametrization-of-lambda-for-glmnet&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.3&lt;/span&gt; Adjust the parametrization of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; for &lt;code&gt;glmnet&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#compare-manual-and-glmnet-ridge-regression-output&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.4&lt;/span&gt; Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#tldr-just-give-me-the-code&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;3&lt;/span&gt; TL;DR, just give me the code!&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+
 &lt;/div&gt;
 
-&lt;div id=&#34;introduction&#34; class=&#34;section level1&#34; number=&#34;1&#34;&gt;
-&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;1&lt;/span&gt; Introduction&lt;/h1&gt;
+&lt;div id=&#34;introduction&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Introduction&lt;/h1&gt;
 &lt;p&gt;When there are many correlated predictors in a linear regression model, their regression coefficients can become poorly determined and exhibit high variance.
 This problem can be alleviated by imposing a size constraint (or penalty) on the coefficients.
 Ridge regression shrinks the regression coefficients by imposing a penalty on their size.
@@ -603,8 +699,8 @@ Furthermore, by centering the predictors, we can separate the solution to the &l
 which is the regular way of estimating regression coefficients with a penalty term (&lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;) added on the diagonal (&lt;span class=&#34;math inline&#34;&gt;\(\mathbf{I}\)&lt;/span&gt;) of the cross-product matrix (&lt;span class=&#34;math inline&#34;&gt;\(\mathbf{X}^T\mathbf{X}\)&lt;/span&gt;) to make it invertible (&lt;span class=&#34;math inline&#34;&gt;\((...)^{-1}\)&lt;/span&gt;).&lt;/p&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/div&gt;
-&lt;div id=&#34;learn-by-coding&#34; class=&#34;section level1&#34; number=&#34;2&#34;&gt;
-&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;2&lt;/span&gt; Learn by coding&lt;/h1&gt;
+&lt;div id=&#34;learn-by-coding&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Learn by coding&lt;/h1&gt;
 &lt;p&gt;The &lt;code&gt;glmnet&lt;/code&gt; package can be used to obtain the ridge regression estimates of the regression coefficients.
 In this section, we will first see how to obtain these estimates “manually”, that is coding every step on our own, and then we will see how to obtain the same results using the &lt;code&gt;glmnet&lt;/code&gt; package.&lt;/p&gt;
 &lt;p&gt;Let’s start by setting up the R environment.
@@ -623,8 +719,8 @@ X &amp;lt;- mtcars[, -1]
 # Create a few shorthands we will use
 n &amp;lt;- nrow(X)
 p &amp;lt;- ncol(X)&lt;/code&gt;&lt;/pre&gt;
-&lt;div id=&#34;fitting-ridge-regression-manually&#34; class=&#34;section level2&#34; number=&#34;2.1&#34;&gt;
-&lt;h2&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.1&lt;/span&gt; Fitting ridge regression manually&lt;/h2&gt;
+&lt;div id=&#34;fitting-ridge-regression-manually&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Fitting ridge regression manually&lt;/h2&gt;
 &lt;p&gt;First, let’s make sure the predictors are centered on the mean and scaled to have a variance of 1.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fitting ridge regression manually --------------------------------------------
 
@@ -722,8 +818,8 @@ round(
 ## b10  -0.460  -0.460&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;As you see, the intercept would be shrunk toward zero, without any benefit.
 As a result, any prediction would also be offset by the same amount.&lt;/p&gt;
-&lt;div id=&#34;an-alternative-way-to-avoid-penalising-the-intercept&#34; class=&#34;section level3&#34; number=&#34;2.1.1&#34;&gt;
-&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.1.1&lt;/span&gt; An alternative way to avoid penalising the intercept&lt;/h3&gt;
+&lt;div id=&#34;an-alternative-way-to-avoid-penalising-the-intercept&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;An alternative way to avoid penalising the intercept&lt;/h3&gt;
 &lt;p&gt;It can be handy to obtain estimates of the regression coefficients and intercept in one step.
 We can use matrix algebra and R to simplify the two-step procedure to a single step.
 In particular, we can avoid the penalisation of the intercept by setting to 0 the first element of the “penalty” matrix &lt;code&gt;lambda * diag(p + 1)&lt;/code&gt;.&lt;/p&gt;
@@ -763,8 +859,8 @@ round(
 ## b10  -0.460  -0.460&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id=&#34;fit-ridge-regression-with-glmnet&#34; class=&#34;section level2&#34; number=&#34;2.2&#34;&gt;
-&lt;h2&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2&lt;/span&gt; Fit ridge regression with glmnet&lt;/h2&gt;
+&lt;div id=&#34;fit-ridge-regression-with-glmnet&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Fit ridge regression with glmnet&lt;/h2&gt;
 &lt;p&gt;The most popular R package to fit regularised regression is &lt;code&gt;glmnet&lt;/code&gt;.
 Let’s see how we can replicate the results we obtained with the manual approach with glmnet.
 There are three important differences to consider:&lt;/p&gt;
@@ -774,8 +870,8 @@ There are three important differences to consider:&lt;/p&gt;
 &lt;li&gt;&lt;code&gt;glmnet&lt;/code&gt; uses a different parametrization for &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;To obtain the same results with the manual approach and &lt;code&gt;glmnet&lt;/code&gt; we need to account for these.&lt;/p&gt;
-&lt;div id=&#34;use-the-biased-estimation-of-variance&#34; class=&#34;section level3&#34; number=&#34;2.2.1&#34;&gt;
-&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.1&lt;/span&gt; Use the biased estimation of variance&lt;/h3&gt;
+&lt;div id=&#34;use-the-biased-estimation-of-variance&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Use the biased estimation of variance&lt;/h3&gt;
 &lt;p&gt;First, let’s use the biased sample variance estimate in computing &lt;span class=&#34;math inline&#34;&gt;\(\hat{\beta}^{\text{ridge}}\)&lt;/span&gt; with the manual approach:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fitting ridge manually with biased variance estimation -----------------------
 
@@ -819,8 +915,8 @@ round(
 ## b9   0.488
 ## b10 -0.449&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;div id=&#34;return-the-unstandardized-coefficients&#34; class=&#34;section level3&#34; number=&#34;2.2.2&#34;&gt;
-&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.2&lt;/span&gt; Return the unstandardized coefficients&lt;/h3&gt;
+&lt;div id=&#34;return-the-unstandardized-coefficients&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Return the unstandardized coefficients&lt;/h3&gt;
 &lt;p&gt;Next, we need to revert these regression coefficients to their original scale.
 Since we are estimating the regression coefficients on the scaled data, they are computed on the standardized scale.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Return the  unstandardized coefficients --------------------------------------
@@ -854,8 +950,8 @@ round(
 ## b9         0.488          0.672
 ## b10       -0.449         -0.282&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;div id=&#34;adjust-the-parametrization-of-lambda-for-glmnet&#34; class=&#34;section level3&#34; number=&#34;2.2.3&#34;&gt;
-&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.3&lt;/span&gt; Adjust the parametrization of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; for &lt;code&gt;glmnet&lt;/code&gt;&lt;/h3&gt;
+&lt;div id=&#34;adjust-the-parametrization-of-lambda-for-glmnet&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Adjust the parametrization of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; for &lt;code&gt;glmnet&lt;/code&gt;&lt;/h3&gt;
 &lt;p&gt;Next, we need to understand the relationship between the &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; parametrization we used and the one used by &lt;code&gt;glmnet&lt;/code&gt;.
 The following code shows that if we want to use a given value of &lt;code&gt;lambda&lt;/code&gt; in &lt;code&gt;glmnet&lt;/code&gt; we need to multiply it by the standard deviation of the dependent variable (&lt;code&gt;sd_y&lt;/code&gt;) and divide it by the sample size (&lt;code&gt;n&lt;/code&gt;).&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Adjust the parametrization of lambda -----------------------------------------
@@ -867,8 +963,8 @@ sd_y &amp;lt;- sqrt(var(y) * (n - 1) / n)
 # Compute the value glmnet wants for your target lambda
 lambda_glmnet &amp;lt;- sd_y * lambda / n&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;div id=&#34;compare-manual-and-glmnet-ridge-regression-output&#34; class=&#34;section level3&#34; number=&#34;2.2.4&#34;&gt;
-&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.4&lt;/span&gt; Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/h3&gt;
+&lt;div id=&#34;compare-manual-and-glmnet-ridge-regression-output&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/h3&gt;
 &lt;p&gt;Finally, we can compare the results:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fitting ridge regression with glmnet -----------------------------------------
 
@@ -904,8 +1000,8 @@ round(
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level1&#34; number=&#34;3&#34;&gt;
-&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;3&lt;/span&gt; TL;DR, just give me the code!&lt;/h1&gt;
+&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;TL;DR, just give me the code!&lt;/h1&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set up -----------------------------------------------------------------------
 
 # Load packages

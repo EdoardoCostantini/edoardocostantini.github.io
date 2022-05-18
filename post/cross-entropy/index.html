@@ -52,7 +52,7 @@
   
     
   
-  <meta name="description" content="1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy (CE) quantifies the difference between two probability distributions." />
+  <meta name="description" content="Introduction Cross-entropy (CE) quantifies the difference between two probability distributions. As such, it comes in handy as a loss function in multi-class classification tasks (e.g., multinomial logistic regression)." />
 
   
   <link rel="alternate" hreflang="en-us" href="https://edoardocostantini.github.io/post/cross-entropy/" />
@@ -294,7 +294,7 @@
   <meta property="og:site_name" content="Edo" />
   <meta property="og:url" content="https://edoardocostantini.github.io/post/cross-entropy/" />
   <meta property="og:title" content="Cross-entropy as a measure of predictive performance | Edo" />
-  <meta property="og:description" content="1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy (CE) quantifies the difference between two probability distributions." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
+  <meta property="og:description" content="Introduction Cross-entropy (CE) quantifies the difference between two probability distributions. As such, it comes in handy as a loss function in multi-class classification tasks (e.g., multinomial logistic regression)." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
     <meta property="twitter:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
   
     
@@ -303,7 +303,7 @@
         content="2022-04-22T00:00:00&#43;00:00"
       />
     
-    <meta property="article:modified_time" content="2022-05-12T16:05:38&#43;02:00">
+    <meta property="article:modified_time" content="2022-05-17T11:38:21&#43;02:00">
   
 
   
@@ -332,7 +332,7 @@
   "headline": "Cross-entropy as a measure of predictive performance",
   
   "datePublished": "2022-04-22T00:00:00Z",
-  "dateModified": "2022-05-12T16:05:38+02:00",
+  "dateModified": "2022-05-17T11:38:21+02:00",
   
   "author": {
     "@type": "Person",
@@ -347,7 +347,7 @@
       "url": "https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_192x192_fill_lanczos_center_3.png"
     }
   },
-  "description": "1 Introduction 2 Learn by coding 3 TL;DR, just give me the code! 4 Other resources   1 Introduction Cross-entropy (CE) quantifies the difference between two probability distributions."
+  "description": "Introduction Cross-entropy (CE) quantifies the difference between two probability distributions. As such, it comes in handy as a loss function in multi-class classification tasks (e.g., multinomial logistic regression)."
 }
 </script>
 
@@ -598,7 +598,7 @@
       
       <span class="middot-divider"></span>
          Last updated on
-         May 12, 2022
+         May 17, 2022
       
     
   </span>
@@ -642,27 +642,22 @@
 <script src="https://edoardocostantini.github.io/post/cross-entropy/index_files/header-attrs/header-attrs.js"></script>
 
 <div id="TOC">
-<ul>
-<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
-<li><a href="#learn-by-coding"><span class="toc-section-number">2</span> Learn by coding</a></li>
-<li><a href="#tldr-just-give-me-the-code"><span class="toc-section-number">3</span> TL;DR, just give me the code!</a></li>
-<li><a href="#other-resources"><span class="toc-section-number">4</span> Other resources</a></li>
-</ul>
+
 </div>
 
-<div id="introduction" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Introduction</h1>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
 <p>Cross-entropy (CE) quantifies the difference between two probability distributions.
 As such, it comes in handy as a <a href="https://en.wikipedia.org/wiki/Loss_function">loss function</a> in multi-class classification tasks (e.g., multinomial logistic regression).
 It also provides an elegant solution for determining the difference between actual and predicted categorical data point values.
 It can be used to determine the predictive performance of a classification model.
 The value of the cross-entropy is higher when the predicted classes diverge more from the true labels.</p>
 </div>
-<div id="learn-by-coding" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Learn by coding</h1>
+<div id="learn-by-coding" class="section level2">
+<h2>Learn by coding</h2>
 <p>In a multiclass-classification task, we calculate a separate “loss” for each class for each observation and sum the result:</p>
 <p><span class="math display" id="eq:CE">\[
-CE = - \sum^{N}_{i = 1} \sum^{K}_{k = 1} p_{(i, k)}log(\hat{p}_{(i, k)}) \tag{2.1}
+CE = - \sum^{N}_{i = 1} \sum^{K}_{k = 1} p_{(i, k)}log(\hat{p}_{(i, k)}) \tag{1}
 \]</span></p>
 <p>where</p>
 <ul>
@@ -697,7 +692,7 @@ We will use this model to create predictions.</p>
 
 # Fit model
 glm_mln &lt;- multinom(Species ~ Sepal.Length, data = iris)</code></pre>
-<p>We can now create two R matrices <code>p</code> and <code>p_hat</code> storing all the scalars <span class="math inline">\(p_{ik}\)</span> and <span class="math inline">\(\hat{p}_{ik}\)</span> we need to compute <a href="#eq:CE">(2.1)</a>.</p>
+<p>We can now create two R matrices <code>p</code> and <code>p_hat</code> storing all the scalars <span class="math inline">\(p_{ik}\)</span> and <span class="math inline">\(\hat{p}_{ik}\)</span> we need to compute <a href="#eq:CE">(1)</a>.</p>
 <ul>
 <li><p>First, we want to store all the <span class="math inline">\(p_{ik}\)</span> in one matrix.
 To do so, we can create a disjunctive table based on the <code>species</code> factor.
@@ -730,7 +725,7 @@ head(p_hat)</code></pre>
 ## 5 0.87281   0.117765 0.0094276
 ## 6 0.47769   0.442466 0.0798435</code></pre></li>
 </ul>
-<p>We can now write a loop to perform the computation in <a href="#eq:CE">(2.1)</a> for every <span class="math inline">\(i\)</span> and <span class="math inline">\(k\)</span>.</p>
+<p>We can now write a loop to perform the computation in <a href="#eq:CE">(1)</a> for every <span class="math inline">\(i\)</span> and <span class="math inline">\(k\)</span>.</p>
 <pre class="r"><code># Compute CE with a loop -------------------------------------------------------
 
 # Define parameters
@@ -759,7 +754,7 @@ ce</code></pre>
 <pre><code>## [1] 91.034</code></pre>
 <p>This approach works for a binary prediction just as well.
 We only need to pay attention to storing the true and predicted probabilities in matrix form.
-For example consider the task of predicting the transmission type (automatic or not) for the cars recorded in the <code>mtcars</code> dataset.</p>
+For example, consider the task of predicting the transmission type (automatic or not) for the cars recorded in the <code>mtcars</code> dataset.</p>
 <pre class="r"><code># Binary cross entropy ---------------------------------------------------------
 
 # Fit model
@@ -800,7 +795,7 @@ ce &lt;- -sum(diag(p %*% t(log(p_hat))))
 # Print the value of ce
 ce</code></pre>
 <pre><code>## [1] 5.0296</code></pre>
-<p>It is not uncommon to devide the value of the cross-entropy by the number of units on which the computation is performed, effectively producing and average loss across the units.</p>
+<p>It is not uncommon to divide the value of the cross-entropy by the number of units on which the computation is performed, effectively producing an average loss across the units.</p>
 <pre class="r"><code># Express as average
 ce / nrow(mtcars)</code></pre>
 <pre><code>## [1] 0.15717</code></pre>
@@ -820,8 +815,8 @@ MLmetrics::LogLoss(y_pred = p_hat_vec,
                    y_true = p_vec)</code></pre>
 <pre><code>## [1] 0.15717</code></pre>
 </div>
-<div id="tldr-just-give-me-the-code" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> TL;DR, just give me the code!</h1>
+<div id="tldr-just-give-me-the-code" class="section level1">
+<h1>TL;DR, just give me the code!</h1>
 <pre class="r"><code># Prepare environment ----------------------------------------------------------
 
 # Packages
@@ -918,8 +913,8 @@ p_hat_vec &lt;- predict(glm_log, type = &quot;response&quot;)
 MLmetrics::LogLoss(y_pred = p_hat_vec,
                    y_true = p_vec)</code></pre>
 </div>
-<div id="other-resources" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Other resources</h1>
+<div id="other-resources" class="section level1">
+<h1>Other resources</h1>
 <ul>
 <li><a href="https://rpubs.com/juanhklopper/cross_entropy">Cross-entropy in RPubs</a></li>
 <li><a href="https://machinelearningmastery.com/cross-entropy-for-machine-learning/">A Gentle Introduction to Cross-Entropy for Machine Learning</a></li>

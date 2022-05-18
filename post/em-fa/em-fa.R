@@ -6,10 +6,12 @@
 
 rm(list = ls())
 
-# Packages ----------------------------------------------------------------
+# Packages ---------------------------------------------------------------------
 
 library(psych)
 library(fastmatrix)
+
+# Functions --------------------------------------------------------------------
 
 sweepGoodnight <- function (A, target){
 
@@ -37,6 +39,37 @@ sweepGoodnight <- function (A, target){
 
   # Output
   return(A)
+}
+
+augmentCov <- function(covmat, center,
+                       dnames = list(c("int", colnames(covmat)),
+                                       c("int", colnames(covmat)))
+) {
+  # Internals -------------------------------------------------------------
+
+  # covmat = cov(mtcars)      # covariance matrix of a dataset
+  # center = colMeans(mtcars) # vector of means of a dataset
+  # dnames = list(c("int", colnames(covmat)),
+  #                 c("int", colnames(covmat))) # list of row and column names
+
+  # Body ------------------------------------------------------------------
+
+  # Store the dimensionality of the data
+  p <- ncol(covmat)
+
+  # Define the structure of the augmented covariance matrix
+  augCov <- matrix(rep(NA, (p + 1)^2 ),
+                   ncol = (p + 1),
+                   dimnames = dnames)
+
+  # Assign the values to the correct slot
+  augCov[1, 1] <- -1
+  augCov[-1, 1] <- center
+  augCov[1, -1] <- center
+  augCov[-1,-1] <- covmat
+
+  # Output
+  return(augCov)
 }
 
 # Set up -----------------------------------------------------------------------
@@ -201,7 +234,7 @@ sweepGoodnight <- function (A, target){
   ), round, 3)
 
 
-# FA EM with missing values ----------------------------------------------------
+# FA EM with NAs: Naive use of augemnted matrix --------------------------------
 
   Y_miss <- mice::ampute(Y,
                          prop = .1,
@@ -214,23 +247,24 @@ sweepGoodnight <- function (A, target){
                          type = "RIGHT"
   )
 
+  Y_m <- as.matrix(cbind(Y_miss$amp, matrix(rep(NA, n*q), ncol = q)))
+
   # Define Missing data patterns
-  patts <- mice::md.pattern(Y_miss$amp, plot = FALSE)
+  patts <- mice::md.pattern(Y_m, plot = FALSE)
   R <- patts[-nrow(patts),-ncol(patts), drop = FALSE]
-  R <- R[, colnames(Y), drop = FALSE]
+  R <- R[, colnames(Y_m), drop = FALSE]
 
   # Data dimensionality
-  n <- nrow(Y)
+  n <- nrow(Y_m)
 
   # Number of missing data patterns
   S <- nrow(R)
   # Columns observed for a given pattern
-  # O <- apply(R, 1, function(x) {colnames(R)[x == 1]})
-  O <- apply(R, 1, function(x) {x == 1}, simplify = FALSE)
+  O <- apply(R, 1, function(x) {colnames(R)[x == 1]})
   # Columns missings for a given pattern
   M <- apply(R, 1, function(x) {colnames(R)[x == 0]}) #
   # Define I matrices (which obs in which pattern)
-  ry <- !is.na(Y_miss$amp)
+  ry <- !is.na(Y_m)
   R_logi <- R == 1 # pattern config saved as True and False
   I <- vector("list", S)
   for (s in 1:S) {
@@ -247,6 +281,196 @@ sweepGoodnight <- function (A, target){
 
   # Define sufficient statistics matrix (observed)
   Tobs_s <- vector("list", S)
+
+  for (s in 1:S) {
+    id_obs  <- I[[s]]
+    dat_aug <- as.matrix(cbind(int = 1, Y_m[id_obs, , drop = FALSE]))
+    Tobs_s[[s]] <- crossprod(dat_aug)
+
+    # Fix NAs
+    Tobs_s[[s]][is.na(Tobs_s[[s]])] <- 0
+  }
+
+  Tobs <- Reduce("+", Tobs_s)
+
+  # Define intial theta0
+
+  # Constants
+  a <- Ybar <- colMeans(Y_m[1:p], na.rm = TRUE)
+  R <- diag(q)
+  S_i <- 1:q
+  B <- B0 <- matrix(.5, nrow = q, ncol = p)
+  Sigma <- Sigma0 <- diag(1, p)
+
+  # Covariance matrix
+  cov_mat <- rbind(
+    cbind(t(B) %*% R %*% B + Sigma, t(B) %*% R),
+    cbind(R %*% B, R)
+  )
+
+  # Augmented covariance matrix
+  theta0 <- augmentCov(
+    covmat = cov_mat,
+    center = c(a, rep(0, q)),
+    dnames = dimnames(Tobs)
+  )
+
+  ## EM algorithm
+  # Starting values
+  theta <- theta0
+
+  iters <- 3
+
+  # Iterations
+  for (it in 1:iters) {
+    # Reset T to info in the data
+    # (will be updated based on new theta at every new iteration)
+    #> E-step ####
+    T <- Tobs
+    # We only need to do this if there are missing data patterns other than
+    # the fully observed pattern (s = 1)
+    for (s in 1:S) {
+      # Description: For every missing data patter, except the first one (complete data
+      # missing data pattern)
+      # s <- 1
+      obs <- I[[s]]
+      v_obs <- O[[s]]
+      v_mis <- M[[s]]
+      v_all <- colnames(Y_m)
+
+      # Sweep theta over predictors for this missing data pattern
+      # theta <- sweepGoodnight(theta, which(v_all %in% v_obs)+1)
+      theta <- ISR3::SWP(theta, v_obs)
+      
+      # Define expectations (individual contributions)
+      betas <- theta[c("int", v_obs), v_mis]
+      cjs <- cbind(1, Y_m[obs, v_obs, drop = FALSE]) %*% betas
+
+      # Update T matrix ##
+      for (i in seq_along(obs)) {
+        # i <- 1
+        for (j in seq_along(v_mis)) {
+          # j <- 1
+          # Update for mean
+          J <- which(v_all == v_mis[j])
+          T[1, J + 1] <- T[1, J + 1] + cjs[i, j]
+          T[J + 1, 1] <- T[1, J + 1]
+
+          # Update for covariances w/ unobserved covariates for this id
+          # (both j and k missing, includes covariances with itself k = j)
+          for (k in seq_along(v_mis)) {
+            # k <- 1
+            K <- which(v_all == v_mis[k])
+            if (K >= J) {
+              T[K + 1, J + 1] <- T[K + 1, J + 1] + theta[K + 1, J + 1] + cjs[i, j] * cjs[i, k]
+              T[J + 1, K + 1] <- T[K + 1, J + 1]
+            }
+          }
+        }
+      }
+      # Make sure the means for the factors are 0s
+      # T[1, -c(1:(p+1))] <- 0
+      # T[-c(1:(p+1)), 1] <- 0
+      theta <- ISR3::RSWP(theta, v_obs)
+      # Note: this corresponds to the reverse sweep in the first
+      # loop performed in the algorithm proposed by Schafer 1997.
+      # It basically replaces the "if r_sj = 0 and theta_jj < 0".
+      # For one E step, the covariance matrix used to compute individual
+      # contirbutions in each missing data pattern is the same!
+      
+    }
+
+    # > M-step ####
+    theta <- ISR3::SWP((n^(-1) * T), 1)
+  }
+
+# FA EM with NAs: correct sufficient stats -------------------------------------
+# Jamshidian1994 - An EM Algorithm for ML Factor Analysis with Missing Data
+# Order data: o, m, l
+patts <- mice::md.pattern(Y_m, plot = FALSE)
+R <- patts[-nrow(patts), -ncol(patts), drop = FALSE]
+Y_m <- Y_m[, colnames(R)]
+p_o <- length(which(colSums(is.na(Y_m)) == 0))
+p_m <- p - p_o
+
+# Define starting values for everything
+muo <- colMeans(Y_m[, 1:p_o])
+Lo <- matrix(.5, nrow = p_o, ncol = q)
+Psio <- diag(p_o)
+Sigma00 <- Lo %*% Phi %*% t(Lo) + Psio
+mum <- colMeans(Y_m[, (p_o+1):(p_o+p_m)], na.rm = TRUE)
+Lm <- matrix(.5, nrow = p_m, ncol = q)
+Psim <- diag(p_m)
+Sigmamm <- Lm %*% Phi %*% t(Lm) + Psim
+Phi <- diag(q)
+
+# Compute expecationts
+# Xbarstar
+yms <- mum + Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% (t(Y_m[, 1:p_o]) - muo)
+xbs <- 1/n * colSums(cbind(Y_m[, 1:p_o], t(yms)))
+
+# Sstar
+Eymym <- Sigmamm - Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi %*% t(Lm) + yms %*% t(yms)
+Exxt <- rbind(
+  cbind(
+    t(Y_m[, 1:p_o]) %*% Y_m[, 1:p_o], t(Y_m[, 1:p_o]) %*% t(yms)
+  ),
+  cbind(
+    yms %*% Y_m[, 1:p_o], Eymym
+  )
+)
+Ss <- 1 / n * Exxt
+
+# fstar
+fs <- Ef <- Phi %*% t(Lo) %*% solve(Sigma00) %*% (t(Y_m[, 1:p_o]) - muo)
+fbs <- rowSums(Ef) / n
+
+# Fstar
+Eff <- Phi - Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi + fs %*% t(fs)
+Fs <- 1/n * Eff
+
+# Vstar
+Exf <- rbind(
+  t(Y_m[, 1:p_o]) %*% t(fs),
+  Lm %*% Phi - Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi + yms %*% t(fs)
+)
+Vs <- 1 / n * Exf
+
+# M steps
+B <- Fs - fbs %*% t(fbs)
+Lp <- Vs - xbs %*% t(fs)
+G <- Ss - 2 * xbs %*% c(muo, mum) - 2 * Vs %*% 
+
+
+
+t(t(Y_m[, 1:p_o]) - muo)
+Y_m[18, 1:p_o] - muo
+
+  # Constants
+  a <- Ybar <- colMeans(Y)
+  R <- diag(q)
+  S_i <- 1:q
+  # Cyy <- 1/(n-1) * t(Y - Ybar) %*% (Y - Ybar) # if data is centered, Cyy which is Sxb
+  # Ys <- scale(Y)
+  # Cyy <- 1/(n-1) * t(Ys) %*% (Ys) # if we want to work with correlation matrix
+
+  # Initialize
+  B <- B0 <- matrix(.5, nrow = q, ncol = p)
+  Sigma <- Sigma0 <- diag(1, p)
+
+  # E step estiamtes ---------------------------------------------------------
+  # Covariance matrix
+  cov_mat <- rbind(
+    cbind(t(B) %*% R %*% B + Sigma, t(B) %*% R),
+    cbind(R %*% B, R)
+  )
+
+  # Augmented covariance matrix
+  Theta <- augmentCov(
+    covmat = cov_mat,
+    center = c(a, rep(0, q)),
+    dnames = NULL
+  )
 
   for (s in 1:S) {
     id_obs  <- I[[s]]

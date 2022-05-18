@@ -52,10 +52,11 @@
   
     
   
-  <meta name="description" content="PhD Researcher" />
+  <meta name="description" content="Introduction Different solutions:
+ Kaiser Rule (aka Optimal Coordinate) \(n_{oc}\). In its simplest form, the Kaiser’s rule retains only the PCs with variances exceeding 1. If a PC has less variance than 1, it means that it explains less total variance than a single variable in the data, which makes it useless." />
 
   
-  <link rel="alternate" hreflang="en-us" href="https://edoardocostantini.github.io/404.html" />
+  <link rel="alternate" hreflang="en-us" href="https://edoardocostantini.github.io/post/pca-non-graphical-solutions/" />
 
   
   
@@ -269,7 +270,7 @@
   <link rel="icon" type="image/png" href="/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_32x32_fill_lanczos_center_3.png" />
   <link rel="apple-touch-icon" type="image/png" href="/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_180x180_fill_lanczos_center_3.png" />
 
-  <link rel="canonical" href="https://edoardocostantini.github.io/404.html" />
+  <link rel="canonical" href="https://edoardocostantini.github.io/post/pca-non-graphical-solutions/" />
 
   
   
@@ -292,31 +293,83 @@
   <meta property="twitter:card" content="summary" />
   
   <meta property="og:site_name" content="Edo" />
-  <meta property="og:url" content="https://edoardocostantini.github.io/404.html" />
-  <meta property="og:title" content="404 Page not found | Edo" />
-  <meta property="og:description" content="PhD Researcher" /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
+  <meta property="og:url" content="https://edoardocostantini.github.io/post/pca-non-graphical-solutions/" />
+  <meta property="og:title" content="Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test | Edo" />
+  <meta property="og:description" content="Introduction Different solutions:
+ Kaiser Rule (aka Optimal Coordinate) \(n_{oc}\). In its simplest form, the Kaiser’s rule retains only the PCs with variances exceeding 1. If a PC has less variance than 1, it means that it explains less total variance than a single variable in the data, which makes it useless." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" />
     <meta property="twitter:image" content="https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
   
     
+      <meta
+        property="article:published_time"
+        content="2022-05-16T00:00:00&#43;00:00"
+      />
+    
+    <meta property="article:modified_time" content="2022-05-17T11:24:06&#43;02:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://edoardocostantini.github.io/post/pca-non-graphical-solutions/"
+  },
+  "headline": "Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test",
+  
+  "datePublished": "2022-05-16T00:00:00Z",
+  "dateModified": "2022-05-17T11:24:06+02:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Edoardo (Edo) Costantini"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "Edo",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://edoardocostantini.github.io/media/icon_hud9fa8ac6cd4a8ee42e0d32197c4c8f6f_199053_192x192_fill_lanczos_center_3.png"
+    }
+  },
+  "description": "Introduction Different solutions:\n Kaiser Rule (aka Optimal Coordinate) \\(n_{oc}\\). In its simplest form, the Kaiser’s rule retains only the PCs with variances exceeding 1. If a PC has less variance than 1, it means that it explains less total variance than a single variable in the data, which makes it useless."
+}
+</script>
+
+  
+
+  
+
   
 
   
 
 
 
-  
-
-  
 
 
-
-
-
-  <title>404 Page not found | Edo</title>
+  <title>Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test | Edo</title>
 </head>
 
 
-<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper   "  >
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper   " data-wc-page-id="4b8376ba4b2efbb9983beaccc62907e3" >
 
   
   
@@ -440,7 +493,7 @@
           
 
           <li class="nav-item">
-            <a class="nav-link " href="/post/"><span>Digital garden</span></a>
+            <a class="nav-link  active" href="/post/"><span>Digital garden</span></a>
           </li>
 
           
@@ -499,43 +552,338 @@
   </div>
 
   <div class="page-body">
-    <div class="universal-wrapper pt-3">
-
-  <h1>Page not found</h1>
-
-  
-  
-  <form class="d-flex align-items-center mb-3">
-    <input name="q" type="search" class="form-control" placeholder="Search..." autocomplete="off">
-  </form>
-  
+    <article class="article">
 
   
 
-  <p>Perhaps you were looking for one of these?</p>
+
+
+
+
+
+
+
+
+
+
+
+  
 
   
   
   
-  <h2>Latest</h2>
-  <ul>
+<div class="article-container pt-3">
+  <h1>Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test</h1>
+
+  
+
+  
     
-      <li><a href="/post/pca-non-graphical-solutions/">Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test</a></li>
+
+
+<div class="article-metadata">
+
+  
+  
+  
+  
+  <div>
     
-      <li><a href="/post/cross-entropy/">Cross-entropy as a measure of predictive performance</a></li>
+
+  <span class="author-highlighted">
+      <a href="/author/edoardo-edo-costantini/">Edoardo (Edo) Costantini</a></span>
+  </div>
+  
+  
+
+
+
+  <span class="article-date">
     
-      <li><a href="/post/covmatwt/">Estimating the weighted covariance matrix in R</a></li>
     
-      <li><a href="/post/ridge/">Estimating ridge regression in R</a></li>
+  Published on May 16, 2022
+  </span>
+
+  <span class="article-date">
     
-      <li><a href="/post/sweep/">The sweep operator</a></li>
     
-      <li><a href="/post/">Digital garden</a></li>
+      
+      <span class="middot-divider"></span>
+         Last updated on
+         May 17, 2022
+      
     
-  </ul>
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder mr-1"></i><a href="/category/drafts/">Drafts</a>, <a href="/category/tutorials/">Tutorials</a></span>
   
 
 </div>
+
+    
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+<script src="https://edoardocostantini.github.io/post/pca-non-graphical-solutions/index_files/header-attrs/header-attrs.js"></script>
+
+<div id="TOC">
+
+</div>
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Different solutions:</p>
+<ul>
+<li><p>Kaiser Rule (aka Optimal Coordinate) <span class="math inline">\(n_{oc}\)</span>.
+In its simplest form, the Kaiser’s rule retains only the PCs with variances exceeding 1.
+If a PC has less variance than 1, it means that it explains less total variance than a single variable in the data, which makes it useless.</p></li>
+<li><p>Acceleration Factor.
+For every <span class="math inline">\(j\)</span>-th eigenvalue, the acceleration factor <span class="math inline">\(a\)</span> is calculated as the change in the slope between the line connecting the <span class="math inline">\(eig_j\)</span> and <span class="math inline">\(eig_{j-1}\)</span>, and the line connecting <span class="math inline">\(eig_j\)</span> and <span class="math inline">\(eig_{j+1}\)</span>
+<span class="math display">\[
+a_{j} = (eig_{j+1} - eig_{j}) - (eig_{j} - eig_{j-1})
+\]</span>
+Once the largest <span class="math inline">\(a_j\)</span> is found, the number of components is set to <span class="math inline">\(j-1\)</span>.</p></li>
+</ul>
+</div>
+<div id="learn-by-coding" class="section level2">
+<h2>Learn by coding</h2>
+<pre class="r"><code># Prepare environment ----------------------------------------------------------
+
+library(nFactors)
+library(psych)
+
+# Perform PCA
+res &lt;- psych::pca(Harman.5)
+
+# Extract eigenvalues
+eigenvalues &lt;- res$values
+
+# Graph
+plotuScree(x = eigenvalues)</code></pre>
+<p><img src="https://edoardocostantini.github.io/post/pca-non-graphical-solutions/index_files/figure-html/data-1.png" width="672" /></p>
+<pre class="r"><code># Non-graphical solutions
+ngs &lt;- nScree(x = eigenvalues)
+
+# Kaiser rule\
+nkaiser_man &lt;- sum(eigenvalues &gt; 1)
+
+# Accelration factor
+a &lt;- NULL
+for (j in 2:(length(eigenvalues) - 1)){
+  a[j] &lt;- (eigenvalues[j + 1] - eigenvalues[j]) - (eigenvalues[j] - eigenvalues[j - 1])
+}
+
+naf_man &lt;- which.max(a) - 1
+
+# Compare results
+data.frame(manual = c(naf = naf_man, nkaiser = nkaiser_man),
+           nFactor = c(naf = ngs$Components[[&quot;naf&quot;]],
+                       nkaiser = ngs$Components[[&quot;nkaiser&quot;]]))</code></pre>
+<pre><code>##         manual nFactor
+## naf          2       2
+## nkaiser      2       2</code></pre>
+</div>
+<div id="tldr-just-give-me-the-code" class="section level2">
+<h2>TL;DR, just give me the code!</h2>
+<pre class="r"><code># Prepare environment ----------------------------------------------------------
+
+library(nFactors)
+library(psych)
+
+# Perform PCA
+res &lt;- psych::pca(Harman.5)
+
+# Extract eigenvalues
+eigenvalues &lt;- res$values
+
+# Graph
+plotuScree(x = eigenvalues)
+
+# Non-graphical solutions
+ngs &lt;- nScree(x = eigenvalues)
+
+# Kaiser rule\
+nkaiser_man &lt;- sum(eigenvalues &gt; 1)
+
+# Accelration factor
+a &lt;- NULL
+for (j in 2:(length(eigenvalues) - 1)){
+  a[j] &lt;- (eigenvalues[j + 1] - eigenvalues[j]) - (eigenvalues[j] - eigenvalues[j - 1])
+}
+
+naf_man &lt;- which.max(a) - 1
+
+# Compare results
+data.frame(manual = c(naf = naf_man, nkaiser = nkaiser_man),
+           nFactor = c(naf = ngs$Components[[&quot;naf&quot;]],
+                       nkaiser = ngs$Components[[&quot;nkaiser&quot;]]))</code></pre>
+</div>
+<div id="other-resources" class="section level2">
+<h2>Other resources</h2>
+<ul>
+<li><a href="https://rpubs.com/juanhklopper/cross_entropy">Cross-entropy in RPubs</a></li>
+<li><a href="https://machinelearningmastery.com/cross-entropy-for-machine-learning/">A Gentle Introduction to Cross-Entropy for Machine Learning</a></li>
+<li><a href="https://gombru.github.io/2018/05/23/cross_entropy_loss/">Understanding Categorical Cross-Entropy Loss, Binary Cross-Entropy Loss, Softmax Loss, Logistic Loss, Focal Loss and all those confusing names</a></li>
+<li><a href="https://ml-cheatsheet.readthedocs.io/en/latest/loss_functions.html">ML Gloassary</a></li>
+<li><a href="https://medium.com/swlh/cross-entropy-loss-in-pytorch-c010faf97bab">Loss Functions in Machine Learning</a></li>
+</ul>
+</div>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/pca/">PCA</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://edoardocostantini.github.io/"><img class="avatar mr-3 avatar-circle" src="/author/edoardo-edo-costantini/avatar_hubc644763d821b4643633e77d54abca59_619947_270x270_fill_q75_lanczos_center.jpg" alt="Edoardo (Edo) Costantini"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://edoardocostantini.github.io/">Edoardo (Edo) Costantini</a></h5>
+      <h6 class="card-subtitle">PhD Researcher</h6>
+      
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:e.costantini@tilburguniversity.edu" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/EdoardoCostantini?tab=repositories" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/edoardo-costantini-78352b137/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+</article>
   </div>
 
   <div class="page-footer">
