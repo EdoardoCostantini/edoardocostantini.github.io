@@ -13,6 +13,106 @@
     </image>
     
     <item>
+      <title>Understanding the residual standard error</title>
+      <link>https://edoardocostantini.github.io/post/residual-standard-error/</link>
+      <pubDate>Wed, 22 Jun 2022 00:00:00 +0000</pubDate>
+      <guid>https://edoardocostantini.github.io/post/residual-standard-error/</guid>
+      <description>
+&lt;script src=&#34;https://edoardocostantini.github.io/post/residual-standard-error/index_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+&lt;div id=&#34;TOC&#34;&gt;
+
+&lt;/div&gt;
+
+&lt;div id=&#34;introduction&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;The residual standard error is a measure of fit for linear regression models.
+Conceptually, it can be thought of as the variability of the prediction error for a linear model.
+It is usually calculated as:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[
+SE_{resid} = \sqrt{ \frac{ \sum^{n}_{i = 1}(y_i - \hat{y}_i)^2 }{df_{resid}} }
+\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;where:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; is the sample size&lt;/li&gt;
+&lt;li&gt;&lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt; is the number of parameters to estimate in the model&lt;/li&gt;
+&lt;li&gt;&lt;span class=&#34;math inline&#34;&gt;\(-1\)&lt;/span&gt; is the degree of freedom lost to estimate the intercept&lt;/li&gt;
+&lt;li&gt;&lt;span class=&#34;math inline&#34;&gt;\(\hat{y}_i\)&lt;/span&gt; is the fitted &lt;span class=&#34;math inline&#34;&gt;\(y\)&lt;/span&gt; value for the &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt;-th individual&lt;/li&gt;
+&lt;li&gt;&lt;span class=&#34;math inline&#34;&gt;\(df_{resid}\)&lt;/span&gt; is the degrees of freedom of the residuals (&lt;span class=&#34;math inline&#34;&gt;\(n - k - 1\)&lt;/span&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The smaller the residual standard error, the better the model fits the data.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;learn-by-coding&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Learn by coding&lt;/h2&gt;
+&lt;p&gt;We can compute the residual standard error manually after estimating a linear model in R.
+To get a better grasp of the residual standard error, let’s start by regressing the miles per gallon (mpg) on the number of cylinders (cyl), horsepower (hp), and weight (wt) of cars from the standard &lt;code&gt;mtcars&lt;/code&gt; R dataset.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fit a linear model -----------------------------------------------------------
+
+lm_fit &amp;lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can compute the residual standard error following the formula described above:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Compute the residual standard error manually ---------------------------------
+
+  # Define elements of the formula
+  n &amp;lt;- nrow(mtcars) # sample size
+  k &amp;lt;- 3            # number of parameters (regression coefficients)
+  yhat &amp;lt;- fitted(lm_fit) # fitted y values
+  y &amp;lt;- mtcars$mpg
+
+  # Compute rse
+  rse &amp;lt;- sqrt(sum((y - yhat)^2) / (n - k - 1))
+
+  # Print rse
+  rse&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 2.511548&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can also extract it directly from any &lt;code&gt;lm&lt;/code&gt; object:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# residual standard error from lm output ---------------------------------------
+
+  # Use the sigma function to extract it from an lm object
+  sigma(lm_fit)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 2.511548&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # Compare with the manual computation
+  sigma(lm_fit) - rse&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;TL;DR, just give me the code!&lt;/h2&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fit a linear model -----------------------------------------------------------
+
+lm_fit &amp;lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)
+
+# Compute the residual standard error manually ---------------------------------
+
+  # Define elements of the formula
+  n &amp;lt;- nrow(mtcars) # sample size
+  k &amp;lt;- 3            # number of parameters (regression coefficients)
+  yhat &amp;lt;- fitted(lm_fit) # fitted y values
+  y &amp;lt;- mtcars$mpg
+
+  # Compute rse
+  rse &amp;lt;- sqrt(sum((y - yhat)^2) / (n - k - 1))
+
+  # Print rse
+  rse
+
+# residual standard error from lm output ---------------------------------------
+
+  # Use the sigma function to extract it from an lm object
+  sigma(lm_fit)
+
+  # Compare with the manual computation
+  sigma(lm_fit) - rse&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;other-resources&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Other resources&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.statology.org/how-to-interpret-residual-standard-error/&#34;&gt;Statology: How to Interpret Residual Standard Error&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.statology.org/residual-standard-error-r/&#34;&gt;Statology: How to Calculate Residual Standard Error in R&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test</title>
       <link>https://edoardocostantini.github.io/post/pca-non-graphical-solutions/</link>
       <pubDate>Mon, 16 May 2022 00:00:00 +0000</pubDate>
@@ -963,11 +1063,28 @@ The following are alternative ways of computing it with mathematical or R shortc
 &lt;script src=&#34;https://edoardocostantini.github.io/post/ridge/index_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
 
 &lt;div id=&#34;TOC&#34;&gt;
-
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#introduction&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;1&lt;/span&gt; Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#learn-by-coding&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2&lt;/span&gt; Learn by coding&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#fitting-ridge-regression-manually&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.1&lt;/span&gt; Fitting ridge regression manually&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#an-alternative-way-to-avoid-penalising-the-intercept&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.1.1&lt;/span&gt; An alternative way to avoid penalising the intercept&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#fit-ridge-regression-with-glmnet&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2&lt;/span&gt; Fit ridge regression with glmnet&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#use-the-biased-estimation-of-variance&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.1&lt;/span&gt; Use the biased estimation of variance&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#return-the-unstandardized-coefficients&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.2&lt;/span&gt; Return the unstandardized coefficients&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#adjust-the-parametrization-of-lambda-for-glmnet&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.3&lt;/span&gt; Adjust the parametrization of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; for &lt;code&gt;glmnet&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#compare-manual-and-glmnet-ridge-regression-output&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;2.2.4&lt;/span&gt; Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#tldr-just-give-me-the-code&#34;&gt;&lt;span class=&#34;toc-section-number&#34;&gt;3&lt;/span&gt; TL;DR, just give me the code!&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;/div&gt;
 
-&lt;div id=&#34;introduction&#34; class=&#34;section level1&#34;&gt;
-&lt;h1&gt;Introduction&lt;/h1&gt;
+&lt;div id=&#34;introduction&#34; class=&#34;section level1&#34; number=&#34;1&#34;&gt;
+&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;1&lt;/span&gt; Introduction&lt;/h1&gt;
 &lt;p&gt;When there are many correlated predictors in a linear regression model, their regression coefficients can become poorly determined and exhibit high variance.
 This problem can be alleviated by imposing a size constraint (or penalty) on the coefficients.
 Ridge regression shrinks the regression coefficients by imposing a penalty on their size.
@@ -992,8 +1109,8 @@ Furthermore, by centering the predictors, we can separate the solution to the &l
 which is the regular way of estimating regression coefficients with a penalty term (&lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;) added on the diagonal (&lt;span class=&#34;math inline&#34;&gt;\(\mathbf{I}\)&lt;/span&gt;) of the cross-product matrix (&lt;span class=&#34;math inline&#34;&gt;\(\mathbf{X}^T\mathbf{X}\)&lt;/span&gt;) to make it invertible (&lt;span class=&#34;math inline&#34;&gt;\((...)^{-1}\)&lt;/span&gt;).&lt;/p&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/div&gt;
-&lt;div id=&#34;learn-by-coding&#34; class=&#34;section level1&#34;&gt;
-&lt;h1&gt;Learn by coding&lt;/h1&gt;
+&lt;div id=&#34;learn-by-coding&#34; class=&#34;section level1&#34; number=&#34;2&#34;&gt;
+&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;2&lt;/span&gt; Learn by coding&lt;/h1&gt;
 &lt;p&gt;The &lt;code&gt;glmnet&lt;/code&gt; package can be used to obtain the ridge regression estimates of the regression coefficients.
 In this section, we will first see how to obtain these estimates “manually”, that is coding every step on our own, and then we will see how to obtain the same results using the &lt;code&gt;glmnet&lt;/code&gt; package.&lt;/p&gt;
 &lt;p&gt;Let’s start by setting up the R environment.
@@ -1012,8 +1129,8 @@ X &amp;lt;- mtcars[, -1]
 # Create a few shorthands we will use
 n &amp;lt;- nrow(X)
 p &amp;lt;- ncol(X)&lt;/code&gt;&lt;/pre&gt;
-&lt;div id=&#34;fitting-ridge-regression-manually&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;Fitting ridge regression manually&lt;/h2&gt;
+&lt;div id=&#34;fitting-ridge-regression-manually&#34; class=&#34;section level2&#34; number=&#34;2.1&#34;&gt;
+&lt;h2&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.1&lt;/span&gt; Fitting ridge regression manually&lt;/h2&gt;
 &lt;p&gt;First, let’s make sure the predictors are centered on the mean and scaled to have a variance of 1.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fitting ridge regression manually --------------------------------------------
 
@@ -1062,7 +1179,7 @@ round(
 ## b10  -0.460&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;It is important to note the effect of centering and scaling.
 When fitting ridge regression, many sources recommend centering the data.
-This allows to separate the estimation of the intercept from the estimation of the regression coefficients.
+This allows separating the estimation of the intercept from the estimation of the regression coefficients.
 As a result, only the regression coefficients are penalised.
 To understand the effect of centering, consider what happens in regular OLS estimation when &lt;strong&gt;predictors are centered&lt;/strong&gt;:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Centering in regular OLS -----------------------------------------------------
@@ -1111,8 +1228,8 @@ round(
 ## b10  -0.460  -0.460&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;As you see, the intercept would be shrunk toward zero, without any benefit.
 As a result, any prediction would also be offset by the same amount.&lt;/p&gt;
-&lt;div id=&#34;an-alternative-way-to-avoid-penalising-the-intercept&#34; class=&#34;section level3&#34;&gt;
-&lt;h3&gt;An alternative way to avoid penalising the intercept&lt;/h3&gt;
+&lt;div id=&#34;an-alternative-way-to-avoid-penalising-the-intercept&#34; class=&#34;section level3&#34; number=&#34;2.1.1&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.1.1&lt;/span&gt; An alternative way to avoid penalising the intercept&lt;/h3&gt;
 &lt;p&gt;It can be handy to obtain estimates of the regression coefficients and intercept in one step.
 We can use matrix algebra and R to simplify the two-step procedure to a single step.
 In particular, we can avoid the penalisation of the intercept by setting to 0 the first element of the “penalty” matrix &lt;code&gt;lambda * diag(p + 1)&lt;/code&gt;.&lt;/p&gt;
@@ -1152,8 +1269,8 @@ round(
 ## b10  -0.460  -0.460&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id=&#34;fit-ridge-regression-with-glmnet&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;Fit ridge regression with glmnet&lt;/h2&gt;
+&lt;div id=&#34;fit-ridge-regression-with-glmnet&#34; class=&#34;section level2&#34; number=&#34;2.2&#34;&gt;
+&lt;h2&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2&lt;/span&gt; Fit ridge regression with glmnet&lt;/h2&gt;
 &lt;p&gt;The most popular R package to fit regularised regression is &lt;code&gt;glmnet&lt;/code&gt;.
 Let’s see how we can replicate the results we obtained with the manual approach with glmnet.
 There are three important differences to consider:&lt;/p&gt;
@@ -1163,8 +1280,8 @@ There are three important differences to consider:&lt;/p&gt;
 &lt;li&gt;&lt;code&gt;glmnet&lt;/code&gt; uses a different parametrization for &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;To obtain the same results with the manual approach and &lt;code&gt;glmnet&lt;/code&gt; we need to account for these.&lt;/p&gt;
-&lt;div id=&#34;use-the-biased-estimation-of-variance&#34; class=&#34;section level3&#34;&gt;
-&lt;h3&gt;Use the biased estimation of variance&lt;/h3&gt;
+&lt;div id=&#34;use-the-biased-estimation-of-variance&#34; class=&#34;section level3&#34; number=&#34;2.2.1&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.1&lt;/span&gt; Use the biased estimation of variance&lt;/h3&gt;
 &lt;p&gt;First, let’s use the biased sample variance estimate in computing &lt;span class=&#34;math inline&#34;&gt;\(\hat{\beta}^{\text{ridge}}\)&lt;/span&gt; with the manual approach:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fitting ridge manually with biased variance estimation -----------------------
 
@@ -1208,8 +1325,8 @@ round(
 ## b9   0.488
 ## b10 -0.449&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;div id=&#34;return-the-unstandardized-coefficients&#34; class=&#34;section level3&#34;&gt;
-&lt;h3&gt;Return the unstandardized coefficients&lt;/h3&gt;
+&lt;div id=&#34;return-the-unstandardized-coefficients&#34; class=&#34;section level3&#34; number=&#34;2.2.2&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.2&lt;/span&gt; Return the unstandardized coefficients&lt;/h3&gt;
 &lt;p&gt;Next, we need to revert these regression coefficients to their original scale.
 Since we are estimating the regression coefficients on the scaled data, they are computed on the standardized scale.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Return the  unstandardized coefficients --------------------------------------
@@ -1243,8 +1360,8 @@ round(
 ## b9         0.488          0.672
 ## b10       -0.449         -0.282&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;div id=&#34;adjust-the-parametrization-of-lambda-for-glmnet&#34; class=&#34;section level3&#34;&gt;
-&lt;h3&gt;Adjust the parametrization of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; for &lt;code&gt;glmnet&lt;/code&gt;&lt;/h3&gt;
+&lt;div id=&#34;adjust-the-parametrization-of-lambda-for-glmnet&#34; class=&#34;section level3&#34; number=&#34;2.2.3&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.3&lt;/span&gt; Adjust the parametrization of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; for &lt;code&gt;glmnet&lt;/code&gt;&lt;/h3&gt;
 &lt;p&gt;Next, we need to understand the relationship between the &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; parametrization we used and the one used by &lt;code&gt;glmnet&lt;/code&gt;.
 The following code shows that if we want to use a given value of &lt;code&gt;lambda&lt;/code&gt; in &lt;code&gt;glmnet&lt;/code&gt; we need to multiply it by the standard deviation of the dependent variable (&lt;code&gt;sd_y&lt;/code&gt;) and divide it by the sample size (&lt;code&gt;n&lt;/code&gt;).&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Adjust the parametrization of lambda -----------------------------------------
@@ -1256,8 +1373,8 @@ sd_y &amp;lt;- sqrt(var(y) * (n - 1) / n)
 # Compute the value glmnet wants for your target lambda
 lambda_glmnet &amp;lt;- sd_y * lambda / n&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;div id=&#34;compare-manual-and-glmnet-ridge-regression-output&#34; class=&#34;section level3&#34;&gt;
-&lt;h3&gt;Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/h3&gt;
+&lt;div id=&#34;compare-manual-and-glmnet-ridge-regression-output&#34; class=&#34;section level3&#34; number=&#34;2.2.4&#34;&gt;
+&lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.4&lt;/span&gt; Compare manual and &lt;code&gt;glmnet&lt;/code&gt; ridge regression output&lt;/h3&gt;
 &lt;p&gt;Finally, we can compare the results:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fitting ridge regression with glmnet -----------------------------------------
 
@@ -1293,8 +1410,8 @@ round(
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level1&#34;&gt;
-&lt;h1&gt;TL;DR, just give me the code!&lt;/h1&gt;
+&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level1&#34; number=&#34;3&#34;&gt;
+&lt;h1&gt;&lt;span class=&#34;header-section-number&#34;&gt;3&lt;/span&gt; TL;DR, just give me the code!&lt;/h1&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set up -----------------------------------------------------------------------
 
 # Load packages
@@ -1639,7 +1756,7 @@ all.equal(H_fm, H_sg)&lt;/code&gt;&lt;/pre&gt;
 ## 6 11 55  9 22 109.2&lt;/code&gt;&lt;/pre&gt;
 &lt;div id=&#34;compute-the-augmented-covariance-matrix&#34; class=&#34;section level3&#34; number=&#34;2.2.1&#34;&gt;
 &lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.1&lt;/span&gt; Compute the augmented covariance matrix&lt;/h3&gt;
-&lt;p&gt;To obtain the estimates of the regression coefficients of a multivariate linear model, we need to sweep over the positions of the predictors the augmented covariance matrix of the data (&lt;span class=&#34;math inline&#34;&gt;\(\Theta\)&lt;/span&gt;).
+&lt;p&gt;To obtain the estimates of the regression coefficients of a multivariate linear model, we need to sweep the augmented covariance matrix of the data (&lt;span class=&#34;math inline&#34;&gt;\(\Theta\)&lt;/span&gt;) over the positions of the predictors.
 This is a &lt;span class=&#34;math inline&#34;&gt;\((p+1) \times (p+1)\)&lt;/span&gt; matrix storing the covariance matrix and the means of the dataset.
 It usually looks like this:&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[

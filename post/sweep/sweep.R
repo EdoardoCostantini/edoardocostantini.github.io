@@ -142,10 +142,10 @@ library(fastmatrix)            # alternative sweep
 
 # Multivaraite regressions
   # Define the dvs
-  dvs <- c("X1", "X5")
+  dvs <- c("X5")
 
   # Define the predictors
-  preds <- c("X3", "X4")
+  preds <- c("X2","X3", "X4", "X1")
 
   # LM
   # Complicated but flexible way of writing the formula
@@ -158,6 +158,7 @@ library(fastmatrix)            # alternative sweep
   # Fit the model with the alternatives
   mlm0 <- lm(formula_lm, data = X)
   coef(mlm0)
+  sigma(mlm0)^2
 
   # Sweep T0
   sweep_over <- which(colnames(T0) %in% preds)
@@ -230,6 +231,24 @@ library(fastmatrix)            # alternative sweep
   p <- ncol(dat)
   dat <- cbind(int = 1, dat)
 
+# Make crossproduct matrix
+  T0 <- crossprod(as.matrix(dat))
+
+# Create G-matrix as defined in Little Rubin p. 149
+  G <- matrix(NA, ncol = p + 1, nrow = p + 1)
+  G[, 1] <- colMeans(dat)
+  G[1, ] <- colMeans(dat)
+  G[-1,-1] <- crossprod(as.matrix(dat[, -1])) / n
+  dimnames(G) <- dimnames(T0)
+
+# Augmented covariance matrix from Little & Rubin p. 149 (eq 7.20)
+  theta <- matrix(NA, ncol = p + 1, nrow = p + 1)
+  theta[, 1] <- colMeans(dat)
+  theta[1, ] <- colMeans(dat)
+  theta[-1,-1] <- cov(dat[, -1]) * (n-1) / n
+  theta[1, 1] <- -1
+  dimnames(theta) <- dimnames(T0)
+
   # Define the dvs
   Z <- c("V4", "V5")
 
@@ -244,7 +263,7 @@ library(fastmatrix)            # alternative sweep
                        preds = paste0(Y, collapse = " + "))
 
   # Fit the model with the MLM
-  mlm0 <- lm(formula_lm, data = dat)
+  mlm0 <- lm(formula_lm, data = dat[, -1])
 
   #
   Omega_Y <- cov(dat[, Y]) * (n - 1) / n
@@ -253,3 +272,18 @@ library(fastmatrix)            # alternative sweep
   Omega <- cov(dat) * (n - 1) / n
   muZ <- colMeans(dat[, Z])
   colMeans(dat[, Y]) - dat[, Y]
+
+  # Sigma
+  summary(mlm0)
+  sigma(mlm0)^2
+
+  # Sweep T0
+  sweep_over <- which(colnames(T0) %in% Y)
+  sweepGoodnight(T0, c(1, sweep_over))[c("int", Y), Z]
+
+  # Sweep G
+  sweepGoodnight(G, c(1, sweep_over))[c("int", Y), Z]
+
+  # Sweep theta (notice we do not sweep over 1)
+  sweepGoodnight(theta, sweep_over)[c("int", Y), Z]
+  sweepGoodnight(theta, sweep_over)[Z, Z]

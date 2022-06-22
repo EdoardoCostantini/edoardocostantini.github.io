@@ -2,7 +2,7 @@
 # Objective: Initial notes on EM for factor analysis
 # Author:    Edoardo Costantini
 # Created:   2022-05-10
-# Modified:  2022-05-10
+# Modified:  2022-05-23
 
 rm(list = ls())
 
@@ -234,10 +234,16 @@ augmentCov <- function(covmat, center,
   ), round, 3)
 
 
-# FA EM with NAs: Naive use of augemnted matrix --------------------------------
+# FA EM with NAs: Naive use of augmented matrix --------------------------------
 
+  set.seed(1234)
+  # bfi_complete <- bfi[rowSums(is.na(bfi)) == 0, 1:25]
+  # Y <- bfi_complete
+  # q <- 5
+  # n <- nrow(Y)
+  # p <- ncol(Y)
   Y_miss <- mice::ampute(Y,
-                         prop = .1,
+                         prop = .3,
                          patterns = matrix(c(1, 1, 0, rep(1, ncol(Y)-3),
                                              1, 0, 1, rep(1, ncol(Y)-3),
                                              1, 0, 0, rep(1, ncol(Y)-3)),
@@ -293,10 +299,10 @@ augmentCov <- function(covmat, center,
 
   Tobs <- Reduce("+", Tobs_s)
 
-  # Define intial theta0
+  # Define initial theta0
 
   # Constants
-  a <- Ybar <- colMeans(Y_m[1:p], na.rm = TRUE)
+  a <- Ybar <- colMeans(Y_m[, 1:p], na.rm = TRUE)
   R <- diag(q)
   S_i <- 1:q
   B <- B0 <- matrix(.5, nrow = q, ncol = p)
@@ -319,7 +325,7 @@ augmentCov <- function(covmat, center,
   # Starting values
   theta <- theta0
 
-  iters <- 3
+  iters <- 1e2
 
   # Iterations
   for (it in 1:iters) {
@@ -356,6 +362,15 @@ augmentCov <- function(covmat, center,
           T[1, J + 1] <- T[1, J + 1] + cjs[i, j]
           T[J + 1, 1] <- T[1, J + 1]
 
+          # Update for covariances w/ observed covariates for this id
+          # (for Ks observed for this id)
+          for (k in seq_along(v_obs)) {
+            # k <- 1
+            K <- which(v_all == v_obs[k])
+            T[K + 1, J + 1] <- T[K + 1, J + 1] + cjs[i, j] * Y[obs[i], K]
+            T[J + 1, K + 1] <- T[K + 1, J + 1]
+          }
+
           # Update for covariances w/ unobserved covariates for this id
           # (both j and k missing, includes covariances with itself k = j)
           for (k in seq_along(v_mis)) {
@@ -368,10 +383,16 @@ augmentCov <- function(covmat, center,
           }
         }
       }
+
       # Make sure the means for the factors are 0s
-      # T[1, -c(1:(p+1))] <- 0
-      # T[-c(1:(p+1)), 1] <- 0
+      T[1, -c(1:(p+1))] <- 0
+      T[-c(1:(p+1)), 1] <- 0
+      T[-c(1:(p+1)), -c(1:(p+1))] <- 0
+
       theta <- ISR3::RSWP(theta, v_obs)
+      theta[1, -c(1:(p+1))] <- 0
+      theta[-c(1:(p+1)), 1] <- 0
+      theta[-c(1:(p+1)), -c(1:(p+1))] <- R
       # Note: this corresponds to the reverse sweep in the first
       # loop performed in the algorithm proposed by Schafer 1997.
       # It basically replaces the "if r_sj = 0 and theta_jj < 0".
@@ -382,66 +403,79 @@ augmentCov <- function(covmat, center,
 
     # > M-step ####
     theta <- ISR3::SWP((n^(-1) * T), 1)
+    theta[1, -c(1:(p+1))] <- 0
+    theta[-c(1:(p+1)), 1] <- 0
+    theta[-c(1:(p+1)), -c(1:(p+1))] <- R
   }
 
+(Betas <- theta[2:(p+1), -c(1:(p+1))])
+
 # FA EM with NAs: correct sufficient stats -------------------------------------
+
 # Jamshidian1994 - An EM Algorithm for ML Factor Analysis with Missing Data
+
+  x <- t(Y_m)
+  xi <- x[, 1]
+
 # Order data: o, m, l
-patts <- mice::md.pattern(Y_m, plot = FALSE)
-R <- patts[-nrow(patts), -ncol(patts), drop = FALSE]
-Y_m <- Y_m[, colnames(R)]
-p_o <- length(which(colSums(is.na(Y_m)) == 0))
-p_m <- p - p_o
+  patts <- mice::md.pattern(Y_m, plot = FALSE)
+  R <- patts[-nrow(patts), -ncol(patts), drop = FALSE]
+  p_o <- length(which(colSums(is.na(Y_m)) == 0))
+  p_m <- p - p_o
+  x <- t(Y_m[, colnames(R)])
 
 # Define starting values for everything
-muo <- colMeans(Y_m[, 1:p_o])
-Lo <- matrix(.5, nrow = p_o, ncol = q)
-Psio <- diag(p_o)
-Sigma00 <- Lo %*% Phi %*% t(Lo) + Psio
-mum <- colMeans(Y_m[, (p_o+1):(p_o+p_m)], na.rm = TRUE)
-Lm <- matrix(.5, nrow = p_m, ncol = q)
-Psim <- diag(p_m)
-Sigmamm <- Lm %*% Phi %*% t(Lm) + Psim
-Phi <- diag(q)
+  muo     <- rowMeans(x[1:p_o, ])
+  mum     <- rowMeans(x[(p_o+1):(p_o+p_m), ], na.rm = TRUE)
+  Lo      <- matrix(.5, nrow = p_o, ncol = q)
+  Lm      <- matrix(.5, nrow = p_m, ncol = q)
+  yo      <- x[1:p_o, ]
+  Psio    <- diag(p_o)
+  Psim    <- diag(p_m)
+  Phi     <- diag(q)
+  Sigma00 <- Lo %*% Phi %*% t(Lo) + Psio
+  Sigmamm <- Lm %*% Phi %*% t(Lm) + Psim
 
-# Compute expecationts
-# Xbarstar
-yms <- mum + Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% (t(Y_m[, 1:p_o]) - muo)
-xbs <- 1/n * colSums(cbind(Y_m[, 1:p_o], t(yms)))
+# E step Compute expecationts
 
-# Sstar
-Eymym <- Sigmamm - Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi %*% t(Lm) + yms %*% t(yms)
-Exxt <- rbind(
-  cbind(
-    t(Y_m[, 1:p_o]) %*% Y_m[, 1:p_o], t(Y_m[, 1:p_o]) %*% t(yms)
-  ),
-  cbind(
-    yms %*% Y_m[, 1:p_o], Eymym
+  # Xbarstar
+  yms <- mum + Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% (yo - muo)
+  xbs <- 1/n * rowSums(rbind(yo, yms))
+
+  # Sstar
+  Eymym <- Sigmamm - Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi %*% t(Lm) + yms %*% t(yms)
+  Exxt <- rbind(
+    cbind(
+      yo %*% t(yo), yo %*% t(yms)
+    ),
+    cbind(
+      yms %*% t(yo), Eymym
+    )
   )
-)
-Ss <- 1 / n * Exxt
+  Ss <- 1 / n * Exxt
 
-# fstar
-fs <- Ef <- Phi %*% t(Lo) %*% solve(Sigma00) %*% (t(Y_m[, 1:p_o]) - muo)
-fbs <- rowSums(Ef) / n
+  # fstar (fixed to 0)
+  fs <- Ef <- Phi %*% t(Lo) %*% solve(Sigma00) %*% (yo - muo)
+  fbs <- rowSums(Ef) / n
+  fbs <- rep(0, q)
 
-# Fstar
-Eff <- Phi - Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi + fs %*% t(fs)
-Fs <- 1/n * Eff
+  # Fstar
+  Eff <- Phi - Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi + fs %*% t(fs)
+  Fs <- 1/n * Eff
 
-# Vstar
-Exf <- rbind(
-  t(Y_m[, 1:p_o]) %*% t(fs),
-  Lm %*% Phi - Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi + yms %*% t(fs)
-)
-Vs <- 1 / n * Exf
+  # Vstar
+  Exf <- rbind(
+    yo %*% t(fs),
+    Lm %*% Phi - Lm %*% Phi %*% t(Lo) %*% solve(Sigma00) %*% Lo %*% Phi + yms %*% t(fs)
+  )
+  Vs <- 1 / n * Exf
 
 # M steps
-B <- Fs - fbs %*% t(fbs)
-Lp <- Vs - xbs %*% t(fs)
-G <- Ss - 2 * xbs %*% c(muo, mum) - 2 * Vs %*% 
+  B <- Fs - fbs %*% t(fbs)
+  Lp <- Vs - rbind(yo, yms) %*% t(fs) # <- this does not add up!
+  G <- Ss - 2 * xbs %*% c(muo, mum) - 2 * Vs %*%
 
-
+# Other experiments ------------------------------------------------------------
 
 t(t(Y_m[, 1:p_o]) - muo)
 Y_m[18, 1:p_o] - muo

@@ -183,7 +183,7 @@ all.equal(H_fm, H_sg)&lt;/code&gt;&lt;/pre&gt;
 ## 6 11 55  9 22 109.2&lt;/code&gt;&lt;/pre&gt;
 &lt;div id=&#34;compute-the-augmented-covariance-matrix&#34; class=&#34;section level3&#34; number=&#34;2.2.1&#34;&gt;
 &lt;h3&gt;&lt;span class=&#34;header-section-number&#34;&gt;2.2.1&lt;/span&gt; Compute the augmented covariance matrix&lt;/h3&gt;
-&lt;p&gt;To obtain the estimates of the regression coefficients of a multivariate linear model, we need to sweep over the positions of the predictors the augmented covariance matrix of the data (&lt;span class=&#34;math inline&#34;&gt;\(\Theta\)&lt;/span&gt;).
+&lt;p&gt;To obtain the estimates of the regression coefficients of a multivariate linear model, we need to sweep the augmented covariance matrix of the data (&lt;span class=&#34;math inline&#34;&gt;\(\Theta\)&lt;/span&gt;) over the positions of the predictors.
 This is a &lt;span class=&#34;math inline&#34;&gt;\((p+1) \times (p+1)\)&lt;/span&gt; matrix storing the covariance matrix and the means of the dataset.
 It usually looks like this:&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[
