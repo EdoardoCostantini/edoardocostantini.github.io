@@ -266,8 +266,8 @@
     <link rel="manifest" href="/manifest.webmanifest" />
   
 
-  <link rel="icon" type="image/png" href="/media/icon_hue43872893f2139cc61e0b3cbfd7dd71d_2029090_32x32_fill_lanczos_center_3.png" />
-  <link rel="apple-touch-icon" type="image/png" href="/media/icon_hue43872893f2139cc61e0b3cbfd7dd71d_2029090_180x180_fill_lanczos_center_3.png" />
+  <link rel="icon" type="image/png" href="/media/icon_hu3e6c563c1434eb9a16514fe96a55ad35_1356935_32x32_fill_lanczos_center_3.png" />
+  <link rel="apple-touch-icon" type="image/png" href="/media/icon_hu3e6c563c1434eb9a16514fe96a55ad35_1356935_180x180_fill_lanczos_center_3.png" />
 
   <link rel="canonical" href="https://edoardocostantini.github.io/post/residual-standard-error/" />
 
@@ -294,8 +294,8 @@
   <meta property="og:site_name" content="Edo" />
   <meta property="og:url" content="https://edoardocostantini.github.io/post/residual-standard-error/" />
   <meta property="og:title" content="Understanding the residual standard error | Edo" />
-  <meta property="og:description" content="Introduction The residual standard error is a measure of fit for linear regression models. Conceptually, it can be thought of as the variability of the prediction error for a linear model." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hue43872893f2139cc61e0b3cbfd7dd71d_2029090_512x512_fill_lanczos_center_3.png" />
-    <meta property="twitter:image" content="https://edoardocostantini.github.io/media/icon_hue43872893f2139cc61e0b3cbfd7dd71d_2029090_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
+  <meta property="og:description" content="Introduction The residual standard error is a measure of fit for linear regression models. Conceptually, it can be thought of as the variability of the prediction error for a linear model." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hu3e6c563c1434eb9a16514fe96a55ad35_1356935_512x512_fill_lanczos_center_3.png" />
+    <meta property="twitter:image" content="https://edoardocostantini.github.io/media/icon_hu3e6c563c1434eb9a16514fe96a55ad35_1356935_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
   
     
       <meta
@@ -344,7 +344,7 @@
     "name": "Edo",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://edoardocostantini.github.io/media/icon_hue43872893f2139cc61e0b3cbfd7dd71d_2029090_192x192_fill_lanczos_center_3.png"
+      "url": "https://edoardocostantini.github.io/media/icon_hu3e6c563c1434eb9a16514fe96a55ad35_1356935_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "Introduction The residual standard error is a measure of fit for linear regression models. Conceptually, it can be thought of as the variability of the prediction error for a linear model."
@@ -679,7 +679,7 @@ SE_{resid} = \sqrt{ \frac{ \sum^{n}_{i = 1}(y_i - \hat{y}_i)^2 }{df_{resid}} }
 To get a better grasp of the residual standard error, let’s start by regressing the miles per gallon (mpg) on the number of cylinders (cyl), horsepower (hp), and weight (wt) of cars from the standard <code>mtcars</code> R dataset.</p>
 <pre class="r"><code># Fit a linear model -----------------------------------------------------------
 
-lm_fit &lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)</code></pre>
+  lm_fit &lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)</code></pre>
 <p>We can compute the residual standard error following the formula described above:</p>
 <pre class="r"><code># Compute the residual standard error manually ---------------------------------
 
@@ -709,7 +709,7 @@ lm_fit &lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)</code></pre>
 <h2>TL;DR, just give me the code!</h2>
 <pre class="r"><code># Fit a linear model -----------------------------------------------------------
 
-lm_fit &lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)
+  lm_fit &lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)
 
 # Compute the residual standard error manually ---------------------------------
 

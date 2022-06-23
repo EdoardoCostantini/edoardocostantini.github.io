@@ -7,7 +7,7 @@
     <description>Digital garden</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language>
     <image>
-      <url>https://edoardocostantini.github.io/media/icon_hue43872893f2139cc61e0b3cbfd7dd71d_2029090_512x512_fill_lanczos_center_3.png</url>
+      <url>https://edoardocostantini.github.io/media/icon_hu3e6c563c1434eb9a16514fe96a55ad35_1356935_512x512_fill_lanczos_center_3.png</url>
       <title>Digital garden</title>
       <link>https://edoardocostantini.github.io/post/</link>
     </image>
@@ -48,7 +48,7 @@ SE_{resid} = \sqrt{ \frac{ \sum^{n}_{i = 1}(y_i - \hat{y}_i)^2 }{df_{resid}} }
 To get a better grasp of the residual standard error, let’s start by regressing the miles per gallon (mpg) on the number of cylinders (cyl), horsepower (hp), and weight (wt) of cars from the standard &lt;code&gt;mtcars&lt;/code&gt; R dataset.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fit a linear model -----------------------------------------------------------
 
-lm_fit &amp;lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)&lt;/code&gt;&lt;/pre&gt;
+  lm_fit &amp;lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;We can compute the residual standard error following the formula described above:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Compute the residual standard error manually ---------------------------------
 
@@ -78,7 +78,7 @@ lm_fit &amp;lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)&lt;/code&gt;&lt;/pre&gt;
 &lt;h2&gt;TL;DR, just give me the code!&lt;/h2&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fit a linear model -----------------------------------------------------------
 
-lm_fit &amp;lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)
+  lm_fit &amp;lt;- lm(mpg ~ cyl + hp + wt, data = mtcars)
 
 # Compute the residual standard error manually ---------------------------------
 
