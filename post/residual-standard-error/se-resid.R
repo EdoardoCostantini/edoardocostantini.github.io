@@ -28,18 +28,3 @@
 
     df.residual(lm_fit)
     (n - k - 1)
-
-# PLS degrees of freedom
-
-library(plsdof)
-
-data(Boston)
-X <- as.matrix(Boston[, -14])
-y <- as.vector(Boston[, 14])
-
-dim()
-
-my.pls1 <- pls.model(X, y, m = 5, compute.DoF = TRUE)
-my.pls1
-
-my.pls1$DoF
