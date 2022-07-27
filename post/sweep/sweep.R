@@ -7,7 +7,7 @@
 # Other ref:
 
 # Packages and functions
-source("sweepGoodnight.R") # main sweep function
+source("./content/post/2021-11-17-sweep/sweepGoodnight.R") # main sweep function
 library(ISR3)                  # for SWP functions
 library(fastmatrix)            # alternative sweep
 

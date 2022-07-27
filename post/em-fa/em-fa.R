@@ -2,7 +2,7 @@
 # Objective: Initial notes on EM for factor analysis
 # Author:    Edoardo Costantini
 # Created:   2022-05-10
-# Modified:  2022-05-23
+# Modified:  2022-07-05
 
 rm(list = ls())
 
@@ -10,6 +10,8 @@ rm(list = ls())
 
 library(psych)
 library(fastmatrix)
+library(ISR3)
+library(dplyr)
 
 # Functions --------------------------------------------------------------------
 
@@ -72,7 +74,11 @@ augmentCov <- function(covmat, center,
   return(augCov)
 }
 
+ordLoad <- function(x) x[, order(x[1, ])]
+
 # Set up -----------------------------------------------------------------------
+
+  # Based on raw data ----------------------------------------------------------
 
   # Baseline data
   v1 <- c(1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,4,5,6)
@@ -85,21 +91,54 @@ augmentCov <- function(covmat, center,
   n <- nrow(Y)
   p <- ncol(Y)
   q <- 3
+  R <- diag(q)
   Ybar <- colMeans(Y)
+  
+  # Larger data
+  bfi_complete <- bfi[rowSums(is.na(bfi)) == 0, 1:25]
+  Y <- as.matrix(bfi_complete)
+  n <- nrow(Y)
+  p <- ncol(Y)
+  q <- 5
+  R <- diag(q)
+  Ybar <- colMeans(Y)
+
+  # Covariance based 
+  Ycov <- cov(Y)                                  # Pysch and Stats
+  Sxb <- 1 / (n - 1) * t(Y - Ybar) %*% (Y - Ybar) # McNicholas
+  Cyy <- 1 / (n - 1) * t(Y - Ybar) %*% (Y - Ybar) # RT and LR
+
+  # Correlation based
+  Ycov  <- cor(Y)                     # Pysch and Stats
+  Sxb   <- cor(Y)                     # McNicholas
+  Ys <- scale(Y)
+  Cyy <- 1 / (n - 1) * t(Ys) %*% (Ys) # RT and LR
+
+  # Based on covariance directly -----------------------------------------------
+
+  # Ycov <- Harman74.cor$cov   # Pysch and Stats
+  # Sxb <- Y                # McNicholas
+  # Cyy <- Y                # RT and LR
+  # p <- ncol(Y)
+  # q <- 4
+  # R <- diag(q)
+  
+# Stats version ----------------------------------------------------------------
+  
+  stats_fa <- factanal(covmat = Ycov, factors = q, rotation = "varimax")
+  loads_stats <- ordLoad(loadings(stats_fa)[])
 
 # Psych version ----------------------------------------------------------------
 
-  fa_out <- psych::fa(Y,
-                      nfactors = 3,
-                      covar = TRUE, # we want to work with the covariance matrix
-                      rotate = "varimax",
-                      fm = "ml")
+  psych_fa <- psych::fa(Ycov,
+    nfactors = q,
+    covar = TRUE, # we want to work with the covariance matrix
+    rotate = "varimax",
+    fm = "ml"
+  )
+  loads_psych <- ordLoad(loadings(psych_fa)[])
 
 # McNicholas -------------------------------------------------------------------
-
-  # Constants
-  Sxb <- cor(Y) # if we wanted to work with cor as default in psych::fa
-  Sxb <- 1/(n-1) * t(Y - Ybar) %*% (Y - Ybar) # if data is centered, Cyy which is Sxb
 
   # Starting values
   Lambda <- matrix(.5, nrow = p, ncol = q)
@@ -117,25 +156,14 @@ augmentCov <- function(covmat, center,
   }
 
   # Loadings
-  varimax(Lambda)$loadings[]
-  loadings(fa_out)[, c(2,3,1)]
-
-  # Uniqueness Psi
-  diag(Psi)
-  fa_out$uniquenesses
+  loads_mcnic <- ordLoad(varimax(Lambda)$loadings[])
+  uniqs_mcnic <- diag(Psi)
 
   # Sigma = LL' + Psi
-  Lambda %*% t(Lambda) + Psi
-  loadings(fa_out)[, c(2,3,1)] %*% t(loadings(fa_out)[, c(2,3,1)]) + diag(fa_out$uniquenesses)
+  # Lambda %*% t(Lambda) + Psi
+  # loadings(psych_fa) %*% t(loadings(psych_fa)) + diag(psych_fa$uniquenesses)
 
 # RubinThayer1982 --------------------------------------------------------------
-
-  # Constants
-  a <- Ybar <- colMeans(Y)
-  R <- diag(q)
-  Ys <- scale(Y)
-  Cyy <- 1/(n-1) * t(Ys) %*% (Ys) # if we want to work with correlation matrix
-  Cyy <- 1/(n-1) * t(Y - Ybar) %*% (Y - Ybar) # if data is centered, Cyy which is Sxb
 
   # Initialize
   B <- B0 <- matrix(.5, nrow = q, ncol = p)
@@ -144,39 +172,25 @@ augmentCov <- function(covmat, center,
   # EM
   for (i in 1:1e3){
     # E step estiamtes ---------------------------------------------------------
-    # gamma = Beta
-    gamma <- solve(Tau + t(B) %*% R %*% B) %*% t(B) %*% R
-    # Delta = Theta - Beta %*% Sxb %*% t(Beta)
-    Delta <- R - (R %*% B) %*% solve(Tau + t(B) %*% R %*% B) %*% t(B) %*% R
+    delta <- solve(Tau + t(B) %*% R %*% B) %*% t(B) %*% R # delta = Beta
+    Delta <- R - (R %*% B) %*% delta
 
     # Cyz_hat
-    Cyz_hat <- Cyy %*% gamma
-    Czy_hat <- t(gamma) %*% Cyy
+    Cyz_hat <- Cyy %*% delta
+    Czy_hat <- t(Cyz_hat)
 
     # Czz_hat = Theta
-    Czz_hat <- Delta + t(gamma) %*% Cyy %*% gamma
+    Czz_hat <- Delta + t(delta) %*% Cyy %*% delta
 
     # M step -------------------------------------------------------------------
-    # B = Lambda
-    B <- solve(Czz_hat) %*% t(Cyz_hat)
-    # Taus = Psi
-    taus <- diag(Cyy - Cyy %*% gamma %*% B)
+    B <- solve(Czz_hat) %*% t(Cyz_hat)      # B = Lambda
+    taus <- diag(Cyy - Cyy %*% delta %*% B) # Taus = Psi
     Tau <- diag(taus)
   }
 
-  # Loadings
-  lapply(list(
-    RFA = loadings(fa_out)[, c(2,3,1)],
-    MN2016 = varimax(Lambda)$loadings[],
-    RT1982 = varimax(t(B))$loadings[, c(2, 1, 3)]
-  ), round, 3)
-
-  # Uniqueness
-  sapply(list(
-    RFA = fa_out$uniquenesses,
-    MN2016 = diag(Psi),
-    RT1982 = diag(Tau)
-  ), round, 3)
+  # Store values
+  loads_RT1982 <- ordLoad(varimax(t(B))$loadings[])
+  uniqs_RT1982 <- diag(Tau)
 
 # LiuRubin1998 -----------------------------------------------------------------
 
@@ -184,9 +198,6 @@ augmentCov <- function(covmat, center,
   a <- Ybar <- colMeans(Y)
   R <- diag(q)
   S_i <- 1:q
-  Cyy <- 1/(n-1) * t(Y - Ybar) %*% (Y - Ybar) # if data is centered, Cyy which is Sxb
-  # Ys <- scale(Y)
-  # Cyy <- 1/(n-1) * t(Ys) %*% (Ys) # if we want to work with correlation matrix
 
   # Initialize
   B <- B0 <- matrix(.5, nrow = q, ncol = p)
@@ -222,16 +233,226 @@ augmentCov <- function(covmat, center,
     m_matrix_swept <- sweepGoodnight(m_matrix, target = S_i + p)
 
     # Updates
-    B <- m_matrix_swept[-c(1:p), 1:p]
+    B <- m_matrix_swept[-c(1:p), 1:p, drop = FALSE]
     Sigma <- diag(diag(m_matrix_swept[1:p, 1:p]))
   }
 
-  # Loadings
-  lapply(list(
-    RFA = loadings(fa_out)[, c(2,3,1)],
-    MN2016 = varimax(Lambda)$loadings[],
-    LR1982 = varimax(t(B))$loadings[, c(1, 3, 2)]
-  ), round, 3)
+  # Store outputs
+  loads_LR1982 <- ordLoad(varimax(t(B))$loadings[])
+  uniqs_LR1982 <- diag(Sigma)
+
+# Comparisons ------------------------------------------------------------------
+
+  # Loadings Stats vs Psych
+  round(loads_stats - loads_psych, 3) # Stats vs psych
+  round(loads_psych - loads_mcnic, 3)
+  round(loads_mcnic - loads_RT1982, 3)
+  round(loads_RT1982 - loads_LR1982, 3)
+
+  # Uniqueness
+  round(
+    data.frame(
+      psych_vs_stats = psych_fa$uniquenesses - stats_fa$uniquenesses,
+      psych_vs_mcnic = psych_fa$uniquenesses - uniqs_mcnic,
+      mcnic_vs_RT1982 = uniqs_mcnic - uniqs_RT1982,
+      RT1982_vs_LR1982 = uniqs_RT1982 - uniqs_LR1982
+    ), 3
+  )
+
+# FA EM with NAs: Concatenate problems -----------------------------------------
+
+  set.seed(1234)
+  Y_miss <- mice::ampute(scale(Y),
+                          prop = .3,
+                          patterns = matrix(c(1, 1, 0, rep(1, ncol(Y)-3),
+                                              1, 0, 1, rep(1, ncol(Y)-3),
+                                              1, 0, 0, rep(1, ncol(Y)-3)),
+                                            ncol = ncol(Y),
+                                            byrow = TRUE),
+                          mech = "MAR",
+                          type = "RIGHT"
+  )
+  Y_miss <- as.matrix(Y_miss$amp)
+
+  n <- nrow(Y_miss)
+  p <- ncol(Y_miss)
+
+  # Define Missing data patterns
+  patts <- mice::md.pattern(Y_miss, plot = FALSE)
+  R <- patts[-nrow(patts), -ncol(patts), drop = FALSE]
+  R <- R[, colnames(Y_miss), drop = FALSE]
+
+  # Number of missing data patterns
+  S <- nrow(R)
+  # Columns observed for a given pattern
+  O <- apply(R, 1, function(x) {
+    colnames(R)[x == 1]
+  })
+  # Columns missings for a given pattern
+  M <- apply(R, 1, function(x) {
+    colnames(R)[x == 0]
+  }) #
+
+  # Define I matrices (which obs in which pattern)
+  ry <- !is.na(Y_miss)
+  R_logi <- R == 1 # pattern config saved as True and False
+  I <- vector("list", S)
+  for (s in 1:S) {
+    # s <- 1
+    index <- NULL
+    for (i in 1:n) {
+      # i <- 1
+      if (all.equal(ry[i, ], R_logi[s, ]) == TRUE) {
+        index <- c(index, i)
+      }
+    }
+    I[[s]] <- index
+  }
+
+  # Define sufficient statistics matrix (observed)
+  Tobs_s <- vector("list", S)
+
+  for (s in 1:S) {
+    id_obs <- I[[s]]
+    dat_aug <- as.matrix(cbind(int = 1, Y_miss[id_obs, , drop = FALSE]))
+    Tobs_s[[s]] <- crossprod(dat_aug)
+
+    # Fix NAs
+    Tobs_s[[s]][is.na(Tobs_s[[s]])] <- 0
+  }
+
+  Tobs <- Reduce("+", Tobs_s)
+
+  # Starting values
+  # For NA part
+  theta0 = matrix(rep(NA, (p+1)^2 ), ncol = (p+1),
+                  dimnames = list(c("int", colnames(Y_miss)),
+                                  c("int", colnames(Y_miss))
+                                  ))
+  theta0[, 1]   = c(-1, colMeans(Y_miss, na.rm = TRUE)) # T1 CC
+  theta0[1, ] = c(-1, colMeans(Y_miss, na.rm = TRUE))
+  theta0[-1, -1] = cov(Y_miss, use = "pairwise.complete.obs") * (n - 1) / n # T2 CC
+
+  theta <- theta0
+
+  # For FA part
+  a <- a0 <- Ybar <- colMeans(Y_miss, na.rm = TRUE)
+  R <- diag(q)
+  # Ys <- scale(Y)
+  # Cyy <- 1 / (n - 1) * t(Ys) %*% (Ys) # if we want to work with correlation matrix
+  ccases <- rowSums(is.na(Y_miss)) == 0
+  Cyy <- Cyy0 <- 1 / (sum(ccases) - 1) * t(Y_miss[ccases, ] - Ybar) %*% (Y_miss[ccases, ] - Ybar) # if data is centered, Cyy which is Sxb
+  B <- B0 <- matrix(.5, nrow = q, ncol = p)
+  Tau <- Tau0 <- diag(1, p)
+
+  ## EM algorithm
+  for (i in 1:1e3) {
+
+    # E step estiamtes ---------------------------------------------------------
+    # Get a new estimate of Cyy
+    # Reset T to info in the data
+    # (will be updated based on new theta at every new iteration)
+    T <- Tobs
+    if (S > 1) {
+      # We only need to do this if there are missing data patterns other than
+      # the fully observed pattern (s = 1)
+      for (s in 2:S) {
+        # Description: For every missing data patter, except the first one (complete data
+        # missing data pattern)
+        # s <- 2
+        obs <- I[[s]]
+        v_obs <- O[[s]]
+        v_mis <- M[[s]]
+        v_all <- colnames(Y_miss)
+
+        # Sweep theta over predictors for this missing data pattern
+        theta <- ISR3::SWP(theta, v_obs)
+
+        # Define expectations (individual contributions)
+        betas <- theta[c("int", v_obs), v_mis]
+        cjs <- cbind(1, Y_miss[obs, v_obs, drop = FALSE]) %*% betas
+
+        # Update T matrix ##
+        for (i in seq_along(obs)) {
+          for (j in seq_along(v_mis)) {
+            # j <- 1
+            # Update for mean
+            J <- which(v_all == v_mis[j])
+            T[1, J + 1] <- T[1, J + 1] + cjs[i, j]
+            T[J + 1, 1] <- T[1, J + 1]
+
+            # Update for covariances w/ observed covariates for this id
+            # (for Ks observed for this id)
+            for (k in seq_along(v_obs)) {
+              # k <- 1
+              K <- which(v_all == v_obs[k])
+              T[K + 1, J + 1] <- T[K + 1, J + 1] + cjs[i, j] * Y_miss[obs[i], K]
+              T[J + 1, K + 1] <- T[K + 1, J + 1]
+            }
+
+            # Update for covariances w/ unobserved covariates for this id
+            # (both j and k missing, includes covariances with itself k = j)
+            for (k in seq_along(v_mis)) {
+              # k <- 1
+              K <- which(v_all == v_mis[k])
+              if (K >= J) {
+                T[K + 1, J + 1] <- T[K + 1, J + 1] + theta[K + 1, J + 1] + cjs[i, j] * cjs[i, k]
+                T[J + 1, K + 1] <- T[K + 1, J + 1]
+              }
+            }
+          }
+        }
+        theta <- ISR3::RSWP(theta, v_obs)
+        # Note: this corresponds to the reverse sweep in the first
+        # loop performed in the algorithm proposed by Schafer 1997.
+        # It basically replaces the "if r_sj = 0 and theta_jj < 0".
+        # For one E step, the covariance matrix used to compute individual
+        # contirbutions in each missing data pattern is the same!
+      }
+    }
+
+    # Use new Cyy
+    Cyy <- theta[colnames(Y_miss), colnames(Y_miss)]
+
+    delta <- solve(Tau + t(B) %*% R %*% B) %*% t(B) %*% R # delta = Beta
+    Delta <- R - (R %*% B) %*% delta
+
+    # Cyz_hat
+    Cyz_hat <- Cyy %*% delta
+    Czy_hat <- t(Cyz_hat)
+
+    # Czz_hat = Theta
+    Czz_hat <- Delta + t(delta) %*% Cyy %*% delta
+
+    # M step -------------------------------------------------------------------
+    # from regular EM for missing data
+    theta <- SWP((n^(-1) * T), 1)
+
+    # from regular EM for factor analysis
+    B <- solve(Czz_hat) %*% t(Cyz_hat) # B = Lambda
+    taus <- diag(Cyy - Cyy %*% delta %*% B) # Taus = Psi
+    Tau <- diag(taus)
+  }
+
+  # Store values
+  loads_FAMISS <- ordLoad(varimax(t(B))$loadings[])
+  uniqs_FAMISS <- diag(Tau)
+
+  # Loadings Stats vs Psych
+  round(loads_RT1982 - loads_FAMISS, 3)
+  round(loads_stats - loads_psych, 3) # Stats vs psych
+  round(loads_psych - loads_mcnic, 3)
+  round(loads_mcnic - loads_RT1982, 3)
+
+  # Uniqueness
+  round(
+    data.frame(
+      psych_vs_stats = psych_fa$uniquenesses - stats_fa$uniquenesses,
+      psych_vs_mcnic = psych_fa$uniquenesses - uniqs_mcnic,
+      mcnic_vs_RT1982 = uniqs_mcnic - uniqs_RT1982,
+      RT1982_vs_LR1982 = uniqs_RT1982 - uniqs_FAMISS
+    ), 3
+  )
 
 
 # FA EM with NAs: Naive use of augmented matrix --------------------------------
@@ -477,74 +698,17 @@ augmentCov <- function(covmat, center,
 
 # Other experiments ------------------------------------------------------------
 
-t(t(Y_m[, 1:p_o]) - muo)
-Y_m[18, 1:p_o] - muo
-
   # Constants
   a <- Ybar <- colMeans(Y)
   R <- diag(q)
   S_i <- 1:q
-  # Cyy <- 1/(n-1) * t(Y - Ybar) %*% (Y - Ybar) # if data is centered, Cyy which is Sxb
-  # Ys <- scale(Y)
-  # Cyy <- 1/(n-1) * t(Ys) %*% (Ys) # if we want to work with correlation matrix
 
   # Initialize
   B <- B0 <- matrix(.5, nrow = q, ncol = p)
   Sigma <- Sigma0 <- diag(1, p)
 
-  # E step estiamtes ---------------------------------------------------------
-  # Covariance matrix
-  cov_mat <- rbind(
-    cbind(t(B) %*% R %*% B + Sigma, t(B) %*% R),
-    cbind(R %*% B, R)
-  )
-
-  # Augmented covariance matrix
-  Theta <- augmentCov(
-    covmat = cov_mat,
-    center = c(a, rep(0, q)),
-    dnames = NULL
-  )
-
-  for (s in 1:S) {
-    id_obs  <- I[[s]]
-    dat_aug <- as.matrix(cbind(int = 1, Y[id_obs, , drop = FALSE]))
-    Tobs_s[[s]] <- crossprod(dat_aug)
-
-    # Fix NAs
-    Tobs_s[[s]][is.na(Tobs_s[[s]])] <- 0
-  }
-
-  Tobs <- Reduce("+", Tobs_s)
-
-  # Constants
-  a <- Ybar <- colMeans(Y)
-  R <- diag(q)
-  S_i <- 1:q
-  Cyy <- 1/(n-1) * t(Y - Ybar) %*% (Y - Ybar) # if data is centered, Cyy which is Sxb
-  # Ys <- scale(Y)
-  # Cyy <- 1/(n-1) * t(Ys) %*% (Ys) # if we want to work with correlation matrix
-
-  # Initialize
-  Phi <- diag(q)
-  L <- L0 <- matrix(.5, nrow = p, ncol = q)
-  Psi <- Psi0 <- diag(1, p)
-  Sigma <- L %*% Phi %*% t(L) + Psi
-
-  for (s in 1:S) {
-    s <- 1
-    id_obs  <- I[[s]]
-    L[O[[s]], ]
-    dat_aug <- as.matrix(cbind(int = 1, Y[id_obs, , drop = FALSE]))
-    Tobs_s[[s]] <- crossprod(dat_aug)
-
-    # Fix NAs
-    Tobs_s[[s]][is.na(Tobs_s[[s]])] <- 0
-  }
-
-
   # EM
-  for (i in 1:1e3){
+  for (i in 1:1e3) {
 
     # E step estiamtes ---------------------------------------------------------
     # Matrix
@@ -573,13 +737,10 @@ Y_m[18, 1:p_o] - muo
     m_matrix_swept <- sweepGoodnight(m_matrix, target = S_i + p)
 
     # Updates
-    B <- m_matrix_swept[-c(1:p), 1:p]
+    B <- m_matrix_swept[-c(1:p), 1:p, drop = FALSE]
     Sigma <- diag(diag(m_matrix_swept[1:p, 1:p]))
   }
 
-  # Loadings
-  lapply(list(
-    RFA = loadings(fa_out)[, c(2,3,1)],
-    MN2016 = varimax(Lambda)$loadings[],
-    LR1982 = varimax(t(B))$loadings[, c(1, 3, 2)]
-  ), round, 3)
+  # Store outputs
+  loads_LR1982 <- ordLoad(varimax(t(B))$loadings[])
+  uniqs_LR1982 <- diag(Sigma)
