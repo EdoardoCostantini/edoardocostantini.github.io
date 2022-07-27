@@ -96,7 +96,26 @@
 # Check equivalence ------------------------------------------------------------
 
     ls(pcr_out)
-    
+    # r$> ls(pcr_out)
+    # "call"          
+    # "coefficients"  
+    # "fit.time"      
+    # "fitted.values" 
+    # "loadings"
+    # "method"
+    # "model"
+    # "ncomp"        
+    # "projection"
+    # "residuals"
+    # "scores"
+    # "terms"
+    # "validation"
+    # "Xmeans"
+    # "Xtotvar"
+    # "Xvar"
+    # "Yloadings"
+    # "Ymeans"
+
     # - Scores -----------------------------------------------------------------
 
     round(pcr_out$scores - Ts, 5)
