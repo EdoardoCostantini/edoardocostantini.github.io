@@ -28,7 +28,6 @@
       <description>&lt;p&gt;This a preliminary post meant to share the shiny app that can be used to scann the results.
 The article describing the results is coming soon.
 You may find the description of the simulation study in the readme file of the &lt;a href=&#34;https://github.com/EdoardoCostantini/mi-spcr&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;GitHub&lt;/a&gt; repository associated with this study.&lt;/p&gt;
-&lt;p&gt;IS THIS HERE?&lt;/p&gt;
 &lt;h3 id=&#34;results-dashboard&#34;&gt;Results dashboard&lt;/h3&gt;
 &lt;iframe height=&#34;975&#34; width=&#34;100%&#34; frameborder=&#34;no&#34; src=&#34;https://edoardocostantini.shinyapps.io/mi-pcr-plot/?_ga=2.193807589.95894774.1658930327-1213691852.1658930327&#34;&gt; &lt;/iframe&gt;
 </description>
