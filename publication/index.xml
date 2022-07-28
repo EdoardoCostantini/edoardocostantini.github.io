@@ -17,7 +17,10 @@
       <link>https://edoardocostantini.github.io/publication/mipca-compare/</link>
       <pubDate>Thu, 30 Jun 2022 00:10:00 +0000</pubDate>
       <guid>https://edoardocostantini.github.io/publication/mipca-compare/</guid>
-      <description></description>
+      <description>&lt;h3 id=&#34;results-dashboard&#34;&gt;Results dashboard&lt;/h3&gt;
+&lt;p&gt;Here you can explore the results reported in the simulation study.
+Thanks to this shiny app you can actually check all the additional results that couldn&amp;rsquo;t be included in the main text.&lt;/p&gt;
+&lt;iframe height=&#34;1350&#34; width=&#34;100%&#34; frameborder=&#34;no&#34; src=&#34;https://edoardocostantini.shinyapps.io/shiny-mi-pca-plot/?_ga=2.187725984.929064409.1659041054-1213691852.1658930327&#34;&gt; &lt;/iframe&gt;</description>
     </item>
     
     <item>
