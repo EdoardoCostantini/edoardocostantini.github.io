@@ -5,7 +5,7 @@
     <link>https://edoardocostantini.github.io/tag/imputation/</link>
       <atom:link href="https://edoardocostantini.github.io/tag/imputation/index.xml" rel="self" type="application/rss+xml" />
     <description>imputation</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Thu, 30 Jun 2022 00:10:00 +0000</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Tue, 30 Aug 2022 09:41:00 +0000</lastBuildDate>
     <image>
       <url>https://edoardocostantini.github.io/media/icon_hubc644763d821b4643633e77d54abca59_619947_512x512_fill_lanczos_center_3.png</url>
       <title>imputation</title>
@@ -13,21 +13,10 @@
     </image>
     
     <item>
-      <title>Solving the &#34;many variables&#34; problem in MICE with principal component regression</title>
-      <link>https://edoardocostantini.github.io/publication/mipca-compare/</link>
-      <pubDate>Thu, 30 Jun 2022 00:10:00 +0000</pubDate>
-      <guid>https://edoardocostantini.github.io/publication/mipca-compare/</guid>
-      <description>&lt;h3 id=&#34;results-dashboard&#34;&gt;Results dashboard&lt;/h3&gt;
-&lt;p&gt;Here you can explore the results reported in the simulation study.
-Thanks to this shiny app you can actually check all the additional results that couldn&amp;rsquo;t be included in the main text.&lt;/p&gt;
-&lt;iframe height=&#34;900&#34; width=&#34;100%&#34; frameborder=&#34;no&#34; src=&#34;https://edoardocostantini.shinyapps.io/shiny-mi-pca-plot/?_ga=2.187725984.929064409.1659041054-1213691852.1658930327&#34;&gt; &lt;/iframe&gt;</description>
-    </item>
-    
-    <item>
       <title>Supervised principal component regression imputation in MICE</title>
-      <link>https://edoardocostantini.github.io/publication/mi-super-pcr/</link>
-      <pubDate>Thu, 30 Jun 2022 00:10:00 +0000</pubDate>
-      <guid>https://edoardocostantini.github.io/publication/mi-super-pcr/</guid>
+      <link>https://edoardocostantini.github.io/research/mi-super-pcr/</link>
+      <pubDate>Tue, 30 Aug 2022 09:41:00 +0000</pubDate>
+      <guid>https://edoardocostantini.github.io/research/mi-super-pcr/</guid>
       <description>&lt;p&gt;This a preliminary post meant to share the shiny app that can be used to scann the results.
 The article describing the results is coming soon.
 You may find the description of the simulation study in the readme file of the &lt;a href=&#34;https://github.com/EdoardoCostantini/mi-spcr&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;GitHub&lt;/a&gt; repository associated with this study.&lt;/p&gt;
@@ -35,6 +24,17 @@ You may find the description of the simulation study in the readme file of the &
 &lt;p&gt;Thanks to this shiny app you can check all the simulation study conditions in early access.&lt;/p&gt;
 &lt;iframe height=&#34;1075&#34; width=&#34;100%&#34; frameborder=&#34;no&#34; src=&#34;https://edoardocostantini.shinyapps.io/mi-pcr-plot/?_ga=2.193807589.95894774.1658930327-1213691852.1658930327&#34;&gt; &lt;/iframe&gt;
 </description>
+    </item>
+    
+    <item>
+      <title>Solving the &#34;many variables&#34; problem in MICE with principal component regression</title>
+      <link>https://edoardocostantini.github.io/research/mipca-compare/</link>
+      <pubDate>Thu, 30 Jun 2022 09:41:00 +0000</pubDate>
+      <guid>https://edoardocostantini.github.io/research/mipca-compare/</guid>
+      <description>&lt;h3 id=&#34;results-dashboard&#34;&gt;Results dashboard&lt;/h3&gt;
+&lt;p&gt;Here you can explore the results reported in the simulation study.
+Thanks to this shiny app you can actually check all the additional results that couldn&amp;rsquo;t be included in the main text.&lt;/p&gt;
+&lt;iframe height=&#34;900&#34; width=&#34;100%&#34; frameborder=&#34;no&#34; src=&#34;https://edoardocostantini.shinyapps.io/shiny-mi-pca-plot/?_ga=2.187725984.929064409.1659041054-1213691852.1658930327&#34;&gt; &lt;/iframe&gt;</description>
     </item>
     
   </channel>
