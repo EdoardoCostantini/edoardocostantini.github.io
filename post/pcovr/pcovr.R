@@ -1,37 +1,38 @@
-# pcover estimation
+# Set up environment -----------------------------------------------------------
 
-# Fit regular pcover with every parameter fixed
+    # Load pacakge that implements this method
+    library("PCovR")
 
-library("PCovR")
+    # Load example data from PCovR package
+    data(alexithymia)
 
-# Load data --------------------------------------------------------------------
-data(alexithymia)
+    # Explore its scale
+    colMeans(alexithymia$X)
+    colMeans(alexithymia$Y)
 
-colMeans(alexithymia$X)
-colMeans(alexithymia$Y)
+    apply(alexithymia$X, 2, var)
+    apply(alexithymia$Y, 2, var)
 
-apply(alexithymia$X, 2, var)
-apply(alexithymia$Y, 2, var)
+    # Subset data
+    X_raw <- alexithymia$X
+    y_raw <- alexithymia$Y[, 1, drop = FALSE]
 
-# Subset data
-X_raw <- alexithymia$X
-y_raw <- alexithymia$Y[, 1, drop = FALSE]
+    # Define paramters that can be useful
+    n <- nrow(X_raw)
+    p <- ncol(X_raw)
 
-n <- nrow(X_raw)
-p <- ncol(X_raw)
+    # Scale data
+    X <- scale(X_raw)# * (n - 1) / n
+    y <- scale(y_raw)# * (n - 1) / n
 
-# Scale data
-X <- scale(X_raw)# * (n - 1) / n
-y <- scale(y_raw)# * (n - 1) / n
-
-# Define parameters
-alpha <- .5
-npcs <- 5
+    # Define parameters
+    alpha <- .5 # weighting parameter
+    npcs <- 5
 
 # Estimation -------------------------------------------------------------------
 
     # Estiamte with PCovR function
-    out <- pcovr_est(
+    out <- PCovR::pcovr_est(
         X = X,
         Y = y,
         a = alpha,
@@ -39,38 +40,30 @@ npcs <- 5
     )
 
     # Estiamte manually Vervolet version
-    Hx <- X %*% solve(S) %*% t(X)
+    Hx <- X %*% solve(t(X) %*% X) %*% t(X)
     G_vv <- alpha * X %*% t(X) / sum(X^2) + (1 - alpha) * Hx %*% y %*% t(y) %*% Hx / sum(y^2)
     EG_vv <- eigen(G_vv) # eigen-decomposition of matrix
     T_vv <- EG_vv$vectors[, 1:npcs]
-
-    # Estiamte manually de Jong version
-    beta <- alpha * sum(y)^2 / (alpha * sum(y)^2 + (1 - alpha) * sum(X)^2)
-    G_jv <- beta * X %*% t(X) + (1 - beta) * Y_hat %*% t(Y_hat)
-    EG_jv <- eigen(G_jv) # eigen-decomposition of matrix
-    T_jv <- EG_jv$vectors[, 1:npcs]
 
 # Compare results --------------------------------------------------------------
 
     # T scores
     Ts <- list(
         PCovR = head(out$Te),
-        Vervolet = head(T_vv),
         PCovR_man = head(X %*% out$W),
-        deJong = head(T_jv)
+        Vervolet = head(T_vv)
     )
 
     # Weights
     W <- list(
         PCovR = out$W,
-        Vervolet = solve(t(X) %*% X) %*% t(X) %*% T_vv,
-        deJong = solve(t(X) %*% X) %*% t(X) %*% T_jv
+        Vervolet = solve(t(X) %*% X) %*% t(X) %*% T_vv
     )
 
     # Px
-    t(out$Te) %*% X
-    t(out$W) %*% t(X) %*% X
-    out$Px
+    ( t(out$Te) %*% X )[, 1:5]
+    ( t(out$W) %*% t(X) %*% X )[, 1:5]
+    out$Px[, 1:5]
 
     # Py
     cbind(
@@ -81,15 +74,15 @@ npcs <- 5
 
     # B
     cbind(
-        B = out$B,
-        WPY = out$W %*% out$Py,
-        WWtXtY = out$W %*% t(out$W) %*% t(X) %*% y
+        B = drop(out$B),
+        WPY = drop(out$W %*% out$Py),
+        WWtXtY = drop(out$W %*% t(out$W) %*% t(X) %*% y)
     )
 
 # Maximum likelihood tuning of alpha -------------------------------------------
 
     # Fit PCovR
-    out <- pcovr_out <- pcovr(
+    pcovr_out <- pcovr(
         X = X_raw,
         Y = y_raw,
         rot = "none",
@@ -109,7 +102,8 @@ npcs <- 5
     lm_mod <- lm(y ~ -1 + X)
     ery <- 1 - summary(lm_mod)$r.squared
 
-    Rmin <- 1
+    Rmin <- npcs
+    Rmax <- npcs
     sing <- svd(X)
     vec <- Rmin:Rmax
     vec <- c(vec[1] - 1, vec, vec[length(vec)] + 1)
@@ -122,7 +116,7 @@ npcs <- 5
     erx <- 1 - VAF[which.max(scr)]
 
     # Find alpha ML
-    alpha_ML <- sum(X^2) / (sum(X^2) + sum(Y^2) * erx / ery)
+    alpha_ML <- sum(X^2) / (sum(X^2) + sum(y^2) * erx / ery)
 
     # Compare to one found by package
-    out$a - alpha_ML
+    pcovr_out$a - alpha_ML

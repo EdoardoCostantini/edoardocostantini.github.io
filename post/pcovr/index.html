@@ -1,0 +1,1341 @@
+<!DOCTYPE html><html lang="en-us" >
+
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  
+  
+    <meta name="generator" content="Wowchemy 5.4.0 for Hugo" />
+  
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Edoardo (Edo) Costantini" />
+
+  
+  
+  
+    
+  
+  <meta name="description" content="An R script to understand how PCovR works." />
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://edoardocostantini.github.io/post/pcovr/" />
+
+  
+  
+  
+    <meta name="theme-color" content="#1565c0" />
+  
+
+  
+  
+    
+    <script src="/js/mathjax-config.js"></script>
+  
+
+  
+
+  <link rel="stylesheet" href="/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css" media="print" onload="this.media='all'">
+
+  
+  
+  
+    
+    
+
+    
+    
+    
+    
+      
+      
+    
+    
+    
+
+    
+    
+    
+      
+    
+    
+      
+      
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/github.min.css" crossorigin="anonymous" title="hl-light" media="print" onload="this.media='all'">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/github.min.css" crossorigin="anonymous" title="hl-dark" media="print" onload="this.media='all'" disabled>
+      
+    
+
+    
+    
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.css" integrity="" crossorigin="anonymous" media="print" onload="this.media='all'">
+    
+
+    
+
+    
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+    
+  
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.79531287471bb5b09ba56c9015780539.css" />
+
+  
+
+
+
+  
+
+  
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+    <link rel="manifest" href="/manifest.webmanifest" />
+  
+
+  <link rel="icon" type="image/png" href="/media/icon_hubc644763d821b4643633e77d54abca59_619947_32x32_fill_lanczos_center_3.png" />
+  <link rel="apple-touch-icon" type="image/png" href="/media/icon_hubc644763d821b4643633e77d54abca59_619947_180x180_fill_lanczos_center_3.png" />
+
+  <link rel="canonical" href="https://edoardocostantini.github.io/post/pcovr/" />
+
+  
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+
+  
+  
+    
+    
+  
+  <meta property="twitter:card" content="summary" />
+  
+  <meta property="og:site_name" content="Edo" />
+  <meta property="og:url" content="https://edoardocostantini.github.io/post/pcovr/" />
+  <meta property="og:title" content="Principal covariates regression in R | Edo" />
+  <meta property="og:description" content="An R script to understand how PCovR works." /><meta property="og:image" content="https://edoardocostantini.github.io/media/icon_hubc644763d821b4643633e77d54abca59_619947_512x512_fill_lanczos_center_3.png" />
+    <meta property="twitter:image" content="https://edoardocostantini.github.io/media/icon_hubc644763d821b4643633e77d54abca59_619947_512x512_fill_lanczos_center_3.png" /><meta property="og:locale" content="en-us" />
+  
+    
+      <meta
+        property="article:published_time"
+        content="2022-08-04T00:00:00&#43;00:00"
+      />
+    
+    <meta property="article:modified_time" content="2022-08-04T12:36:36&#43;02:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://edoardocostantini.github.io/post/pcovr/"
+  },
+  "headline": "Principal covariates regression in R",
+  
+  "datePublished": "2022-08-04T00:00:00Z",
+  "dateModified": "2022-08-04T12:36:36+02:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Edoardo (Edo) Costantini"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "Edo",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://edoardocostantini.github.io/media/icon_hubc644763d821b4643633e77d54abca59_619947_192x192_fill_lanczos_center_3.png"
+    }
+  },
+  "description": "An R script to understand how PCovR works."
+}
+</script>
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+  <title>Principal covariates regression in R | Edo</title>
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper   " data-wc-page-id="e1f927af65f2ab681f85ad5ea840d532" >
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="/js/wowchemy-init.min.13d3c1ccc66961c64e937f4e854fdd1e.js"></script>
+
+  
+
+
+<aside class="search-modal" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#" aria-label="Close"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control"
+        aria-label="Search...">
+        
+      </div>
+
+      
+      
+
+      
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+
+  <div class="page-header">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="header--fixed">
+  <nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+    <div class="container-xl">
+
+      
+      <div class="d-none d-lg-inline-flex">
+        <a class="navbar-brand" href="/">Edo</a>
+      </div>
+      
+
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+      <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+      
+      <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+        <a class="navbar-brand" href="/">Edo</a>
+      </div>
+      
+
+      
+      
+      <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+        
+        <ul class="navbar-nav d-md-inline-flex">
+          
+
+          
+
+          
+          
+          
+            
+          
+
+          
+
+          
+          
+          
+          
+
+          
+            
+              
+              
+            
+            
+          
+
+          <li class="nav-item">
+            <a class="nav-link  active" href="/post/"><span>Digital garden</span></a>
+          </li>
+
+          
+          
+
+          
+
+          
+          
+          
+            
+          
+
+          
+
+          
+          
+          
+          
+
+          
+            
+              
+              
+            
+            
+          
+
+          <li class="nav-item">
+            <a class="nav-link " href="/research/"><span>Research</span></a>
+          </li>
+
+          
+          
+
+        
+
+          
+        </ul>
+      </div>
+
+      <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+
+        
+        
+          
+        
+
+        
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+        
+        <li class="nav-item dropdown theme-dropdown">
+          <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+          </a>
+          <div class="dropdown-menu">
+            <a href="#" class="dropdown-item js-set-theme-light">
+              <span>Light</span>
+            </a>
+            <a href="#" class="dropdown-item js-set-theme-dark">
+              <span>Dark</span>
+            </a>
+            <a href="#" class="dropdown-item js-set-theme-auto">
+              <span>Automatic</span>
+            </a>
+          </div>
+        </li>
+        
+
+        
+        
+
+      </ul>
+
+    </div>
+  </nav>
+</header>
+
+
+  </div>
+
+  <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>Principal covariates regression in R</h1>
+
+  
+  <p class="page-subtitle">R Code notes on PCovR</p>
+  
+
+  
+    
+
+
+<div class="article-metadata">
+
+  
+  
+  
+  
+  <div>
+    
+
+  <span class="author-highlighted">
+      <a href="/author/edoardo-edo-costantini/">Edoardo (Edo) Costantini</a></span>
+  </div>
+  
+  
+
+
+
+  <span class="article-date">
+    
+    
+  Published on Aug 4, 2022
+  </span>
+
+  <span class="article-date">
+    
+    
+      
+      <span class="middot-divider"></span>
+         Last updated on
+         Aug 4, 2022
+      
+    
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder mr-1"></i><a href="/category/a-primer-on-pca/">A primer on PCA</a>, <a href="/category/r-notes/">R notes</a></span>
+  
+
+</div>
+
+    
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#r-code-notes"><span class="toc-section-number">2</span> R code notes</a></li>
+<li><a href="#tldr-just-give-me-the-code"><span class="toc-section-number">3</span> TL;DR, just give me the code!</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>Principal covariates regression is a method to analyze the relationship between sets of multivariate data in the presence of highly-collinear variables.
+Compared to regular principal component regression, principal covariates regression PCovR extracts components that account for much of the variability in a set of <span class="math inline">\(X\)</span> variables and that correlated well with a set of <span class="math inline">\(Y\)</span> variables.
+For more information, I recommend reading <span class="citation"><a href="#ref-vervloet2015pcovr" role="doc-biblioref">Vervloet et al.</a> (<a href="#ref-vervloet2015pcovr" role="doc-biblioref">2015</a>)</span> and <span class="citation"><a href="#ref-de1992principal" role="doc-biblioref">De Jong and Kiers</a> (<a href="#ref-de1992principal" role="doc-biblioref">1992</a>)</span>.
+In this post, you can find my R code notes on this method.
+In these notes, I show the computations used by the <code>PCovR</code> R-package to perform the method.</p>
+</div>
+<div id="r-code-notes" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> R code notes</h1>
+<pre class="r"><code># Set up environment -----------------------------------------------------------
+
+    # Load pacakge that implements this method
+    library(&quot;PCovR&quot;, verbose = FALSE, quietly = TRUE)
+
+    # Load example data from PCovR package
+    data(alexithymia)
+
+    # Explore its scale
+    colMeans(alexithymia$X)</code></pre>
+<pre><code>##          confused       right words        sensations          describe 
+##         1.8196721         1.7950820         0.5983607         2.2213115 
+##  analyze problems             upset           puzzled        let happen 
+##         2.5081967         1.6065574         1.1393443         1.2622951 
+##          identify         essential feel about people     describe more 
+##         1.6393443         2.7131148         1.7213115         1.0081967 
+##          going on         why angry  daily activities     entertainment 
+##         0.9836066         1.2540984         1.6639344         1.6967213 
+##   reveal feelings             close            useful   hidden meanings 
+##         1.6475410         2.8442623         2.4672131         1.2131148</code></pre>
+<pre class="r"><code>    colMeans(alexithymia$Y)</code></pre>
+<pre><code>##    CES-D      RSE 
+## 16.46721 31.37295</code></pre>
+<pre class="r"><code>    apply(alexithymia$X, 2, var)</code></pre>
+<pre><code>##          confused       right words        sensations          describe 
+##          1.388701          1.635348          1.151402          1.479542 
+##  analyze problems             upset           puzzled        let happen 
+##          1.161089          1.678634          1.294472          1.302534 
+##          identify         essential feel about people     describe more 
+##          1.620919          1.231066          1.475410          1.363569 
+##          going on         why angry  daily activities     entertainment 
+##          1.470803          1.496884          1.514226          1.601477 
+##   reveal feelings             close            useful   hidden meanings 
+##          2.097886          1.240008          1.193131          1.045116</code></pre>
+<pre class="r"><code>    apply(alexithymia$Y, 2, var)</code></pre>
+<pre><code>##     CES-D       RSE 
+## 118.35016  37.24199</code></pre>
+<pre class="r"><code>    # Subset data
+    X_raw &lt;- alexithymia$X
+    y_raw &lt;- alexithymia$Y[, 1, drop = FALSE]
+
+    # Define paramters that can be useful
+    n &lt;- nrow(X_raw)
+    p &lt;- ncol(X_raw)
+
+    # Scale data
+    X &lt;- scale(X_raw)# * (n - 1) / n
+    y &lt;- scale(y_raw)# * (n - 1) / n
+
+    # Define parameters
+    alpha &lt;- .5 # weighting parameter
+    npcs &lt;- 5
+
+# Estimation -------------------------------------------------------------------
+
+    # Estimate with PCovR function
+    out &lt;- PCovR::pcovr_est(
+        X = X,
+        Y = y,
+        a = alpha,
+        r = npcs # fixed number of components
+    )
+
+    # Estimate manually (Vervolet version)
+    Hx &lt;- X %*% solve(t(X) %*% X) %*% t(X)
+    G_vv &lt;- alpha * X %*% t(X) / sum(X^2) + (1 - alpha) * Hx %*% y %*% t(y) %*% Hx / sum(y^2)
+    EG_vv &lt;- eigen(G_vv) # eigen-decomposition of matrix
+    T_vv &lt;- EG_vv$vectors[, 1:npcs]
+
+# Compare results --------------------------------------------------------------
+
+    # T scores
+    Ts &lt;- list(
+        PCovR = head(out$Te),
+        PCovR_man = head(X %*% out$W),
+        Vervolet = head(T_vv)
+    )
+
+    # Weights
+    W &lt;- list(
+        PCovR = out$W,
+        Vervolet = solve(t(X) %*% X) %*% t(X) %*% T_vv
+    )
+
+    # Px
+    ( t(out$Te) %*% X )[, 1:5]</code></pre>
+<pre><code>##        confused right words sensations   describe analyze problems
+## [1,] -8.4662585  -7.3375812 -2.2012950  6.1597661        0.4271093
+## [2,]  3.3642487  -2.5380829 -0.2684529  4.9595077        6.2443158
+## [3,] -1.4118650  -4.4348404  1.4484525  1.8944371       -3.1435113
+## [4,]  1.1136577   1.0030862  2.0443923 -3.5188316        0.5622115
+## [5,]  0.8172586   0.7913444  5.2341517  0.5130866       -5.2948505</code></pre>
+<pre class="r"><code>    ( t(out$W) %*% t(X) %*% X )[, 1:5]</code></pre>
+<pre><code>##        confused right words sensations   describe analyze problems
+## [1,] -8.4662585  -7.3375812 -2.2012950  6.1597661        0.4271093
+## [2,]  3.3642487  -2.5380829 -0.2684529  4.9595077        6.2443158
+## [3,] -1.4118650  -4.4348404  1.4484525  1.8944371       -3.1435113
+## [4,]  1.1136577   1.0030862  2.0443923 -3.5188316        0.5622115
+## [5,]  0.8172586   0.7913444  5.2341517  0.5130866       -5.2948505</code></pre>
+<pre class="r"><code>    out$Px[, 1:5]</code></pre>
+<pre><code>##        confused right words sensations   describe analyze problems
+## [1,] -8.4662585  -7.3375812 -2.2012950  6.1597661        0.4271093
+## [2,]  3.3642487  -2.5380829 -0.2684529  4.9595077        6.2443158
+## [3,] -1.4118650  -4.4348404  1.4484525  1.8944371       -3.1435113
+## [4,]  1.1136577   1.0030862  2.0443923 -3.5188316        0.5622115
+## [5,]  0.8172586   0.7913444  5.2341517  0.5130866       -5.2948505</code></pre>
+<pre class="r"><code>    # Py
+    cbind(
+        Py = out$Py,
+        TtY = t(out$Te) %*% y,
+        WtXtY = t(out$W) %*% t(X) %*% y
+    )</code></pre>
+<pre><code>##           CES-D      CES-D      CES-D
+## [1,] -6.9315017 -6.9315017 -6.9315017
+## [2,]  0.7212995  0.7212995  0.7212995
+## [3,]  1.1114400  1.1114400  1.1114400
+## [4,] -0.2349069 -0.2349069 -0.2349069
+## [5,] -0.5126823 -0.5126823 -0.5126823</code></pre>
+<pre class="r"><code>    # B
+    cbind(
+        B = drop(out$B),
+        WPY = drop(out$W %*% out$Py),
+        WWtXtY = drop(out$W %*% t(out$W) %*% t(X) %*% y)
+    )</code></pre>
+<pre><code>##                  B          WPY       WWtXtY
+##  [1,]  0.383110912  0.383110912  0.383110912
+##  [2,]  0.019216602  0.019216602  0.019216602
+##  [3,] -0.032288901 -0.032288901 -0.032288901
+##  [4,] -0.016670641 -0.016670641 -0.016670641
+##  [5,]  0.086442108  0.086442108  0.086442108
+##  [6,] -0.185643598 -0.185643598 -0.185643598
+##  [7,]  0.145228530  0.145228530  0.145228530
+##  [8,] -0.016889454 -0.016889454 -0.016889454
+##  [9,]  0.019540943  0.019540943  0.019540943
+## [10,] -0.129790008 -0.129790008 -0.129790008
+## [11,]  0.011837598  0.011837598  0.011837598
+## [12,] -0.060783224 -0.060783224 -0.060783224
+## [13,]  0.214728328  0.214728328  0.214728328
+## [14,]  0.182671533  0.182671533  0.182671533
+## [15,]  0.044201180  0.044201180  0.044201180
+## [16,] -0.002997744 -0.002997744 -0.002997744
+## [17,]  0.041239398  0.041239398  0.041239398
+## [18,]  0.035879278  0.035879278  0.035879278
+## [19,] -0.131120013 -0.131120013 -0.131120013
+## [20,] -0.049644574 -0.049644574 -0.049644574</code></pre>
+<pre class="r"><code># Maximum likelihood tuning of alpha -------------------------------------------
+
+    # Fit PCovR
+    pcovr_out &lt;- pcovr(
+        X = X_raw,
+        Y = y_raw,
+        rot = &quot;none&quot;,
+        R = npcs, # fixed number of components
+        modsel = &quot;seq&quot; # fastest option
+    )
+
+    # Compute error ratio with function
+    err &lt;- ErrorRatio(
+        X = X,
+        Y = y,
+        Rmin = npcs,
+        Rmax = npcs
+    )
+
+    # Compute error ratio components
+    lm_mod &lt;- lm(y ~ -1 + X)
+    ery &lt;- 1 - summary(lm_mod)$r.squared
+
+    Rmin &lt;- npcs
+    Rmax &lt;- npcs
+    sing &lt;- svd(X)
+    vec &lt;- Rmin:Rmax
+    vec &lt;- c(vec[1] - 1, vec, vec[length(vec)] + 1)
+    VAF &lt;- c(0, cumsum(sing$d^2) / sum(sing$d^2))
+    VAF &lt;- VAF[vec + 1]
+    scr &lt;- array(NA, c(1, length(vec)))
+    for (u in 2:(length(vec) - 1)) {
+        scr[, u] &lt;- (VAF[u] - VAF[u - 1]) / (VAF[u + 1] - VAF[u])
+    }
+    erx &lt;- 1 - VAF[which.max(scr)]
+
+    # Find alpha ML
+    alpha_ML &lt;- sum(X^2) / (sum(X^2) + sum(y^2) * erx / ery)
+
+    # Compare to one found by package
+    pcovr_out$a - alpha_ML</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="tldr-just-give-me-the-code" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> TL;DR, just give me the code!</h1>
+<pre class="r"><code># Set up environment -----------------------------------------------------------
+
+    # Load pacakge that implements this method
+    library(&quot;PCovR&quot;, verbose = FALSE, quietly = TRUE)
+
+    # Load example data from PCovR package
+    data(alexithymia)
+
+    # Explore its scale
+    colMeans(alexithymia$X)
+    colMeans(alexithymia$Y)
+
+    apply(alexithymia$X, 2, var)
+    apply(alexithymia$Y, 2, var)
+
+    # Subset data
+    X_raw &lt;- alexithymia$X
+    y_raw &lt;- alexithymia$Y[, 1, drop = FALSE]
+
+    # Define paramters that can be useful
+    n &lt;- nrow(X_raw)
+    p &lt;- ncol(X_raw)
+
+    # Scale data
+    X &lt;- scale(X_raw)# * (n - 1) / n
+    y &lt;- scale(y_raw)# * (n - 1) / n
+
+    # Define parameters
+    alpha &lt;- .5 # weighting parameter
+    npcs &lt;- 5
+
+# Estimation -------------------------------------------------------------------
+
+    # Estimate with PCovR function
+    out &lt;- PCovR::pcovr_est(
+        X = X,
+        Y = y,
+        a = alpha,
+        r = npcs # fixed number of components
+    )
+
+    # Estimate manually (Vervolet version)
+    Hx &lt;- X %*% solve(t(X) %*% X) %*% t(X)
+    G_vv &lt;- alpha * X %*% t(X) / sum(X^2) + (1 - alpha) * Hx %*% y %*% t(y) %*% Hx / sum(y^2)
+    EG_vv &lt;- eigen(G_vv) # eigen-decomposition of matrix
+    T_vv &lt;- EG_vv$vectors[, 1:npcs]
+
+# Compare results --------------------------------------------------------------
+
+    # T scores
+    Ts &lt;- list(
+        PCovR = head(out$Te),
+        PCovR_man = head(X %*% out$W),
+        Vervolet = head(T_vv)
+    )
+
+    # Weights
+    W &lt;- list(
+        PCovR = out$W,
+        Vervolet = solve(t(X) %*% X) %*% t(X) %*% T_vv
+    )
+
+    # Px
+    ( t(out$Te) %*% X )[, 1:5]
+    ( t(out$W) %*% t(X) %*% X )[, 1:5]
+    out$Px[, 1:5]
+
+    # Py
+    cbind(
+        Py = out$Py,
+        TtY = t(out$Te) %*% y,
+        WtXtY = t(out$W) %*% t(X) %*% y
+    )
+
+    # B
+    cbind(
+        B = drop(out$B),
+        WPY = drop(out$W %*% out$Py),
+        WWtXtY = drop(out$W %*% t(out$W) %*% t(X) %*% y)
+    )
+
+# Maximum likelihood tuning of alpha -------------------------------------------
+
+    # Fit PCovR
+    pcovr_out &lt;- pcovr(
+        X = X_raw,
+        Y = y_raw,
+        rot = &quot;none&quot;,
+        R = npcs, # fixed number of components
+        modsel = &quot;seq&quot; # fastest option
+    )
+
+    # Compute error ratio with function
+    err &lt;- ErrorRatio(
+        X = X,
+        Y = y,
+        Rmin = npcs,
+        Rmax = npcs
+    )
+
+    # Compute error ratio components
+    lm_mod &lt;- lm(y ~ -1 + X)
+    ery &lt;- 1 - summary(lm_mod)$r.squared
+
+    Rmin &lt;- npcs
+    Rmax &lt;- npcs
+    sing &lt;- svd(X)
+    vec &lt;- Rmin:Rmax
+    vec &lt;- c(vec[1] - 1, vec, vec[length(vec)] + 1)
+    VAF &lt;- c(0, cumsum(sing$d^2) / sum(sing$d^2))
+    VAF &lt;- VAF[vec + 1]
+    scr &lt;- array(NA, c(1, length(vec)))
+    for (u in 2:(length(vec) - 1)) {
+        scr[, u] &lt;- (VAF[u] - VAF[u - 1]) / (VAF[u + 1] - VAF[u])
+    }
+    erx &lt;- 1 - VAF[which.max(scr)]
+
+    # Find alpha ML
+    alpha_ML &lt;- sum(X^2) / (sum(X^2) + sum(y^2) * erx / ery)
+
+    # Compare to one found by package
+    pcovr_out$a - alpha_ML</code></pre>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-de1992principal" class="csl-entry">
+De Jong, Sijmen, and Henk AL Kiers. 1992. <span>“Principal Covariates Regression: Part i. Theory.”</span> <em>Chemometrics and Intelligent Laboratory Systems</em> 14 (1-3): 155–64.
+</div>
+<div id="ref-vervloet2015pcovr" class="csl-entry">
+Vervloet, Marlies, Henk AL Kiers, Wim Van den Noortgate, and Eva Ceulemans. 2015. <span>“PCovR: An r Package for Principal Covariates Regression.”</span> <em>Journal of Statistical Software</em> 65: 1–14.
+</div>
+</div>
+</div>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/pca/">PCA</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://edoardocostantini.github.io/"><img class="avatar mr-3 avatar-circle" src="/author/edoardo-edo-costantini/avatar_hubc644763d821b4643633e77d54abca59_619947_270x270_fill_q75_lanczos_center.jpg" alt="Edoardo (Edo) Costantini"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://edoardocostantini.github.io/">Edoardo (Edo) Costantini</a></h5>
+      <h6 class="card-subtitle">PhD Researcher</h6>
+      
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:e.costantini@tilburguniversity.edu" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/EdoardoCostantini?tab=repositories" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/edoardo-costantini-78352b137/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+</article>
+  </div>
+
+  <div class="page-footer">
+    
+    
+    <div class="container">
+      <footer class="site-footer">
+
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    
+    
+      
+      
+      
+      
+      
+      
+      Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a> — the free, <a href="https://github.com/wowchemy/wowchemy-hugo-themes" target="_blank" rel="noopener">open source</a> website builder that empowers creators.
+    
+  </p>
+</footer>
+
+    </div>
+    
+  </div>
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      
+
+    
+    <script src="/js/vendor-bundle.min.3d946de2e8784a477845261d87025092.js"></script>
+
+    
+    
+    
+      
+      
+        <script src="https://cdn.jsdelivr.net/gh/desandro/imagesloaded@v4.1.4/imagesloaded.pkgd.min.js" integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/metafizzy/isotope@v3.0.6/dist/isotope.pkgd.min.js" integrity="sha512-Zq2BOxyhvnRFXu0+WE6ojpZLOU2jdnqbrM1hmVdGzyeCa1DgM3X5Q4A/Is9xA1IkbUeDd7755dNNI/PzSf2Pew==" crossorigin="anonymous"></script>
+      
+
+      
+      
+
+      
+
+      
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js" integrity="sha512-Ypjm0o7jOxAd4hpdoppSEN0TQOC19UtPAqD+4s5AlXmUvbmmS/YMxYqAqarQYyxTnB6/rqip9qcxlNB/3U9Wdg==" crossorigin="anonymous"></script>
+        
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/r.min.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/python.min.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/latex.min.js" crossorigin="anonymous"></script>
+        
+      
+
+    
+
+    
+    
+    
+      <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js" integrity="" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+      
+      <script id="search-hit-fuse-template" type="text/x-template">
+        <div class="search-hit" id="summary-{{key}}">
+          <div class="search-hit-content">
+            <div class="search-hit-name">
+              <a href="{{relpermalink}}">{{title}}</a>
+              <div class="article-metadata search-hit-type">{{type}}</div>
+              <p class="search-hit-description">{{snippet}}</p>
+            </div>
+          </div>
+        </div>
+      </script>
+      
+        <script src="https://cdn.jsdelivr.net/gh/krisk/Fuse@v3.2.1/dist/fuse.min.js" integrity="sha512-o38bmzBGX+hD3JHWUFCDA09btWaqrNmoJ3RXLlrysA7PP01Kgs4UlE4MhelE1v5dJR3+cxlR4qQlotsW7jKsnw==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/julmot/mark.js@8.11.1/dist/jquery.mark.min.js" integrity="sha512-mhbv5DqBMgrWL+32MmsDOt/OAvqr/cHimk6B8y/bx/xS88MVkYGPiVv2ixKVrkywF2qHplNRUvFsAHUdxZ3Krg==" crossorigin="anonymous"></script>
+      
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+      
+      
+      
+      
+      
+      
+      
+    
+
+    
+
+    
+    
+    
+    <script id="page-data" type="application/json">{"use_headroom":true}</script>
+
+    
+    
+      <script src="/js/wowchemy-headroom.208bf5db800f4a4e5a38cf3b67a99a51.js" type="module"></script>
+    
+    
+    
+    
+    
+    
+    
+      
+      
+    
+    
+    <script src="/en/js/wowchemy.min.63639926e24ecfb8040ea052c1077969.js"></script>
+
+    
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+
+
+
+</body>
+</html>
