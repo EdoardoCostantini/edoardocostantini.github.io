@@ -106,6 +106,160 @@ text(x = c(24, 30, 26.3, 27.7),
     </item>
     
     <item>
+      <title>Understanding boxplots</title>
+      <link>https://edoardocostantini.github.io/post/boxplots/</link>
+      <pubDate>Mon, 05 Sep 2022 00:00:00 +0000</pubDate>
+      <guid>https://edoardocostantini.github.io/post/boxplots/</guid>
+      <description>
+
+&lt;div id=&#34;TOC&#34;&gt;
+
+&lt;/div&gt;
+
+&lt;div id=&#34;reading-a-boxplot&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Reading a boxplot&lt;/h2&gt;
+&lt;p&gt;Boxplots are descriptive tools to visualize the distribution of variables with a focus on their measures of spread and center.
+A boxplots report in the same figure the median, the 1st and 3rd quartiles, and indicate possible outliers.&lt;/p&gt;
+&lt;p&gt;Imagine wanting to plot the distribution of age in a court of students enrolled in a master program at a university.
+The age of the students is likely to be normally distributed around a mean of 26.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set up ----------------------------------------------------------------------
+
+# Set seed
+set.seed(20220906)
+
+# Generate some age variable for a university master programme
+age &amp;lt;- round(rnorm(1e3, mean = 26, sd = 2), 0)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then, we can create the boxplot of this age variable in R by using the &lt;code&gt;boxplot()&lt;/code&gt; function.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Look at the boxplot ---------------------------------------------------------
+boxplot(age)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://edoardocostantini.github.io/post/boxplots/index_files/figure-html/boxplot-explained-1.png&#34; width=&#34;720&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The variable age is centered around 26 and 50% of the distribution is located between 25 (1st quartile) and 27 (3rd quartile).
+There are 6 values that represent possible outliers (the circles outside the whiskers).&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;play-around-with-boxplots&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Play around with boxplots&lt;/h2&gt;
+&lt;p&gt;You can compute the statistics used to draw the boxplot explicitly by following this code:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Compute boxplot statistics manually ------------------------------------------
+
+# Compute the median
+med &amp;lt;- median(age)
+
+# Compute 1st and 3rd quartiles
+qnt &amp;lt;- quantile(age, probs = c(.25, .75))
+
+# Compute interquartile range
+IQR &amp;lt;- diff(qnt)[[1]]
+
+# Compute fences/whisker bounds
+C &amp;lt;- 1.5 # range multiplier
+fences &amp;lt;- c(lwr = qnt[[1]] - C * IQR, upr = qnt[[2]] + C * IQR)
+
+# Put together the boxplot stats
+bxstats &amp;lt;- sort(c(med = med, qnt, f = fences))
+
+# Compute boxplot statistics with R function
+bxstats_auto &amp;lt;- boxplot.stats(age, coef = C)$stats
+
+# Compare results obtain manually and with the R function
+data.frame(manual = bxstats, R.function = bxstats_auto)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##       manual R.function
+## f.lwr     22         22
+## 25%       25         25
+## med       26         26
+## 75%       27         27
+## f.upr     30         30&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You can visualize the impact of different choices for the range multiplier &lt;code&gt;C&lt;/code&gt;.
+In the following pictures, you can see that a larger &lt;code&gt;C&lt;/code&gt; is less restrictive in which values are considered outliers.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://edoardocostantini.github.io/post/boxplots/index_files/figure-html/boxplot-c-1.png&#34; width=&#34;1344&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;TL;DR, just give me the code!&lt;/h2&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set up ----------------------------------------------------------------------
+
+# Set seed
+set.seed(20220906)
+
+# Generate some age variable for a university master programme
+age &amp;lt;- round(rnorm(1e3, mean = 26, sd = 2), 0)
+
+# Look at the boxplot ---------------------------------------------------------
+boxplot(age)
+
+# Boxplot with explanation
+C &amp;lt;- 1.5 # range multiplier
+boxplot(age, range = C)
+
+# Add arrows pointings to statistics
+arrows(x0 = .69, y0 = boxplot.stats(age, coef = C)$stats,
+       x1 = c(.875, rep(.765, 3), .875), y1 = boxplot.stats(age, coef = C)$stats,
+       length = 0.1)
+
+# Add labels of statistics
+text(x = rep(.66, 5),
+     y = boxplot.stats(age, coef = C)$stats,
+     labels = c(&amp;quot;lower whisker&amp;quot;,
+                &amp;quot;1st quartile&amp;quot;,
+                &amp;quot;median&amp;quot;,
+                &amp;quot;3rd quartile&amp;quot;,
+                &amp;quot;upper whisker&amp;quot;),
+     adj = 1)
+
+# Add y axis labels
+axis(side = 2, at = boxplot.stats(age, coef = C)$stats[c(1, 3, 4)], labels = TRUE)
+
+# Compute boxplot statistics manually ------------------------------------------
+
+# Compute the median
+med &amp;lt;- median(age)
+
+# Compute 1st and 3rd quartiles
+qnt &amp;lt;- quantile(age, probs = c(.25, .75))
+
+# Compute interquartile range
+IQR &amp;lt;- diff(qnt)[[1]]
+
+# Compute fences/whisker bounds
+C &amp;lt;- 1.5 # range multiplier
+fences &amp;lt;- c(lwr = qnt[[1]] - C * IQR, upr = qnt[[2]] + C * IQR)
+
+# Put together the boxplot stats
+bxstats &amp;lt;- sort(c(med = med, qnt, f = fences))
+
+# Compute boxplot statistics with R function
+bxstats_auto &amp;lt;- boxplot.stats(age, coef = C)$stats
+
+# Compare results obtain manually and with the R function
+data.frame(manual = bxstats, R.function = bxstats_auto)
+
+# Visualize the effect of different C -----------------------------------------
+
+# Allow two plots one next to the other
+par(mfrow = c(1, 2))
+
+# Plot C = 1.5 and 3
+lapply(c(1.5, 3.0), FUN = function (x){
+  C &amp;lt;- x
+  boxplot(age, range = C, main = paste0(&amp;quot;C = &amp;quot;, C))
+
+  # Add arrows pointings to statistics
+  arrows(x0 = .69, y0 = boxplot.stats(age, coef = C)$stats,
+         x1 = c(.875, rep(.765, 3), .875), y1 = boxplot.stats(age, coef = C)$stats,
+         length = 0.1)
+  # Add labels of statistics
+  text(x = rep(.66, 5),
+       y = boxplot.stats(age, coef = C)$stats,
+       labels = c(paste(ifelse(C == 1.5, &amp;quot;inner&amp;quot;, &amp;quot;outer&amp;quot;), &amp;quot;fence \n lower bound&amp;quot;),
+                  &amp;quot;1st quartile&amp;quot;,
+                  &amp;quot;median&amp;quot;,
+                  &amp;quot;3rd quartile&amp;quot;,
+                  paste(ifelse(C == 1.5, &amp;quot;inner&amp;quot;, &amp;quot;outer&amp;quot;), &amp;quot;fence \n upper bound&amp;quot;)),
+       adj = 1)
+})&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Principal covariates regression in R</title>
       <link>https://edoardocostantini.github.io/post/pcovr/</link>
       <pubDate>Thu, 04 Aug 2022 00:00:00 +0000</pubDate>

@@ -1,109 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>distributions | Edo</title>
-    <link>https://edoardocostantini.github.io/tag/distributions/</link>
-      <atom:link href="https://edoardocostantini.github.io/tag/distributions/index.xml" rel="self" type="application/rss+xml" />
-    <description>distributions</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Tue, 06 Sep 2022 00:00:00 +0000</lastBuildDate>
+    <title>outliers | Edo</title>
+    <link>https://edoardocostantini.github.io/tag/outliers/</link>
+      <atom:link href="https://edoardocostantini.github.io/tag/outliers/index.xml" rel="self" type="application/rss+xml" />
+    <description>outliers</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 05 Sep 2022 00:00:00 +0000</lastBuildDate>
     <image>
       <url>https://edoardocostantini.github.io/media/icon_hubc644763d821b4643633e77d54abca59_619947_512x512_fill_lanczos_center_3.png</url>
-      <title>distributions</title>
-      <link>https://edoardocostantini.github.io/tag/distributions/</link>
+      <title>outliers</title>
+      <link>https://edoardocostantini.github.io/tag/outliers/</link>
     </image>
-    
-    <item>
-      <title>Understanding quantiles</title>
-      <link>https://edoardocostantini.github.io/post/quantiles/</link>
-      <pubDate>Tue, 06 Sep 2022 00:00:00 +0000</pubDate>
-      <guid>https://edoardocostantini.github.io/post/quantiles/</guid>
-      <description>
-
-&lt;div id=&#34;TOC&#34;&gt;
-
-&lt;/div&gt;
-
-&lt;div id=&#34;quantiles-percentiles-and-quartiles&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;Quantiles, percentiles, and quartiles&lt;/h2&gt;
-&lt;p&gt;Descriptive statistics are a fundamental tools for a data analysis.
-Their purpose is to describe and summarize data.
-Quantitative variables such as weight, age, and income can be described by distributions (e.g., normal distribution) with measures of &lt;strong&gt;center&lt;/strong&gt; (the typical value of a variable) and &lt;strong&gt;variability&lt;/strong&gt; (spread around the center).
-The mean is a measure of center.
-The standard deviation is a measure of variability.&lt;/p&gt;
-&lt;p&gt;There are special descriptive statistics that help us describe simultaneously center and spread of a variable’s distribution.
-These measures are often known as measures of &lt;strong&gt;positions&lt;/strong&gt;.
-In general, they tell us the point of the distribution of a variable at which a given percentage of the data falls below or above that point.
-The minimum and maximum values of a variable are measures of positions defining the point at which no data, or all data, fall below it, respectively.
-The median is a measure of position that defines the point at which half of the data falls below it (and above it).
-The median is a special case of the measure of position called &lt;strong&gt;percentile&lt;/strong&gt;.
-The p-th percentile is the point such that p% of the observations fall below or at that point and (100 - p)% fall above it.
-The 50-th percentile is the median.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Quartiles&lt;/strong&gt; are commonly used percentiles.
-The first quartile is the 25-th percentile, the value of the variable leaving to its left 25% of the distribution.
-The third quartile is the 75-th percentile, the value of the variable leaving to its left 75% of the distribution.
-You can think of quartiles as diving the probability distribution in 4 intervals with equal probabilities (e.g., area under the probability density function).
-Similarly, you can think of percentiles as diving the probability distribution in 100 intervals with equal probabilities.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://edoardocostantini.github.io/post/quantiles/index_files/figure-html/quartile-pic-1.png&#34; width=&#34;960&#34; /&gt;&lt;/p&gt;
-&lt;p&gt;We use the word &lt;strong&gt;quantile&lt;/strong&gt; to describe the general measure of position that divides the probability distribution in intervals with equal probabilities.
-Percentiles divide the probability distribution of a variable in 100 intervals.
-Deciles divide it in 10 intervals, and quartiles in four.
-As such, percentiles, deciles, quartiles, and the median are all special cases of quantiles.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div id=&#34;tldr-just-give-me-the-code&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;TL;DR, just give me the code!&lt;/h2&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set a seed
-
-set.seed(20220906)
-
-# Sample from a normal distribution
-
-age &amp;lt;- rnorm(1e5, mean = 27, sd = 2)
-
-# Define the 1st and 2nd quartile
-
-quartiles &amp;lt;- quantile(age, probs = c(.25, .75))
-
-# Plot density distribution
-
-plot(density(age),
-     main = &amp;quot;Quartiles for the probability distribution of age&amp;quot;,
-     xlab = NA)
-
-# Costum x ticks
-axis(side = 1, at = c(27, round(quartiles, 1)), labels = TRUE)
-
-# Add points for quantiles
-points(c(quartiles, median(age)),
-        y = rep(0, length(quartiles)+1))
-points(c(quartiles, median(age)),
-       y = dnorm(c(quartiles, median(age)), mean = mean(age), sd = sd(age)))
-
-# Add segments to devide plot
-segments(x0 = quartiles[1], y0 = 0,
-         x1 = quartiles[1], y1 = dnorm(quartiles[1],
-                                       mean = mean(age), sd = sd(age)))
-segments(x0 = median(age), y0 = 0,
-         x1 = median(age), y1 = max(dnorm(age,
-                                       mean = mean(age), sd = sd(age))))
-segments(x0 = quartiles[2], y0 = 0,
-         x1 = quartiles[2], y1 = dnorm(quartiles[2],
-                                       mean = mean(age), sd = sd(age)))
-
-# Add quartile labels
-text(x = quartiles[1],
-     y = -.005,
-     &amp;quot;1st quartile&amp;quot;)
-text(x = quartiles[2],
-     y = -.005,
-     &amp;quot;3rd quartile&amp;quot;)
-
-# Add percentage under the curve labels
-text(x = c(24, 30, 26.3, 27.7),
-     y = c(.03, .03, .06, .06),
-     &amp;quot;25 %&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-</description>
-    </item>
     
     <item>
       <title>Understanding boxplots</title>
