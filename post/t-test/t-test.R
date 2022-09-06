@@ -7,6 +7,20 @@
 
 # Side of the test -------------------------------------------------------------
 
+library(shiny)
+shinyApp()
+
+shinyApp(
+    ui = fluidPage(
+      numericInput("n", "n", 1),
+      plotOutput("plot")
+    ),
+    server = function(input, output) {
+      output$plot <- renderPlot( plot(head(cars, input$n)) )
+    }
+  )
+
+
 # Types of t-test --------------------------------------------------------------
 
 # one sample
