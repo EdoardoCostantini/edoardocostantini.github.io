@@ -222,10 +222,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#learn-by-coding" id="toc-learn-by-coding" class="nav-link" data-scroll-target="#learn-by-coding">Learn by coding</a>
   <ul class="collapse">
-  <li><a href="#sample-from-multivariate-normal-distribution" id="toc-sample-from-multivariate-normal-distribution" class="nav-link" data-scroll-target="#sample-from-multivariate-normal-distribution">Sample from multivariate normal distribution</a></li>
-  <li><a href="#transform-normal-marginals-to-uniform" id="toc-transform-normal-marginals-to-uniform" class="nav-link" data-scroll-target="#transform-normal-marginals-to-uniform">Transform normal marginals to uniform</a></li>
-  <li><a href="#transform-uniform-marginals-to-anything" id="toc-transform-uniform-marginals-to-anything" class="nav-link" data-scroll-target="#transform-uniform-marginals-to-anything">Transform uniform marginals to anything</a></li>
-  <li><a href="#check-correlation-between-the-variables-is-still-the-same" id="toc-check-correlation-between-the-variables-is-still-the-same" class="nav-link" data-scroll-target="#check-correlation-between-the-variables-is-still-the-same">Check correlation between the variables is still the same</a></li>
+  <li><a href="#sample-from-a-multivariate-normal-distribution" id="toc-sample-from-a-multivariate-normal-distribution" class="nav-link" data-scroll-target="#sample-from-a-multivariate-normal-distribution">1. Sample from a multivariate normal distribution</a></li>
+  <li><a href="#transform-normal-marginals-into-uniform" id="toc-transform-normal-marginals-into-uniform" class="nav-link" data-scroll-target="#transform-normal-marginals-into-uniform">2. Transform normal marginals into uniform</a></li>
+  <li><a href="#transform-uniform-marginals-into-anything" id="toc-transform-uniform-marginals-into-anything" class="nav-link" data-scroll-target="#transform-uniform-marginals-into-anything">3. Transform uniform marginals into anything</a>
+  <ul class="collapse">
+  <li><a href="#preserved-multivariate-relationships" id="toc-preserved-multivariate-relationships" class="nav-link" data-scroll-target="#preserved-multivariate-relationships">3.1 Preserved multivariate relationships</a></li>
+  <li><a href="#discrete-distributions" id="toc-discrete-distributions" class="nav-link" data-scroll-target="#discrete-distributions">3.2 Discrete distributions</a></li>
+  </ul></li>
   </ul></li>
   <li><a href="#tldr-just-give-me-the-code" id="toc-tldr-just-give-me-the-code" class="nav-link" data-scroll-target="#tldr-just-give-me-the-code">TL;DR, just give me the code!</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a>
@@ -243,7 +246,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>The Normal to anything (or NORTA) is a sampling approach that allows to generate multivariate data with a known correlation structure and arbitrary marginal distributions. For example, you could generate 2 variables with a given correlation structure and <a href="https://en.wikipedia.org/wiki/Poisson_distribution">poissan</a> marginal distirbutinos. The only requirement is that the target marginal distributions need to have an <a href="https://en.wikipedia.org/wiki/Quantile_function">(inverse) cumulative distribution function</a>.</p>
+<p>The Normal to anything (or NORTA) is a sampling approach that allows the generation of multivariate data with a known rank correlation structure and arbitrary marginal distributions. For example, you could generate 2 variables <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> with a given rank correlation and <a href="https://en.wikipedia.org/wiki/Beta_distribution">beta</a> marginal distributions. The only requirement is that the target marginal distributions need to be continuous distributions with a known <a href="https://en.wikipedia.org/wiki/Quantile_function">(inverse) cumulative distribution function</a>.</p>
 </section>
 <section id="learn-by-coding" class="level1">
 <h1>Learn by coding</h1>
@@ -255,217 +258,344 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggExtra) <span class="co"># for marginal plots</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sn) <span class="co"># for skewed normal distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: stats4</code></pre>
 </div>
-<p>The norta approach can be summarized in three steps:</p>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'sn'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:stats':
+
+    sd</code></pre>
+</div>
+</div>
+<p>The NORTA approach can be summarized in three steps:</p>
 <ol type="1">
 <li>Sample a data matrix <span class="math inline">\(X_{n \times p}\)</span> from a Multivariate Normal distribution with target correlation structure</li>
-<li>Transform the distributions of the individual variables <span class="math inline">\(x_j\)</span> for <span class="math inline">\(j = 1, \dots, p\)</span> (the marginal distributions) to a uniform distirbutino by applying the normal <a href="https://en.wikipedia.org/wiki/Cumulative_distribution_function">CDF</a> to <span class="math inline">\(X\)</span> (in R <code>pnorm()</code>)</li>
-<li>Transform the uniform marginals to any target distributinos by applying the inverse CDF of the targe distribution (usually implemented in R by a <code>qtarget()</code> function, for example <code>qpois()</code> or <code>qbeta</code>)</li>
+<li>Transform the distributions of the individual variables <span class="math inline">\(x_j\)</span> for <span class="math inline">\(j = 1, \dots, p\)</span> (the marginal distributions) to a uniform distribution by applying the normal <a href="https://en.wikipedia.org/wiki/Cumulative_distribution_function">CDF</a> to <span class="math inline">\(X\)</span> (in R <code>pnorm()</code>)</li>
+<li>Transform the uniform marginals to any continuous target distributions by applying the inverse CDF of the target distribution (usually implemented in R by a <code>qtarget()</code> function, for example, <code>qbeta</code>)</li>
 </ol>
-<section id="sample-from-multivariate-normal-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="sample-from-multivariate-normal-distribution">Sample from multivariate normal distribution</h2>
-<p>First we sample 1000 observations from a multivariate normal distirbution with four correlated variables (<span class="math inline">\(\rho = .7\)</span>).</p>
+<section id="sample-from-a-multivariate-normal-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="sample-from-a-multivariate-normal-distribution">1. Sample from a multivariate normal distribution</h2>
+<p>First, we sample 1000 observations from a multivariate normal distribution with four correlated variables (<span class="math inline">\(\rho = .7\)</span>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Sample from multivariate normal distribution -----------------------------</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the seed</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20210422</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix parameters</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e3</span> <span class="co"># smaple size</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">2</span>  <span class="co"># number of variables</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p) <span class="co"># vector of means</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> <span class="fu">matrix</span>(.<span class="dv">7</span>, <span class="at">nrow =</span> p, <span class="at">ncol =</span> p); <span class="fu">diag</span>(Sigma) <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># correlation matrix</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample Multivairate Normal data</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(<span class="at">n =</span> n, <span class="at">mu =</span> mu, <span class="at">Sigma =</span> Sigma)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the multivariate distribution (scatterplot)</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>X_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Add marginals of X</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Sample from multivariate normal distribution -----------------------------</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the seed</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20210422</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix parameters</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e3</span> <span class="co"># smaple size</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">2</span>  <span class="co"># number of variables</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p) <span class="co"># vector of means</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> <span class="fu">matrix</span>(.<span class="dv">7</span>, <span class="at">nrow =</span> p, <span class="at">ncol =</span> p); <span class="fu">diag</span>(Sigma) <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># correlation matrix</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample Multivariate Normal data</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(<span class="at">n =</span> n, <span class="at">mu =</span> mu, <span class="at">Sigma =</span> Sigma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can then plot a scatterplot of <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> to study their multivariate distribution and make the marginal plots visible.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the multivariate distribution (scatterplot)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>X_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Add marginals of X</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="norta_files/figure-html/MVN-1.png" class="img-fluid" width="672"></p>
+<p><img src="norta_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>We can now transform the marginal distributions of the <span class="math inline">\(x\)</span>s to any target continuous distribution.</p>
 </section>
-<section id="transform-normal-marginals-to-uniform" class="level2">
-<h2 class="anchored" data-anchor-id="transform-normal-marginals-to-uniform">Transform normal marginals to uniform</h2>
-<p>We can now transform the marginal distributions fo the <span class="math inline">\(x\)</span>s to any target paramteric distribution. For example, consider transforming the marginals to poissan distributions. First, we compute the values of the normal cumulative distribution function (<code>pnorm()</code>) and then we compute the quantiles corresponding to the resulting cumulative probabilities based on the target marginal distribution using the <code>qpois()</code> function.</p>
+<section id="transform-normal-marginals-into-uniform" class="level2">
+<h2 class="anchored" data-anchor-id="transform-normal-marginals-into-uniform">2. Transform normal marginals into uniform</h2>
+<p>For example, consider transforming the marginals to a beta distribution.</p>
+<p>First, we compute the values of the normal cumulative distribution function (<code>pnorm()</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Transform marginals to a uniform distribution -----------------------------</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to uniform distribution (apply normal CDF to X)</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>U <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(X) </span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Make scatterplot</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>U_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(U), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Add marginals of U</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(U_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Transform marginals to a uniform distribution -----------------------------</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to uniform distribution (apply normal CDF to X)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>U <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(X) </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Make scatterplot</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>U_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(U), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Add marginals of U</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(U_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="norta_files/figure-html/uniform-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
-<section id="transform-uniform-marginals-to-anything" class="level2">
-<h2 class="anchored" data-anchor-id="transform-uniform-marginals-to-anything">Transform uniform marginals to anything</h2>
+<section id="transform-uniform-marginals-into-anything" class="level2">
+<h2 class="anchored" data-anchor-id="transform-uniform-marginals-into-anything">3. Transform uniform marginals into anything</h2>
+<p>Then we compute the quantiles corresponding to the resulting cumulative probabilities based on the target marginal distribution using the <code>qbeta()</code> function.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Transform marginals to anything with a (inverse) CDF ----------------------</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to poissan (apply target inverse-CDF to X)</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>X_pois <span class="ot">&lt;-</span> <span class="fu">qpois</span>(U, <span class="at">lambda =</span> <span class="dv">2</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>X_pois_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_pois), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_pois_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="norta_files/figure-html/poissan-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>As another example, consider transforming the marginals to uniform distributions:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to a beta distribution</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>X_beta <span class="ot">&lt;-</span> <span class="fu">qbeta</span>(U, <span class="at">shape1 =</span> .<span class="dv">5</span>, <span class="at">shape2 =</span> .<span class="dv">5</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>X_beta_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_beta), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_beta_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Transform marginals to anything with a (inverse) CDF ----------------------</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; 3.1 Beta -------------------------------------------------------------------</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to a beta distribution</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>X_beta <span class="ot">&lt;-</span> <span class="fu">qbeta</span>(U, <span class="at">shape1 =</span> .<span class="dv">5</span>, <span class="at">shape2 =</span> .<span class="dv">5</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>X_beta_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_beta), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_beta_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="norta_files/figure-html/beta-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>We can use this procedure to transform the marginal distribution to any target distribution.</p>
-</section>
-<section id="check-correlation-between-the-variables-is-still-the-same" class="level2">
-<h2 class="anchored" data-anchor-id="check-correlation-between-the-variables-is-still-the-same">Check correlation between the variables is still the same</h2>
-<p>We can see that the relatinoship between <span class="math inline">\(X1\)</span> and <span class="math inline">\(X2\)</span> is still the same.</p>
+<p>As another example, consider transforming the marginal to a highly skewed T distribution.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the multivariate distribution is still the same</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot linear relationship between normal x1 and x2 (original data)</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X[, <span class="dv">1</span>], X[, <span class="dv">2</span>], </span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste0</span>(<span class="st">"Normal marginals, cor = "</span>, <span class="fu">round</span>(<span class="fu">cor</span>(X)[<span class="dv">1</span>, <span class="dv">2</span>], <span class="dv">3</span>)), </span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">"x1"</span>, <span class="at">ylab =</span> <span class="st">"x2"</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot linear relationship between normal x1 and x2 (original data)</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X_pois[, <span class="dv">1</span>], X_pois[, <span class="dv">2</span>], </span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste0</span>(<span class="st">"Poissan marginals, cor = "</span>, <span class="fu">round</span>(<span class="fu">cor</span>(X_pois)[<span class="dv">1</span>, <span class="dv">2</span>], <span class="dv">3</span>)), </span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">"x1"</span>, <span class="at">ylab =</span> <span class="st">"x2"</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(X_pois[, <span class="dv">1</span>] <span class="sc">~</span> X_pois[, <span class="dv">2</span>]), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">3</span>)</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot linear relationship between normal x1 and x2 (original data)</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X_beta[, <span class="dv">1</span>], X_beta[, <span class="dv">2</span>], </span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste0</span>(<span class="st">"Beta marginals, cor = "</span>, <span class="fu">round</span>(<span class="fu">cor</span>(X_beta)[<span class="dv">1</span>, <span class="dv">2</span>], <span class="dv">3</span>)), </span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">"x1"</span>, <span class="at">ylab =</span> <span class="st">"x2"</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(X_beta[, <span class="dv">1</span>] <span class="sc">~</span> X_beta[, <span class="dv">2</span>]), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; 3.2 Skewed-t distribution --------------------------------------------------</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the target skewness and kurtosis</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>sk <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>kt <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Define direct parameterization for the skew-t (ST) distribution</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>cpST <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, sk, kt)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>dpST <span class="ot">&lt;-</span> <span class="fu">cp2dp</span>(cpST, <span class="at">family =</span> <span class="st">"ST"</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to Skew-t (apply target inverse-CDF to X)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>X_st <span class="ot">&lt;-</span> <span class="fu">apply</span>(U, <span class="dv">2</span>, qst, <span class="at">dp =</span> dpST)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>X_st_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_st), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_st_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="norta_files/figure-html/visualize-multivariate-1.png" class="img-fluid" width="672"></p>
+<p><img src="norta_files/figure-html/skew-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<section id="preserved-multivariate-relationships" class="level3">
+<h3 class="anchored" data-anchor-id="preserved-multivariate-relationships">3.1 Preserved multivariate relationships</h3>
+<p>Upon generating the multivariate data <span class="math inline">\(\mathbf{X}\)</span>, the association between the two variables <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> is determined by the correlation coefficient <span class="math inline">\(\rho\)</span> that we used in the <code>mvrnorm()</code> call. This coefficient expresses the linear dependence between the two variables which is not preserved when non-linear transformations are applied to the marginals (which we use). However, the NORTA approach does preserve <a href="https://en.wikipedia.org/wiki/Rank_correlation">rank correlations</a> between the variables. In the following code, we compute the Pearson correlation (linear dependency), and the Spearman and Kendall’s correlations (rank correlations) for the original data, and all other transformations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Collect all sampled datasets</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>dats <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">X =</span> X, <span class="at">U =</span> U, <span class="at">skewt =</span> X_st, <span class="at">beta =</span> X_beta)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute all types of correlation on all datasets</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">Pearson =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"pearson"</span>)[<span class="dv">1</span>,<span class="dv">2</span>]),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">Spearman =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"spearman"</span>)[<span class="dv">1</span>,<span class="dv">2</span>]),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">Kendall =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"kendall"</span>)[<span class="dv">1</span>,<span class="dv">2</span>])</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>      ), <span class="dv">3</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Pearson Spearman Kendall
+X       0.684    0.666   0.476
+U       0.667    0.666   0.476
+skewt   0.663    0.666   0.476
+beta    0.644    0.666   0.476</code></pre>
+</div>
+</div>
+<p>As you can see, the NORTA sampling approach allows us to easily sample dependent multivariate data with arbitrary marginal distributions and known target (rank) correlations.</p>
+</section>
+<section id="discrete-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="discrete-distributions">3.2 Discrete distributions</h3>
+<p>One can be tempted to use any marginal distribution, even discrete distributions. However, the rank correlation is not preserved when this marginal transformation is applied. Consider for example transforming the marginals to Poisson distributions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; 3.3 Poissan distribution ---------------------------------------------------</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to poissan (apply target inverse-CDF to X)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>X_pois <span class="ot">&lt;-</span> <span class="fu">qpois</span>(U, <span class="at">lambda =</span> <span class="dv">2</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>X_pois_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_pois), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_pois_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="norta_files/figure-html/poissan-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>or to binomial distributions</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; 3.4 Binomial distribution ---------------------------------------------------</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to binomial</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>X_binom <span class="ot">&lt;-</span> <span class="fu">qbinom</span>(U, <span class="at">size =</span> <span class="dv">6</span>, <span class="at">prob =</span> .<span class="dv">2</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>X_binom_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_binom), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_binom_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="norta_files/figure-html/binomial-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>if you check again both the linear and rank correlations you will notice that both have been impacted by these transformations:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the other datasets</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>dats <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">X =</span> X, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">U =</span> U, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">skewt =</span> X_st, </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">beta =</span> X_beta, </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">poissan =</span> X_pois, </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">binomial =</span> X_binom</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute all types of correlation on all datasets</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">Pearson =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"pearson"</span>)[<span class="dv">1</span>,<span class="dv">2</span>]),</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">Spearman =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"spearman"</span>)[<span class="dv">1</span>,<span class="dv">2</span>]),</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">Kendall =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"kendall"</span>)[<span class="dv">1</span>,<span class="dv">2</span>])</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>      ), <span class="dv">3</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Pearson Spearman Kendall
+X          0.684    0.666   0.476
+U          0.667    0.666   0.476
+skewt      0.663    0.666   0.476
+beta       0.644    0.666   0.476
+poissan    0.644    0.635   0.535
+binomial   0.620    0.605   0.535</code></pre>
+</div>
+</div>
+</section>
 </section>
 </section>
 <section id="tldr-just-give-me-the-code" class="level1">
 <h1>TL;DR, just give me the code!</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load pacakges ---------------------------------------------------------------</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SimCorMultRes)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggExtra) <span class="co"># for marginal plots</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Sample from multivariate normal distribution -----------------------------</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the seed</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20210422</span>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix parameters</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e3</span> <span class="co"># smaple size</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">2</span>  <span class="co"># number of variables</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p) <span class="co"># vector of means</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> <span class="fu">matrix</span>(.<span class="dv">7</span>, <span class="at">nrow =</span> p, <span class="at">ncol =</span> p); <span class="fu">diag</span>(Sigma) <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># correlation matrix</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample Multivairate Normal data</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(<span class="at">n =</span> n, <span class="at">mu =</span> mu, <span class="at">Sigma =</span> Sigma)</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the multivariate distribution (scatterplot)</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>X_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Add marginals of X</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Transform marginals to a uniform distribution -----------------------------</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to uniform distribution (apply normal CDF to X)</span></span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>U <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(X) </span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Make scatterplot</span></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>U_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(U), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Add marginals of U</span></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(U_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Transform marginals to anything with a (inverse) CDF ----------------------</span></span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to poissan (apply target inverse-CDF to X)</span></span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>X_pois <span class="ot">&lt;-</span> <span class="fu">qpois</span>(U, <span class="at">lambda =</span> <span class="dv">2</span>)</span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>X_pois_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_pois), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_pois_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to a beta distribution</span></span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>X_beta <span class="ot">&lt;-</span> <span class="fu">qbeta</span>(U, <span class="at">shape1 =</span> .<span class="dv">5</span>, <span class="at">shape2 =</span> .<span class="dv">5</span>)</span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>X_beta_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_beta), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_beta_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the multivariate distribution is still the same</span></span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot linear relationship between normal x1 and x2 (original data)</span></span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X[, <span class="dv">1</span>], X[, <span class="dv">2</span>], </span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste0</span>(<span class="st">"Normal marginals, cor = "</span>, <span class="fu">round</span>(<span class="fu">cor</span>(X)[<span class="dv">1</span>, <span class="dv">2</span>], <span class="dv">3</span>)), </span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">"x1"</span>, <span class="at">ylab =</span> <span class="st">"x2"</span></span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot linear relationship between normal x1 and x2 (original data)</span></span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X_pois[, <span class="dv">1</span>], X_pois[, <span class="dv">2</span>], </span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste0</span>(<span class="st">"Poissan marginals, cor = "</span>, <span class="fu">round</span>(<span class="fu">cor</span>(X_pois)[<span class="dv">1</span>, <span class="dv">2</span>], <span class="dv">3</span>)), </span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">"x1"</span>, <span class="at">ylab =</span> <span class="st">"x2"</span></span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(X_pois[, <span class="dv">1</span>] <span class="sc">~</span> X_pois[, <span class="dv">2</span>]), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">3</span>)</span>
-<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot linear relationship between normal x1 and x2 (original data)</span></span>
-<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X_beta[, <span class="dv">1</span>], X_beta[, <span class="dv">2</span>], </span>
-<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste0</span>(<span class="st">"Beta marginals, cor = "</span>, <span class="fu">round</span>(<span class="fu">cor</span>(X_beta)[<span class="dv">1</span>, <span class="dv">2</span>], <span class="dv">3</span>)), </span>
-<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">"x1"</span>, <span class="at">ylab =</span> <span class="st">"x2"</span></span>
-<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(X_beta[, <span class="dv">1</span>] <span class="sc">~</span> X_beta[, <span class="dv">2</span>]), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load pacakges ---------------------------------------------------------------</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SimCorMultRes)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggExtra) <span class="co"># for marginal plots</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sn) <span class="co"># for skewed normal distribution</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Sample from multivariate normal distribution -----------------------------</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the seed</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20210422</span>)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix parameters</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e3</span> <span class="co"># smaple size</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">2</span>  <span class="co"># number of variables</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p) <span class="co"># vector of means</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> <span class="fu">matrix</span>(.<span class="dv">7</span>, <span class="at">nrow =</span> p, <span class="at">ncol =</span> p); <span class="fu">diag</span>(Sigma) <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># correlation matrix</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample Multivariate Normal data</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(<span class="at">n =</span> n, <span class="at">mu =</span> mu, <span class="at">Sigma =</span> Sigma)</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the multivariate distribution (scatterplot)</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>X_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Add marginals of X</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Transform marginals to a uniform distribution -----------------------------</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to uniform distribution (apply normal CDF to X)</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>U <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(X) </span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Make scatterplot</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>U_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(U), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Add marginals of U</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(U_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Transform marginals to anything with a (inverse) CDF ----------------------</span></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; 3.1 Beta -------------------------------------------------------------------</span></span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to a beta distribution</span></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>X_beta <span class="ot">&lt;-</span> <span class="fu">qbeta</span>(U, <span class="at">shape1 =</span> .<span class="dv">5</span>, <span class="at">shape2 =</span> .<span class="dv">5</span>)</span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a>X_beta_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_beta), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_beta_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; 3.2 Skewed-t distribution --------------------------------------------------</span></span>
+<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the target skewness and kurtosis</span></span>
+<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a>sk <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span></span>
+<span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a>kt <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-61"><a href="#cb16-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Define direct parameterization for the skew-t (ST) distribution</span></span>
+<span id="cb16-62"><a href="#cb16-62" aria-hidden="true" tabindex="-1"></a>cpST <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, sk, kt)</span>
+<span id="cb16-63"><a href="#cb16-63" aria-hidden="true" tabindex="-1"></a>dpST <span class="ot">&lt;-</span> <span class="fu">cp2dp</span>(cpST, <span class="at">family =</span> <span class="st">"ST"</span>)</span>
+<span id="cb16-64"><a href="#cb16-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-65"><a href="#cb16-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to Skew-t (apply target inverse-CDF to X)</span></span>
+<span id="cb16-66"><a href="#cb16-66" aria-hidden="true" tabindex="-1"></a>X_st <span class="ot">&lt;-</span> <span class="fu">apply</span>(U, <span class="dv">2</span>, qst, <span class="at">dp =</span> dpST)</span>
+<span id="cb16-67"><a href="#cb16-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-68"><a href="#cb16-68" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
+<span id="cb16-69"><a href="#cb16-69" aria-hidden="true" tabindex="-1"></a>X_st_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_st), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb16-70"><a href="#cb16-70" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb16-71"><a href="#cb16-71" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_st_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
+<span id="cb16-72"><a href="#cb16-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-73"><a href="#cb16-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Collect all sampled datasets</span></span>
+<span id="cb16-74"><a href="#cb16-74" aria-hidden="true" tabindex="-1"></a>dats <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">X =</span> X, <span class="at">U =</span> U, <span class="at">skewt =</span> X_st, <span class="at">beta =</span> X_beta)</span>
+<span id="cb16-75"><a href="#cb16-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-76"><a href="#cb16-76" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute all types of correlation on all datasets</span></span>
+<span id="cb16-77"><a href="#cb16-77" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb16-78"><a href="#cb16-78" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(</span>
+<span id="cb16-79"><a href="#cb16-79" aria-hidden="true" tabindex="-1"></a>            <span class="at">Pearson =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"pearson"</span>)[<span class="dv">1</span>,<span class="dv">2</span>]),</span>
+<span id="cb16-80"><a href="#cb16-80" aria-hidden="true" tabindex="-1"></a>            <span class="at">Spearman =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"spearman"</span>)[<span class="dv">1</span>,<span class="dv">2</span>]),</span>
+<span id="cb16-81"><a href="#cb16-81" aria-hidden="true" tabindex="-1"></a>            <span class="at">Kendall =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"kendall"</span>)[<span class="dv">1</span>,<span class="dv">2</span>])</span>
+<span id="cb16-82"><a href="#cb16-82" aria-hidden="true" tabindex="-1"></a>      ), <span class="dv">3</span></span>
+<span id="cb16-83"><a href="#cb16-83" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-84"><a href="#cb16-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-85"><a href="#cb16-85" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; 3.3 Poissan distribution ---------------------------------------------------</span></span>
+<span id="cb16-86"><a href="#cb16-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-87"><a href="#cb16-87" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to poissan (apply target inverse-CDF to X)</span></span>
+<span id="cb16-88"><a href="#cb16-88" aria-hidden="true" tabindex="-1"></a>X_pois <span class="ot">&lt;-</span> <span class="fu">qpois</span>(U, <span class="at">lambda =</span> <span class="dv">2</span>)</span>
+<span id="cb16-89"><a href="#cb16-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-90"><a href="#cb16-90" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
+<span id="cb16-91"><a href="#cb16-91" aria-hidden="true" tabindex="-1"></a>X_pois_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_pois), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb16-92"><a href="#cb16-92" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb16-93"><a href="#cb16-93" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_pois_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
+<span id="cb16-94"><a href="#cb16-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-95"><a href="#cb16-95" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; 3.4 Binomial distribution ---------------------------------------------------</span></span>
+<span id="cb16-96"><a href="#cb16-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-97"><a href="#cb16-97" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform to binomial</span></span>
+<span id="cb16-98"><a href="#cb16-98" aria-hidden="true" tabindex="-1"></a>X_binom <span class="ot">&lt;-</span> <span class="fu">qbinom</span>(U, <span class="at">size =</span> <span class="dv">6</span>, <span class="at">prob =</span> .<span class="dv">2</span>)</span>
+<span id="cb16-99"><a href="#cb16-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-100"><a href="#cb16-100" aria-hidden="true" tabindex="-1"></a><span class="co"># And visualize</span></span>
+<span id="cb16-101"><a href="#cb16-101" aria-hidden="true" tabindex="-1"></a>X_binom_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(X_binom), <span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb16-102"><a href="#cb16-102" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()</span>
+<span id="cb16-103"><a href="#cb16-103" aria-hidden="true" tabindex="-1"></a><span class="fu">ggMarginal</span>(X_binom_scatter, <span class="at">type =</span> <span class="st">"histogram"</span>) </span>
+<span id="cb16-104"><a href="#cb16-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-105"><a href="#cb16-105" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the other datasets</span></span>
+<span id="cb16-106"><a href="#cb16-106" aria-hidden="true" tabindex="-1"></a>dats <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb16-107"><a href="#cb16-107" aria-hidden="true" tabindex="-1"></a>            <span class="at">X =</span> X, </span>
+<span id="cb16-108"><a href="#cb16-108" aria-hidden="true" tabindex="-1"></a>            <span class="at">U =</span> U, </span>
+<span id="cb16-109"><a href="#cb16-109" aria-hidden="true" tabindex="-1"></a>            <span class="at">skewt =</span> X_st, </span>
+<span id="cb16-110"><a href="#cb16-110" aria-hidden="true" tabindex="-1"></a>            <span class="at">beta =</span> X_beta, </span>
+<span id="cb16-111"><a href="#cb16-111" aria-hidden="true" tabindex="-1"></a>            <span class="at">poissan =</span> X_pois, </span>
+<span id="cb16-112"><a href="#cb16-112" aria-hidden="true" tabindex="-1"></a>            <span class="at">binomial =</span> X_binom</span>
+<span id="cb16-113"><a href="#cb16-113" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-114"><a href="#cb16-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-115"><a href="#cb16-115" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute all types of correlation on all datasets</span></span>
+<span id="cb16-116"><a href="#cb16-116" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb16-117"><a href="#cb16-117" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(</span>
+<span id="cb16-118"><a href="#cb16-118" aria-hidden="true" tabindex="-1"></a>            <span class="at">Pearson =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"pearson"</span>)[<span class="dv">1</span>,<span class="dv">2</span>]),</span>
+<span id="cb16-119"><a href="#cb16-119" aria-hidden="true" tabindex="-1"></a>            <span class="at">Spearman =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"spearman"</span>)[<span class="dv">1</span>,<span class="dv">2</span>]),</span>
+<span id="cb16-120"><a href="#cb16-120" aria-hidden="true" tabindex="-1"></a>            <span class="at">Kendall =</span> <span class="fu">sapply</span>(dats, <span class="cf">function</span>(i) <span class="fu">cor</span>(i, <span class="at">method =</span> <span class="st">"kendall"</span>)[<span class="dv">1</span>,<span class="dv">2</span>])</span>
+<span id="cb16-121"><a href="#cb16-121" aria-hidden="true" tabindex="-1"></a>      ), <span class="dv">3</span></span>
+<span id="cb16-122"><a href="#cb16-122" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="references" class="level1">
 <h1>References</h1>
 <section id="online-resources" class="level2">
 <h2 class="anchored" data-anchor-id="online-resources">Online resources</h2>
-<p><a href="https://blogs.sas.com/content/iml/2021/07/05/introduction-copulas.html">SAS blogs: introduction to copulas</a></p>
+<p><a href="https://blogs.sas.com/content/iml/2021/07/05/introduction-copulas.html">SAS blogs: introduction to copulas</a> <a href="https://www.mbfys.ru.nl/~robvdw/CNP04/LAB_ASSIGMENTS/LAB05_CN05/MATLAB2007b/stats/html/copulademo.html">Simulating Dependent Random Variables Using Copulas</a></p>
 
 
 </section>
