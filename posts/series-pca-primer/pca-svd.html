@@ -9,7 +9,7 @@
 <meta name="author" content="Edoardo Costantini">
 <meta name="dcterms.date" content="2022-05-13">
 
-<title>Edo - Principal Component Analysis and SVD</title>
+<title>Edo - Principal Component Analysis, SVD, and EVD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -85,25 +85,6 @@ code span.st { color: #4070a0; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
 </style>
 
 
@@ -203,7 +184,7 @@ div.csl-indent {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Principal Component Analysis and SVD</h1>
+      <h1 class="title">Principal Component Analysis, SVD, and EVD</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">PCA</div>
               </div>
@@ -238,12 +219,18 @@ div.csl-indent {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#learn-by-coding" id="toc-learn-by-coding" class="nav-link" data-scroll-target="#learn-by-coding">Learn by coding</a>
   <ul class="collapse">
-  <li><a href="#svd-solution-to-pca" id="toc-svd-solution-to-pca" class="nav-link" data-scroll-target="#svd-solution-to-pca">SVD solution to PCA</a></li>
-  <li><a href="#eigen-decomposition-solution-to-pca" id="toc-eigen-decomposition-solution-to-pca" class="nav-link" data-scroll-target="#eigen-decomposition-solution-to-pca">Eigen-decomposition solution to PCA</a></li>
+  <li><a href="#pca-as-svd" id="toc-pca-as-svd" class="nav-link" data-scroll-target="#pca-as-svd">PCA as SVD</a></li>
+  <li><a href="#pca-as-eigenvalue-decomposition" id="toc-pca-as-eigenvalue-decomposition" class="nav-link" data-scroll-target="#pca-as-eigenvalue-decomposition">PCA as eigenvalue decomposition</a></li>
+  <li><a href="#compare" id="toc-compare" class="nav-link" data-scroll-target="#compare">Compare</a>
+  <ul class="collapse">
+  <li><a href="#pc-scores" id="toc-pc-scores" class="nav-link" data-scroll-target="#pc-scores">PC scores</a></li>
+  <li><a href="#component-loadings" id="toc-component-loadings" class="nav-link" data-scroll-target="#component-loadings">Component loadings</a></li>
+  <li><a href="#cumulative-proportion-of-explained-variance" id="toc-cumulative-proportion-of-explained-variance" class="nav-link" data-scroll-target="#cumulative-proportion-of-explained-variance">Cumulative proportion of explained variance</a></li>
   </ul></li>
-  <li><a href="#learn-by-coding" id="toc-learn-by-coding" class="nav-link" data-scroll-target="#learn-by-coding">Learn by coding</a></li>
+  </ul></li>
   <li><a href="#tldr-just-give-me-the-code" id="toc-tldr-just-give-me-the-code" class="nav-link" data-scroll-target="#tldr-just-give-me-the-code">TL;DR, just give me the code!</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -257,54 +244,356 @@ div.csl-indent {
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>Principal Component Analysis (PCA) is a technique that finds a low-dimensional representation of a large set of variables contained in an <span class="math inline">\(n \times p\)</span> data matrix <span class="math inline">\(\mathbf{X}\)</span> with minimal loss of information. We refer to this low-dimensional representation as the <span class="math inline">\(n \times r\)</span> matrix <span class="math inline">\(\mathbf{Z}\)</span>, where <span class="math inline">\(r &lt; p\)</span>.</p>
-<p>The columns of <span class="math inline">\(\mathbf{Z}\)</span> are called principal components (PCs) of <span class="math inline">\(\mathbf{X}\)</span>. We follow the common practice of assuming that the columns of <span class="math inline">\(\mathbf{X}\)</span> are mean-centered and scaled to have a variance of 1. The first PC of <span class="math inline">\(\mathbf{X}\)</span> is the linear combination of the columns of <span class="math inline">\(\mathbf{X}\)</span> with the largest variance: <span class="math display">\[
-    \mathbf{z}_1 = \lambda_{11} \mathbf{x}_1 + \lambda_{12} \mathbf{x}_2 + \dots + \lambda_{1p} \mathbf{x}_p = \mathbf{X} \mathbf{\lambda}_1
-\]</span> with <span class="math inline">\(\mathbf{\lambda}_1\)</span> being the <span class="math inline">\(1 \times p\)</span> vector of coefficients <span class="math inline">\(\lambda_{11}, \dots, \lambda_{1p}\)</span>. The second principal component (<span class="math inline">\(\mathbf{z}_2\)</span>) is defined by finding the vector of coefficients <span class="math inline">\(\mathbf{\lambda}_2\)</span> giving the linear combination of <span class="math inline">\(\mathbf{x}_1, \dots, \mathbf{x}_p\)</span> with maximal variance out of all the linear combinations that are uncorrelated with <span class="math inline">\(\mathbf{z}_1\)</span>. Every subsequent column of <span class="math inline">\(\mathbf{Z}\)</span> can be understood in the same way. As a result, the PCs are independent by definition and every subsequent PC has less variance than the preceding one. We can write the relationship between all the PCs and <span class="math inline">\(\mathbf{X}\)</span> in matrix notation: <span class="math display">\[\begin{equation} \label{eq:PCAmatnot}
-    \mathbf{Z} = \mathbf{X} \mathbf{\Lambda}
-\end{equation}\]</span> where <span class="math inline">\(\mathbf{\Lambda}\)</span> is a <span class="math inline">\(p \times r\)</span> matrix of weights, with columns <span class="math inline">\(\mathbf{\lambda}_1, \dots, \mathbf{\lambda}_q\)</span>. PCA can be thought of as the process of projecting the original data from a <span class="math inline">\(p\)</span>-dimensional space to a lower <span class="math inline">\(q\)</span>-dimensional space. The coefficient vectors <span class="math inline">\(\mathbf{\lambda}_1, \dots, \mathbf{\lambda}_r\)</span> define the directions in which we are projecting the <span class="math inline">\(n\)</span> observations of <span class="math inline">\(\mathbf{x}_1, \dots, \mathbf{x}_p\)</span>. The projected values are the principal component scores <span class="math inline">\(\mathbf{Z}\)</span>.</p>
-<p>The goal of PCA is to find the values of <span class="math inline">\(\mathbf{\Lambda}\)</span> that maximize the variance of the columns of <span class="math inline">\(\mathbf{Z}\)</span>. One way to find the PCA solution for <span class="math inline">\(\mathbf{\Lambda}\)</span> is by taking the truncated <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition#Relation_to_eigenvalue_decomposition">singular value decomposition</a> (SVD) of <span class="math inline">\(\mathbf{X}\)</span>:</p>
+<p>Principal Component Analysis (PCA) is a technique that finds a low-dimensional representation of a large set of variables contained in an <span class="math inline">\(n \times p\)</span> data matrix <span class="math inline">\(\mathbf{X}\)</span> with minimal loss of information. We refer to this low-dimensional representation as the <span class="math inline">\(n \times r\)</span> matrix <span class="math inline">\(\mathbf{T}\)</span>, where <span class="math inline">\(r &lt; p\)</span>.</p>
+<p>The columns of <span class="math inline">\(\mathbf{T}\)</span> are called principal components (PCs) of <span class="math inline">\(\mathbf{X}\)</span>. We follow the common practice of assuming that the columns of <span class="math inline">\(\mathbf{X}\)</span> are mean-centered and scaled to have a variance of 1. The first PC of <span class="math inline">\(\mathbf{X}\)</span> is the linear combination of the columns of <span class="math inline">\(\mathbf{X}\)</span> with the largest variance: <span class="math display">\[
+    \mathbf{t}_1 = \lambda_{11} \mathbf{x}_1 + \lambda_{12} \mathbf{x}_2 + \dots + \lambda_{1p} \mathbf{x}_p = \mathbf{X} \mathbf{\lambda}_1
+\]</span> with <span class="math inline">\(\mathbf{\lambda}_1\)</span> being the <span class="math inline">\(1 \times p\)</span> vector of coefficients <span class="math inline">\(\lambda_{11}, \dots, \lambda_{1p}\)</span>. The second principal component (<span class="math inline">\(\mathbf{t}_2\)</span>) is defined by finding the vector of coefficients <span class="math inline">\(\mathbf{\lambda}_2\)</span> giving the linear combination of <span class="math inline">\(\mathbf{x}_1, \dots, \mathbf{x}_p\)</span> with maximal variance out of all the linear combinations that are uncorrelated with <span class="math inline">\(\mathbf{t}_1\)</span>. Every subsequent column of <span class="math inline">\(\mathbf{T}\)</span> can be understood in the same way. As a result, the PCs are independent by definition and every subsequent PC has less variance than the preceding one. We can write the relationship between all the PCs and <span class="math inline">\(\mathbf{X}\)</span> in matrix notation: <span class="math display">\[\begin{equation} \label{eq:PCAmatnot}
+    \mathbf{T} = \mathbf{X} \mathbf{\Lambda}
+\end{equation}\]</span> where <span class="math inline">\(\mathbf{\Lambda}\)</span> is a <span class="math inline">\(p \times r\)</span> matrix of weights, with columns <span class="math inline">\(\mathbf{\lambda}_1, \dots, \mathbf{\lambda}_q\)</span>. PCA can be thought of as the process of projecting the original data from a <span class="math inline">\(p\)</span>-dimensional space to a lower <span class="math inline">\(q\)</span>-dimensional space. The coefficient vectors <span class="math inline">\(\mathbf{\lambda}_1, \dots, \mathbf{\lambda}_r\)</span> define the directions in which we are projecting the <span class="math inline">\(n\)</span> observations of <span class="math inline">\(\mathbf{x}_1, \dots, \mathbf{x}_p\)</span>. The projected values are the principal component scores <span class="math inline">\(\mathbf{T}\)</span>.</p>
+<p>The goal of PCA is to find the values of <span class="math inline">\(\mathbf{\Lambda}\)</span> that maximize the variance of the columns of <span class="math inline">\(\mathbf{T}\)</span>. One way to find the PCA solution for <span class="math inline">\(\mathbf{\Lambda}\)</span> is by taking the truncated <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition#Relation_to_eigenvalue_decomposition">singular value decomposition</a> (SVD) of <span class="math inline">\(\mathbf{X}\)</span>:</p>
 <p><span class="math display">\[\begin{equation} \label{eq:SVD}
     \mathbf{X} = \mathbf{UDV}'
 \end{equation}\]</span></p>
 <p>where:</p>
 <ul>
 <li><span class="math inline">\(\mathbf{D}\)</span> is the <span class="math inline">\(r \times r\)</span> diagonal matrix with elements equal to the square root of the non-zero eigenvalues of <span class="math inline">\(\mathbf{XX}^T\)</span> and <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span>;</li>
-<li><span class="math inline">\(\mathbf{U}\)</span> is the <span class="math inline">\(n \times r\)</span> matrix of the first <span class="math inline">\(r\)</span> eigenvectors of <span class="math inline">\(\mathbf{XX}^T\)</span> such that <span class="math inline">\(\mathbf{U}^T\mathbf{U=I}\)</span></li>
-<li><span class="math inline">\(\mathbf{V}\)</span> is the <span class="math inline">\(p \times r\)</span> matrix of the first <span class="math inline">\(r\)</span> eigenvectors of <span class="math inline">\(\mathbf{X}^T\mathbf{NXM}\)</span> such that <span class="math inline">\(\mathbf{V}^T\mathbf{V=I}\)</span>;</li>
+<li><span class="math inline">\(\mathbf{U}\)</span> is an <span class="math inline">\(n \times p\)</span> orthogonal matrix such that <span class="math inline">\(\mathbf{U}^T\mathbf{U=I}\)</span></li>
+<li><span class="math inline">\(\mathbf{V}\)</span> is the <span class="math inline">\(p \times p\)</span> orthogonal matrix of eigenvectors of <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> such that <span class="math inline">\(\mathbf{V}^T\mathbf{V=I}\)</span>;</li>
 </ul>
-<p>The PCs scores are given by the <span class="math inline">\(n \times r\)</span> matrix <span class="math inline">\(\mathbf{UD}\)</span>, and the weights <span class="math inline">\(\mathbf{\Lambda}\)</span> are given by the <span class="math inline">\(p \times r\)</span> matrix <span class="math inline">\(\mathbf{V}\)</span> <span class="citation" data-cites="jolliffe:2002">(<a href="#ref-jolliffe:2002" role="doc-biblioref">Jolliffe 2002, p45</a>)</span>.</p>
-<section id="svd-solution-to-pca" class="level2">
-<h2 class="anchored" data-anchor-id="svd-solution-to-pca">SVD solution to PCA</h2>
-</section>
-<section id="eigen-decomposition-solution-to-pca" class="level2">
-<h2 class="anchored" data-anchor-id="eigen-decomposition-solution-to-pca">Eigen-decomposition solution to PCA</h2>
-</section>
+<p>The scores on the first <span class="math inline">\(r\)</span> PCs are given by the <span class="math inline">\(n \times r\)</span> matrix <span class="math inline">\(\mathbf{U}_{r}\mathbf{D}_{r}\)</span>, where <span class="math inline">\(\mathbf{U}_{r}\)</span> and <span class="math inline">\(\mathbf{D}_{r}\)</span> stand for the reduced forms of <span class="math inline">\(\mathbf{U}\)</span> and <span class="math inline">\(\mathbf{D}\)</span> obtained by taking their first <span class="math inline">\(r\)</span> column and diagonal values. The weights <span class="math inline">\(\mathbf{\Lambda}\)</span> are given by the <span class="math inline">\(p \times r\)</span> matrix <span class="math inline">\(\mathbf{V}_{r}\)</span>, so that: <span class="math display">\[
+    \mathbf{T} = \mathbf{U}_{r}\mathbf{D}_{r} = \mathbf{X}\mathbf{V}_{r}
+\]</span></p>
+<p>Another way to achieve the same solution relies on the <a href="https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix">eigenvalue decomposition</a> (EVD) of the cross-product matrix (or the correlation matrix). In particular, the EVD of <span class="math inline">\(\mathbf{X}^{T} \mathbf{X}\)</span> is equal to <span class="math inline">\(\mathbf{V} \mathbf{D}^{2} \mathbf{V}^{T}\)</span>, where <span class="math inline">\(\mathbf{V}\)</span> and <span class="math inline">\(\mathbf{D}\)</span> are the same eigenvectors and eigenvalues, respectively, defined above.</p>
 </section>
 <section id="learn-by-coding" class="level1">
 <h1>Learn by coding</h1>
+<p>Let us start by generating sampling 1000 (n) observations from a multivariate normal distribution. In this example, we use a block structure in the correlation matrix to generate a collection of 4 items (p) that can be summarized well by two principal components (K).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>some <span class="ot">&lt;-</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate data ----------------------------------------------------------------</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed parameters</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e3</span>  <span class="co"># sample size</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">4</span>    <span class="co"># final number of items</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">2</span>    <span class="co"># target number of components</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">&lt;-</span> .<span class="dv">8</span> <span class="co"># Fixed correlation between observed items</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define correlation matrix with blocks</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>Sigma_K <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span>K, <span class="cf">function</span> (x){</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">matrix</span>(rho,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">nrow =</span> p<span class="sc">/</span>K,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ncol =</span> p<span class="sc">/</span>K)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">diag</span>(Sigma) <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            Sigma</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> Matrix<span class="sc">::</span><span class="fu">bdiag</span>(Sigma_K)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Define vector of observed item means</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">5</span>, p)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample data from multivaraite normal distribution</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1235</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(n, mu, Sigma)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale it for future use in PCA</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">scale</span>(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<section id="pca-as-svd" class="level2">
+<h2 class="anchored" data-anchor-id="pca-as-svd">PCA as SVD</h2>
+<p>As we discussed, PCA can be obtained as the SVD of <span class="math inline">\(X\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA as singular value decomposition of X -------------------------------------</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform SVD</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>uSVt  <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract objects</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>U     <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>u</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> <span class="fu">diag</span>(uSVt<span class="sc">$</span>d)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>V     <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>v</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define Pc loadings</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the PC scores</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>T_svd <span class="ot">&lt;-</span> U <span class="sc">%*%</span> Sigma</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the PC scores (equivalent way)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>T_svd <span class="ot">&lt;-</span> X <span class="sc">%*%</span> V</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute cumulative proportion of explained variance</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>CPVE_svd <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">prop.table</span>(<span class="fu">diag</span>(Sigma)<span class="sc">^</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="pca-as-eigenvalue-decomposition" class="level2">
+<h2 class="anchored" data-anchor-id="pca-as-eigenvalue-decomposition">PCA as eigenvalue decomposition</h2>
+<p>PCA can also be obtained as the eigenvalue decomposition of the cross-product matrix of <span class="math inline">\(X\)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA as eigenvalue decomposition of XtX --------------------------------------------</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the cross-product matrix XtX</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>XtX <span class="ot">&lt;-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform eigenvalue decomposition</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>eigenmat_XtX <span class="ot">&lt;-</span> <span class="fu">eigen</span>(XtX)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract objects</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>eigenvalues_XtX <span class="ot">&lt;-</span> eigenmat_XtX<span class="sc">$</span>values</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>eigenvectors_XtX <span class="ot">&lt;-</span> eigenmat_XtX<span class="sc">$</span>vectors</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the PC scores</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>T_eig_XtX <span class="ot">&lt;-</span> X <span class="sc">%*%</span> eigenvectors_XtX</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute cumulative proportion of explained variance</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>CPVE_eig_XtX <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">prop.table</span>(eigenvalues_XtX))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It can also be computed by the eigenvalue decomposition of the correlation matrix of <span class="math inline">\(X\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA as eigenvalue decomposition of cor(X) -----------------------------------------</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the correlation matrix</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>X_cormat <span class="ot">&lt;-</span> <span class="fu">cor</span>(X, <span class="at">method =</span> <span class="st">"pearson"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform eigenvalue decomposition</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>eigenmaT_eig_corx <span class="ot">&lt;-</span> <span class="fu">eigen</span>(X_cormat)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Extrac objects</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>eigenvalues_corx <span class="ot">&lt;-</span> eigenmaT_eig_corx<span class="sc">$</span>values</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>eigenvectors_corx <span class="ot">&lt;-</span> eigenmaT_eig_corx<span class="sc">$</span>vectors</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the PC scores</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>T_eig_corx <span class="ot">&lt;-</span> X <span class="sc">%*%</span> eigenvectors_corx</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute cumulative proportion of explained variance</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>CPVE_corx <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">prop.table</span>(eigenvalues_corx))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="compare" class="level2">
+<h2 class="anchored" data-anchor-id="compare">Compare</h2>
+<p>To check our results we can compare the PC scores, CPVEs, and loading matrices with the results of the standard R function to compute PCA (<code>prcomp</code>). Let’s compute the PCs and all the relevant quantities with the <code>prcomp</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA with prcomp --------------------------------------------------------------</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute PCA with prcomp</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>PCX <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract objects</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>T_prcomp <span class="ot">&lt;-</span> PCX<span class="sc">$</span>x</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>eigenvalues_prcomp <span class="ot">&lt;-</span> PCX<span class="sc">$</span>sdev</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>V_prcomp <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(PCX<span class="sc">$</span>rotation)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>CPVE_PCX <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">prop.table</span>(eigenvalues_prcomp<span class="sc">^</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To compare the PC score and loading matrices we will use <a href="https://en.wikipedia.org/wiki/Congruence_coefficient">Tucker congruence</a> coefficient. This is a measure of similarity between matrices that ranges between -1 and +1. A congruence of 1 means the two matrices are identical. To compare the vectors of the cumulative proportion of explained variance we will simply print the vectors one next to the other. In the following, you can see that all of ways to find solutions to the PCA problem are identical.</p>
+<section id="pc-scores" class="level3">
+<h3 class="anchored" data-anchor-id="pc-scores">PC scores</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare solutions ------------------------------------------------------------</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load package for tucker congruence</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RegularizedSCA)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; PC scores ------------------------------------------------------------------</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = SVD</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_prcomp, T_svd)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = eigenvalues_XtX</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_prcomp, T_eig_XtX)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = eigenvectors_corx</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_prcomp, T_eig_corx)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+</section>
+<section id="component-loadings" class="level3">
+<h3 class="anchored" data-anchor-id="component-loadings">Component loadings</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; Component loadings ---------------------------------------------------------</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = SVD</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(V_prcomp, V)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = eigenvalues_XtX</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(V_prcomp, eigenvectors_XtX)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = eigenvectors_corx</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(V_prcomp, eigenvectors_corx)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+</section>
+<section id="cumulative-proportion-of-explained-variance" class="level3">
+<h3 class="anchored" data-anchor-id="cumulative-proportion-of-explained-variance">Cumulative proportion of explained variance</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cumulative proportion of explained variance</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">SVD =</span> CPVE_svd,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">eig_XtX =</span> CPVE_eig_XtX,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">eig_corx =</span> CPVE_corx,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">prcomp =</span> CPVE_PCX</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        SVD   eig_XtX  eig_corx    prcomp
+1 0.4680609 0.4680609 0.4680609 0.4680609
+2 0.8992696 0.8992696 0.8992696 0.8992696
+3 0.9505615 0.9505615 0.9505615 0.9505615
+4 1.0000000 1.0000000 1.0000000 1.0000000</code></pre>
+</div>
+</div>
+</section>
+</section>
 </section>
 <section id="tldr-just-give-me-the-code" class="level1">
 <h1>TL;DR, just give me the code!</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>some <span class="ot">&lt;-</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate data ----------------------------------------------------------------</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed parameters</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e3</span>  <span class="co"># sample size</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">4</span>    <span class="co"># final number of items</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">2</span>    <span class="co"># target number of components</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">&lt;-</span> .<span class="dv">8</span> <span class="co"># Fixed correlation between observed items</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define correlation matrix with blocks</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>Sigma_K <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span>K, <span class="cf">function</span> (x){</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">matrix</span>(rho,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">nrow =</span> p<span class="sc">/</span>K,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ncol =</span> p<span class="sc">/</span>K)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">diag</span>(Sigma) <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            Sigma</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> Matrix<span class="sc">::</span><span class="fu">bdiag</span>(Sigma_K)</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Define vector of observed item means</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">5</span>, p)</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample data from multivaraite normal distribution</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1235</span>)</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(n, mu, Sigma)</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale it for future use in PCA</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">scale</span>(X)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA as singular value decomposition of X -------------------------------------</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform SVD</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>uSVt  <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract objects</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>U     <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>u</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> <span class="fu">diag</span>(uSVt<span class="sc">$</span>d)</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>V     <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>v</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Define Pc loadings</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the PC scores</span></span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>T_svd <span class="ot">&lt;-</span> U <span class="sc">%*%</span> Sigma</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the PC scores (equivalent way)</span></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>T_svd <span class="ot">&lt;-</span> X <span class="sc">%*%</span> V</span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute cumulative proportion of explained variance</span></span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>CPVE_svd <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">prop.table</span>(<span class="fu">diag</span>(Sigma)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA as eigenvalue decomposition of XtX --------------------------------------------</span></span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the cross-product matrix XtX</span></span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a>XtX <span class="ot">&lt;-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X</span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform eigenvalue decomposition</span></span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>eigenmat_XtX <span class="ot">&lt;-</span> <span class="fu">eigen</span>(XtX)</span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract objects</span></span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>eigenvalues_XtX <span class="ot">&lt;-</span> eigenmat_XtX<span class="sc">$</span>values</span>
+<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a>eigenvectors_XtX <span class="ot">&lt;-</span> eigenmat_XtX<span class="sc">$</span>vectors</span>
+<span id="cb20-61"><a href="#cb20-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-62"><a href="#cb20-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the PC scores</span></span>
+<span id="cb20-63"><a href="#cb20-63" aria-hidden="true" tabindex="-1"></a>T_eig_XtX <span class="ot">&lt;-</span> X <span class="sc">%*%</span> eigenvectors_XtX</span>
+<span id="cb20-64"><a href="#cb20-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-65"><a href="#cb20-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute cumulative proportion of explained variance</span></span>
+<span id="cb20-66"><a href="#cb20-66" aria-hidden="true" tabindex="-1"></a>CPVE_eig_XtX <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">prop.table</span>(eigenvalues_XtX))</span>
+<span id="cb20-67"><a href="#cb20-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-68"><a href="#cb20-68" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA as eigenvalue decomposition of cor(X) -----------------------------------------</span></span>
+<span id="cb20-69"><a href="#cb20-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-70"><a href="#cb20-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the correlation matrix</span></span>
+<span id="cb20-71"><a href="#cb20-71" aria-hidden="true" tabindex="-1"></a>X_cormat <span class="ot">&lt;-</span> <span class="fu">cor</span>(X, <span class="at">method =</span> <span class="st">"pearson"</span>)</span>
+<span id="cb20-72"><a href="#cb20-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-73"><a href="#cb20-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform eigenvalue decomposition</span></span>
+<span id="cb20-74"><a href="#cb20-74" aria-hidden="true" tabindex="-1"></a>eigenmaT_eig_corx <span class="ot">&lt;-</span> <span class="fu">eigen</span>(X_cormat)</span>
+<span id="cb20-75"><a href="#cb20-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-76"><a href="#cb20-76" aria-hidden="true" tabindex="-1"></a><span class="co"># Extrac objects</span></span>
+<span id="cb20-77"><a href="#cb20-77" aria-hidden="true" tabindex="-1"></a>eigenvalues_corx <span class="ot">&lt;-</span> eigenmaT_eig_corx<span class="sc">$</span>values</span>
+<span id="cb20-78"><a href="#cb20-78" aria-hidden="true" tabindex="-1"></a>eigenvectors_corx <span class="ot">&lt;-</span> eigenmaT_eig_corx<span class="sc">$</span>vectors</span>
+<span id="cb20-79"><a href="#cb20-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-80"><a href="#cb20-80" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the PC scores</span></span>
+<span id="cb20-81"><a href="#cb20-81" aria-hidden="true" tabindex="-1"></a>T_eig_corx <span class="ot">&lt;-</span> X <span class="sc">%*%</span> eigenvectors_corx</span>
+<span id="cb20-82"><a href="#cb20-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-83"><a href="#cb20-83" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute cumulative proportion of explained variance</span></span>
+<span id="cb20-84"><a href="#cb20-84" aria-hidden="true" tabindex="-1"></a>CPVE_corx <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">prop.table</span>(eigenvalues_corx))</span>
+<span id="cb20-85"><a href="#cb20-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-86"><a href="#cb20-86" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA with prcomp --------------------------------------------------------------</span></span>
+<span id="cb20-87"><a href="#cb20-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-88"><a href="#cb20-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute PCA with prcomp</span></span>
+<span id="cb20-89"><a href="#cb20-89" aria-hidden="true" tabindex="-1"></a>PCX <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X)</span>
+<span id="cb20-90"><a href="#cb20-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-91"><a href="#cb20-91" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract objects</span></span>
+<span id="cb20-92"><a href="#cb20-92" aria-hidden="true" tabindex="-1"></a>T_prcomp <span class="ot">&lt;-</span> PCX<span class="sc">$</span>x</span>
+<span id="cb20-93"><a href="#cb20-93" aria-hidden="true" tabindex="-1"></a>eigenvalues_prcomp <span class="ot">&lt;-</span> PCX<span class="sc">$</span>sdev</span>
+<span id="cb20-94"><a href="#cb20-94" aria-hidden="true" tabindex="-1"></a>V_prcomp <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(PCX<span class="sc">$</span>rotation)</span>
+<span id="cb20-95"><a href="#cb20-95" aria-hidden="true" tabindex="-1"></a>CPVE_PCX <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">prop.table</span>(eigenvalues_prcomp<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb20-96"><a href="#cb20-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-97"><a href="#cb20-97" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare solutions ------------------------------------------------------------</span></span>
+<span id="cb20-98"><a href="#cb20-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-99"><a href="#cb20-99" aria-hidden="true" tabindex="-1"></a><span class="co"># Load package for tucker congruence</span></span>
+<span id="cb20-100"><a href="#cb20-100" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RegularizedSCA)</span>
+<span id="cb20-101"><a href="#cb20-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-102"><a href="#cb20-102" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; PC scores ------------------------------------------------------------------</span></span>
+<span id="cb20-103"><a href="#cb20-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-104"><a href="#cb20-104" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = SVD</span></span>
+<span id="cb20-105"><a href="#cb20-105" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_prcomp, T_svd)<span class="sc">$</span>tucker_value</span>
+<span id="cb20-106"><a href="#cb20-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-107"><a href="#cb20-107" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = eigenvalues_XtX</span></span>
+<span id="cb20-108"><a href="#cb20-108" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_prcomp, T_eig_XtX)<span class="sc">$</span>tucker_value</span>
+<span id="cb20-109"><a href="#cb20-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-110"><a href="#cb20-110" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = eigenvectors_corx</span></span>
+<span id="cb20-111"><a href="#cb20-111" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_prcomp, T_eig_corx)<span class="sc">$</span>tucker_value</span>
+<span id="cb20-112"><a href="#cb20-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-113"><a href="#cb20-113" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; Component loadings ---------------------------------------------------------</span></span>
+<span id="cb20-114"><a href="#cb20-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-115"><a href="#cb20-115" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = SVD</span></span>
+<span id="cb20-116"><a href="#cb20-116" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(V_prcomp, V)<span class="sc">$</span>tucker_value</span>
+<span id="cb20-117"><a href="#cb20-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-118"><a href="#cb20-118" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = eigenvalues_XtX</span></span>
+<span id="cb20-119"><a href="#cb20-119" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(V_prcomp, eigenvectors_XtX)<span class="sc">$</span>tucker_value</span>
+<span id="cb20-120"><a href="#cb20-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-121"><a href="#cb20-121" aria-hidden="true" tabindex="-1"></a><span class="co"># prcomp results = eigenvectors_corx</span></span>
+<span id="cb20-122"><a href="#cb20-122" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(V_prcomp, eigenvectors_corx)<span class="sc">$</span>tucker_value</span>
+<span id="cb20-123"><a href="#cb20-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-124"><a href="#cb20-124" aria-hidden="true" tabindex="-1"></a><span class="co"># Cumulative proportion of explained variance</span></span>
+<span id="cb20-125"><a href="#cb20-125" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb20-126"><a href="#cb20-126" aria-hidden="true" tabindex="-1"></a>    <span class="at">SVD =</span> CPVE_svd,</span>
+<span id="cb20-127"><a href="#cb20-127" aria-hidden="true" tabindex="-1"></a>    <span class="at">eig_XtX =</span> CPVE_eig_XtX,</span>
+<span id="cb20-128"><a href="#cb20-128" aria-hidden="true" tabindex="-1"></a>    <span class="at">eig_corx =</span> CPVE_corx,</span>
+<span id="cb20-129"><a href="#cb20-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">prcomp =</span> CPVE_PCX</span>
+<span id="cb20-130"><a href="#cb20-130" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="references" class="level1">
-
-
+<h1>References</h1>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
-<div id="ref-jolliffe:2002" class="csl-entry" role="doc-biblioentry">
-Jolliffe, Ian T. 2002. <em>Principal Component Analysis</em>. Springer.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
