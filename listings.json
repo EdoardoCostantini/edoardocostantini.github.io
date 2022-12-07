@@ -1,0 +1,40 @@
+[
+  {
+    "listing": "/series-pca.html",
+    "items": [
+      "/posts/series-pca-primer/pls.html",
+      "/posts/series-pca-primer/pca-non-graphical-solutions.html",
+      "/posts/series-pca-primer/pca-svd.html"
+    ]
+  },
+  {
+    "listing": "/series-sm-course.html",
+    "items": [
+      "/posts/series-sm-course/qunatiles.html",
+      "/posts/series-sm-course/boxplots.html",
+      "/posts/series-sm-course/se-resid.html"
+    ]
+  },
+  {
+    "listing": "/series-sampling.html",
+    "items": [
+      "/posts/series-sampling/norta.html"
+    ]
+  },
+  {
+    "listing": "/all-posts.html",
+    "items": [
+      "/posts/series-sampling/norta.html",
+      "/posts/series-sm-course/qunatiles.html",
+      "/posts/series-sm-course/boxplots.html",
+      "/posts/series-sm-course/se-resid.html",
+      "/posts/series-pca-primer/pls.html",
+      "/posts/series-pca-primer/pca-non-graphical-solutions.html",
+      "/posts/series-pca-primer/pca-svd.html",
+      "/posts/series-knowledge/crossentropy.html",
+      "/posts/series-knowledge/covmatwt.html",
+      "/posts/series-knowledge/ridge.html",
+      "/posts/series-em/sweep.html"
+    ]
+  }
+]
