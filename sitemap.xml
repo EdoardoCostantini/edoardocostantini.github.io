@@ -2,70 +2,74 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://edoardocostantini.github.io/research.html</loc>
-    <lastmod>2022-12-08T11:12:26.029Z</lastmod>
+    <lastmod>2022-12-08T14:25:35.171Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-sampling/norta.html</loc>
-    <lastmod>2022-12-08T11:12:27.001Z</lastmod>
+    <lastmod>2022-12-08T14:25:36.016Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-em/sweep.html</loc>
-    <lastmod>2022-12-08T11:12:28.534Z</lastmod>
+    <lastmod>2022-12-08T14:25:37.584Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pls.html</loc>
-    <lastmod>2022-12-08T11:12:30.572Z</lastmod>
+    <lastmod>2022-12-08T14:25:39.706Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pca-non-graphical-solutions.html</loc>
-    <lastmod>2022-12-08T11:12:32.500Z</lastmod>
+    <lastmod>2022-12-08T14:25:41.834Z</lastmod>
+  </url>
+  <url>
+    <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pca-biplots.html</loc>
+    <lastmod>2022-12-08T14:25:42.477Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pca-svd.html</loc>
-    <lastmod>2022-12-08T11:12:33.172Z</lastmod>
+    <lastmod>2022-12-08T14:25:43.131Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-knowledge/covmatwt.html</loc>
-    <lastmod>2022-12-08T11:12:33.879Z</lastmod>
+    <lastmod>2022-12-08T14:25:43.896Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-knowledge/ridge.html</loc>
-    <lastmod>2022-12-08T11:12:34.531Z</lastmod>
+    <lastmod>2022-12-08T14:25:44.610Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-knowledge/crossentropy.html</loc>
-    <lastmod>2022-12-08T11:12:35.149Z</lastmod>
+    <lastmod>2022-12-08T14:25:45.260Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-sm-course/boxplots.html</loc>
-    <lastmod>2022-12-08T11:12:35.715Z</lastmod>
+    <lastmod>2022-12-08T14:25:45.826Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-sm-course/se-resid.html</loc>
-    <lastmod>2022-12-08T11:12:36.225Z</lastmod>
+    <lastmod>2022-12-08T14:25:46.303Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-sm-course/qunatiles.html</loc>
-    <lastmod>2022-12-08T11:12:36.742Z</lastmod>
+    <lastmod>2022-12-08T14:25:46.804Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/series-pca.html</loc>
-    <lastmod>2022-12-08T11:12:39.307Z</lastmod>
+    <lastmod>2022-12-08T14:25:49.336Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/series-sm-course.html</loc>
-    <lastmod>2022-12-08T11:12:39.625Z</lastmod>
+    <lastmod>2022-12-08T14:25:49.677Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/index.html</loc>
-    <lastmod>2022-12-08T11:12:39.935Z</lastmod>
+    <lastmod>2022-12-08T14:25:49.965Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/series-sampling.html</loc>
-    <lastmod>2022-12-08T11:12:40.226Z</lastmod>
+    <lastmod>2022-12-08T14:25:50.270Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/all-posts.html</loc>
-    <lastmod>2022-12-08T11:12:40.631Z</lastmod>
+    <lastmod>2022-12-08T14:25:50.654Z</lastmod>
   </url>
 </urlset>

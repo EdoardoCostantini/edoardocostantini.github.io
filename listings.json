@@ -2,6 +2,7 @@
   {
     "listing": "/series-pca.html",
     "items": [
+      "/posts/series-pca-primer/pca-biplots.html",
       "/posts/series-pca-primer/pls.html",
       "/posts/series-pca-primer/pca-non-graphical-solutions.html",
       "/posts/series-pca-primer/pca-svd.html"
@@ -24,6 +25,7 @@
   {
     "listing": "/all-posts.html",
     "items": [
+      "/posts/series-pca-primer/pca-biplots.html",
       "/posts/series-sampling/norta.html",
       "/posts/series-sm-course/qunatiles.html",
       "/posts/series-sm-course/boxplots.html",
