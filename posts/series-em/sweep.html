@@ -263,7 +263,7 @@ div.csl-indent {
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>The sweep operator is a matrix transformation commonly used to estimate regression models. It performs elementary row operations on a <span class="math inline">\(p \times p\)</span> matrix which happens to be particularly useful to estimate multivariate linear models. Little and Rubin <span class="citation" data-cites="littleRubin:2002">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span> defined it as follows:</p>
+<p>The sweep operator is a matrix transformation commonly used to estimate regression models. It performs elementary row operations on a <span class="math inline">\(p \times p\)</span> matrix which happens to be particularly useful to estimate multivariate linear models. <span class="citation" data-cites="littleRubin:2002">Little and Rubin (<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span> defined it as follows:</p>
 <blockquote class="blockquote">
 <p>The sweep operator is defined for symmetric matrices as follows. A <span class="math inline">\(p \times p\)</span> symmetric matrix G is said to be swept on row and column k if it is replaced by another symmetric <span class="math inline">\(p \times p\)</span> matrix H with elements defined as follows: <span class="math display">\[
 h_{kk} = -1/g_{kk}
@@ -284,8 +284,8 @@ h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k
 <ul>
 <li>The <span class="math inline">\(l\)</span> sweeping positions do not need to be consecutive. For example, <span class="math inline">\(k_1\)</span> could indicate the third column and <span class="math inline">\(k_2\)</span> could indicate the sixth column.</li>
 </ul>
-<p>In this post, I want to show how the sweep operator can be used to estimate the parameters of any linear regressions model. If you are interested in the mathematical details, I recommend reading the full sweep operator description in Goodnight <span class="citation" data-cites="goodnight:1979">(<a href="#ref-goodnight:1979" role="doc-biblioref"><strong>goodnight:1979?</strong></a>)</span>, Schafer <span class="citation" data-cites="schafer:1997">(<a href="#ref-schafer:1997" role="doc-biblioref">1997</a>)</span>, or Little and Rubin <span class="citation" data-cites="littleRubin:2002">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span>.</p>
-<p>Goodnight <span class="citation" data-cites="goodnight:1979">(<a href="#ref-goodnight:1979" role="doc-biblioref"><strong>goodnight:1979?</strong></a>)</span> is a particularly helpful paper as it describes an easy implementation of the sweep operator. Following Goodnight, given an originally symmetric positive definite matrix G, <span class="math inline">\(\text{SWEEP}[k]G\)</span> modifies a matrix G as follows:</p>
+<p>In this post, I want to show how the sweep operator can be used to estimate the parameters of any linear regressions model. If you are interested in the mathematical details, I recommend reading the full sweep operator description in <span class="citation" data-cites="goodnight:1979">Goodnight (<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p154</a>)</span>, <span class="citation" data-cites="schafer:1997">Schafer (<a href="#ref-schafer:1997" role="doc-biblioref">1997</a>)</span>, or <span class="citation" data-cites="littleRubin:2002">Little and Rubin (<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p148</a>)</span>.</p>
+<p><span class="citation" data-cites="goodnight:1979">Goodnight (<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p150</a>)</span> is a particularly helpful paper as it describes an easy implementation of the sweep operator. Following Goodnight, given an originally symmetric positive definite matrix G, <span class="math inline">\(\text{SWEEP}[k]G\)</span> modifies a matrix G as follows:</p>
 <ul>
 <li>Step 1: Let <span class="math inline">\(D = g_{kk}\)</span></li>
 <li>Step 2: Divide row <span class="math inline">\(k\)</span> by <span class="math inline">\(D\)</span>.</li>
@@ -297,7 +297,7 @@ h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k
 <h1>Learn by coding</h1>
 <section id="coding-a-sweep-function-in-r" class="level2">
 <h2 class="anchored" data-anchor-id="coding-a-sweep-function-in-r">Coding a sweep function in R</h2>
-<p>Let’s start by coding a simple function that performs the operations described by Goodnight <span class="citation" data-cites="goodnight:1979">(<a href="#ref-goodnight:1979" role="doc-biblioref"><strong>goodnight:1979?</strong></a>)</span>. We want a function that takes as inputs a symmetric matrix (argument <code>G</code>) and a vector of positions to sweep over (argument <code>K</code>). The function below takes these two inputs and performs the four sweep steps for every element of <code>K</code>.</p>
+<p>Let’s start by coding a simple function that performs the operations described by <span class="citation" data-cites="goodnight:1979">Goodnight (<a href="#ref-goodnight:1979" role="doc-biblioref">1979, p150</a>)</span>. We want a function that takes as inputs a symmetric matrix (argument <code>G</code>) and a vector of positions to sweep over (argument <code>K</code>). The function below takes these two inputs and performs the four sweep steps for every element of <code>K</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Write an R function implementing SWEEP(k)[G] according to Goodnight ----------</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -369,7 +369,7 @@ h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k
 </section>
 <section id="using-the-sweep-operator-to-estimate-regression-models" class="level2">
 <h2 class="anchored" data-anchor-id="using-the-sweep-operator-to-estimate-regression-models">Using the sweep operator to estimate regression models</h2>
-<p>To understand how the sweep operator relates to the estimation of multivariate linear models, we will work with a data set used by Little and Rubin <span class="citation" data-cites="littleRubin:2002">(<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p152</a>)</span>.</p>
+<p>To understand how the sweep operator relates to the estimation of multivariate linear models, we will work with a data set used by <span class="citation" data-cites="littleRubin:2002">Little and Rubin (<a href="#ref-littleRubin:2002" role="doc-biblioref">2002, p152</a>)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Little Rubin data -------------------------------------------------------</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -851,6 +851,9 @@ V4  -0.07777123 -0.9014841  -0.7246001</code></pre>
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-goodnight:1979" class="csl-entry" role="doc-biblioentry">
+Goodnight, James H. 1979. <span>“A Tutorial on the SWEEP Operator.”</span> <em>The American Statistician</em> 33 (3): 149–58.
+</div>
 <div id="ref-littleRubin:2002" class="csl-entry" role="doc-biblioentry">
 Little, R. J. A., and D. B. Rubin. 2002. <em>Statistical Analysis with Missing Data</em>. 2nd ed. Hoboken, NJ: Wiley-Interscience.
 </div>
@@ -1136,7 +1139,7 @@ format:
 
 The sweep operator is a matrix transformation commonly used to estimate regression models.
 It performs elementary row operations on a $p \times p$ matrix which happens to be particularly useful to estimate multivariate linear models.
-Little and Rubin [-@littleRubin:2002 p148] defined it as follows:
+@littleRubin:2002 [p148] defined it as follows:
 
 &gt; The sweep operator is defined for symmetric matrices as follows. A $p \times p$ symmetric matrix G is said to be swept on row and column k if it is replaced by another symmetric $p \times p$ matrix H with elements defined as follows:
 &gt; $$
@@ -1165,9 +1168,9 @@ $$
 For example, $k_1$ could indicate the third column and $k_2$ could indicate the sixth column.
 
 In this post, I want to show how the sweep operator can be used to estimate the parameters of any linear regressions model.
-If you are interested in the mathematical details, I recommend reading the full sweep operator description in Goodnight [-@goodnight:1979 p154], Schafer [-@schafer:1997], or Little and Rubin [-@littleRubin:2002 p148].
+If you are interested in the mathematical details, I recommend reading the full sweep operator description in @goodnight:1979 [p154], @schafer:1997, or @littleRubin:2002 [p148].
 
-Goodnight [-@goodnight:1979 p150] is a particularly helpful paper as it describes an easy implementation of the sweep operator.
+@goodnight:1979 [p150] is a particularly helpful paper as it describes an easy implementation of the sweep operator.
 Following Goodnight, given an originally symmetric positive definite matrix G, $\text{SWEEP}[k]G$ modifies a matrix G as follows:
 
 - Step 1: Let $D = g_{kk}$
@@ -1179,7 +1182,7 @@ Following Goodnight, given an originally symmetric positive definite matrix G, $
 
 ## Coding a sweep function in R
 
-Let's start by coding a simple function that performs the operations described by Goodnight [-@goodnight:1979 p150].
+Let's start by coding a simple function that performs the operations described by @goodnight:1979 [p150].
 We want a function that takes as inputs a symmetric matrix (argument `G`) and a vector of positions to sweep over (argument `K`).
 The function below takes these two inputs and performs the four sweep steps for every element of `K`.
 
@@ -1256,7 +1259,7 @@ The functions `fastmatrix::sweep.operator()` and `sweepGoodnight()` return the s
 
 ## Using the sweep operator to estimate regression models
 
-To understand how the sweep operator relates to the estimation of multivariate linear models, we will work with a data set used by Little and Rubin [-@littleRubin:2002 p152].
+To understand how the sweep operator relates to the estimation of multivariate linear models, we will work with a data set used by @littleRubin:2002 [p152].
 
 ```{r load data}
 # Load Little Rubin data -------------------------------------------------------
