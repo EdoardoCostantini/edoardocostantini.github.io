@@ -9,6 +9,20 @@
     ]
   },
   {
+    "listing": "/series-sm-course.html",
+    "items": [
+      "/posts/series-sm-course/qunatiles.html",
+      "/posts/series-sm-course/boxplots.html",
+      "/posts/series-sm-course/se-resid.html"
+    ]
+  },
+  {
+    "listing": "/series-sampling.html",
+    "items": [
+      "/posts/series-sampling/norta.html"
+    ]
+  },
+  {
     "listing": "/all-posts.html",
     "items": [
       "/posts/series-pca-primer/pca-biplots.html",
