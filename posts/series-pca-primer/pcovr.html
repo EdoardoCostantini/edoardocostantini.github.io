@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Edoardo Costantini">
-<meta name="dcterms.date" content="2022-08-04">
+<meta name="dcterms.date" content="2022-12-13">
 
 <title>Edo - Principal covariates regression in R</title>
 <style>
@@ -223,7 +223,7 @@ div.csl-indent {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">August 4, 2022</p>
+        <p class="date">December 13, 2022</p>
       </div>
     </div>
       
@@ -239,7 +239,11 @@ div.csl-indent {
    
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#r-code-notes" id="toc-r-code-notes" class="nav-link" data-scroll-target="#r-code-notes">R code notes</a></li>
+  <li><a href="#learn-by-coding" id="toc-learn-by-coding" class="nav-link" data-scroll-target="#learn-by-coding">Learn by coding</a>
+  <ul class="collapse">
+  <li><a href="#reverting-to-pca" id="toc-reverting-to-pca" class="nav-link" data-scroll-target="#reverting-to-pca">Reverting to PCA</a></li>
+  <li><a href="#maximum-likelihood-estimation-of-alpha" id="toc-maximum-likelihood-estimation-of-alpha" class="nav-link" data-scroll-target="#maximum-likelihood-estimation-of-alpha">Maximum Likelihood estimation of <span class="math inline">\(\alpha\)</span></a></li>
+  </ul></li>
   <li><a href="#tldr-just-give-me-the-code" id="toc-tldr-just-give-me-the-code" class="nav-link" data-scroll-target="#tldr-just-give-me-the-code">TL;DR, just give me the code!</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -253,452 +257,498 @@ div.csl-indent {
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>Principal covariates regression is a method to analyze the relationship between sets of multivariate data in the presence of highly-collinear variables. Compared to regular principal component regression, principal covariates regression PCovR extracts components that account for much of the variability in a set of <span class="math inline">\(X\)</span> variables and that correlate well with a set of <span class="math inline">\(Y\)</span> variables. For more information, I recommend reading <span class="citation" data-cites="vervloetEtAl:2015">Vervloet et al. (<a href="#ref-vervloetEtAl:2015" role="doc-biblioref">2015</a>)</span> and <span class="citation" data-cites="deJongKiers:1992">De Jong and Kiers (<a href="#ref-deJongKiers:1992" role="doc-biblioref">1992</a>)</span>. In this post, you can find my R code notes on this method. In these notes, I show the computations used by the <code>PCovR</code> R-package to perform the method.</p>
+<p>Principal covariates regression is a method to analyze the relationship between sets of multivariate data in the presence of highly-collinear variables. Principal covariates regression (PCovR) is an alternative approach that modifies the optimization criteria behind PCA to include a supervision aspect . PCovR looks for a low-dimensional representation of <span class="math inline">\(X\)</span> that accounts for the maximum amount of variation in both <span class="math inline">\(X\)</span> and <span class="math inline">\(y\)</span>. Compared to regular principal component regression, principal covariates regression PCovR extracts components that account for much of the variability in a set of <span class="math inline">\(X\)</span> variables and that correlate well with a set of <span class="math inline">\(Y\)</span> variables. For more information, I recommend reading <span class="citation" data-cites="vervloetEtAl:2015">Vervloet et al. (<a href="#ref-vervloetEtAl:2015" role="doc-biblioref">2015</a>)</span> and <span class="citation" data-cites="deJongKiers:1992">De Jong and Kiers (<a href="#ref-deJongKiers:1992" role="doc-biblioref">1992</a>)</span>. In this post, you can find my R code notes on this method. In these notes, I show the computations used by the <code>PCovR</code> R-package to perform the method.</p>
+<p>To understand how PCovR differs from classical PCR we need to complicate the notation. Consider the following decomposition of the data:</p>
+<p><span class="math display">\[
+\begin{align}
+    \mathbf{T} &amp;= \mathbf{X} \mathbf{W} \\
+    \mathbf{X} &amp;= \mathbf{T} \mathbf{P}_X + \mathbf{E}_X  \\
+    y      &amp;= \mathbf{T} \mathbf{P}_y + \mathbf{e}_y
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{T}\)</span> is the matrix of PCs defined above, <span class="math inline">\(\mathbf{W}\)</span> is a <span class="math inline">\(p \times q\)</span> matrix of component weights defining what linear combination of the columns of <span class="math inline">\(\mathbf{X}\)</span> is used to compute the components, and <span class="math inline">\(\mathbf{P}_X\)</span> and <span class="math inline">\(\mathbf{P}_y\)</span> are the <span class="math inline">\(q \times p\)</span> and <span class="math inline">\(q \times 1\)</span> loading matrices relating the variables in <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(y\)</span> to the component scores in <span class="math inline">\(\mathbf{T}\)</span>, respectively. <span class="math inline">\(\mathbf{E}_X\)</span> and <span class="math inline">\(\mathbf{e}_y\)</span> are the reconstruction errors, the information lost by using <span class="math inline">\(\mathbf{T}\)</span> as summary of <span class="math inline">\(\mathbf{X}\)</span>.</p>
+<p>Classical PCA can be formulated as the task of finding the <span class="math inline">\(\mathbf{W}\)</span> and <span class="math inline">\(\mathbf{P}_X\)</span> that minimize the reconstruction error <span class="math inline">\(\mathbf{E}_X\)</span>:</p>
+<p><span class="math display">\[\begin{equation}
+    (\mathbf{W}, \mathbf{P}) = \underset{\mathbf{W}, \mathbf{P}_X}{\operatorname{argmin}} \lVert \mathbf{X} - \mathbf{XWP}' \rVert^2
+\end{equation}
+\]</span></p>
+<p>subject to the constraint <span class="math inline">\(\mathbf{P}' \mathbf{P} = \mathbf{I}\)</span>. PCovR can be formulated as the task of minimizing a weighted combination of both <span class="math inline">\(\mathbf{E}_X\)</span> and <span class="math inline">\(\mathbf{e}_y\)</span>:</p>
+<p><span class="math display">\[
+\begin{equation}\label{eq:PCovR}
+    (\mathbf{W}, \mathbf{P}_X, \mathbf{P}_y) = \underset{\mathbf{W}, \mathbf{P}_X, \mathbf{P}_y}{\operatorname{argmin  }} \alpha \lVert (\mathbf{X} - \mathbf{XWP}_X') \rVert^2 + (1 - \alpha) \lVert (y - \mathbf{XWP}_y') \rVert^2
+\end{equation}
+\]</span></p>
+<p>subject to the constraint <span class="math inline">\(\mathbf{P}' \mathbf{P} = \mathbf{I}\)</span>.</p>
+<p>The parameter <span class="math inline">\(\alpha\)</span> defines which reconstruction error is being prioritized. When <span class="math inline">\(\alpha = 1\)</span>, the emphasis is exclusively placed on reconstructing <span class="math inline">\(\mathbf{X}\)</span>, leading PCovR to PCR. When <span class="math inline">\(\alpha = 0.5\)</span>, the importance of <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(y\)</span> is equally weighted, a case that resembles Partial least square, which we discuss below. In practice, its value can be found by cross-validation or according to a sequential procedure based on maximum likelihood principles <span class="citation" data-cites="vervloetEtAl:2013">(<a href="#ref-vervloetEtAl:2013" role="doc-biblioref">Vervloet et al. 2013</a>)</span>. In particular, <span class="math display">\[
+\begin{equation}\label{eq:aml}
+    \alpha_{ML} = \frac{\lVert \mathbf{X} \lVert^2}{\lVert \mathbf{X} \lVert^2  + \lVert y \lVert^2 \frac{\hat{\sigma}_{\mathbf{E}_X}^2}{\hat{\sigma}_{e_y}^2}}
+\end{equation}
+\]</span></p>
+<p>where <span class="math inline">\(\hat{\sigma}_{\mathbf{E}_X}^2\)</span> can be obtained as the unexplained variance by components computed according to classical PCA and <span class="math inline">\(\hat{\sigma}_{e_y}^2\)</span> can be estimated as the unexplained variance by the linear model regressing <span class="math inline">\(y\)</span> on <span class="math inline">\(\mathbf{X}\)</span>.</p>
 </section>
-<section id="r-code-notes" class="level1">
-<h1>R code notes</h1>
-<p>These are some R notes:</p>
+<section id="learn-by-coding" class="level1">
+<h1>Learn by coding</h1>
+<p>To understand PCovR and its relationship with PCR we will use the R package <code>PCovR</code>, the data <code>alexithymia</code>, and the package <code>RegularizedSCA</code> to compute a measure of similarity between matrices (Tucker’s congruence). The <code>alexithymia</code> data reports the scores of 122 Belgian psychology students on three scales:</p>
+<ul>
+<li>20-item Toronto Alexithymia Scale (TAS-20) measuring the inability to recognize emotions.</li>
+<li>Center for Epidemiological Studies Depression Scale (CES-D) measuring depression.</li>
+<li>Rosenberg Self-Esteem Scale (RSE).</li>
+</ul>
+<p>The main objective of the data collection was to assess how well TAS-20 can predict depression and self-esteem<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. We collect all of the predictors in the <code>X_raw</code> object and the measure of depressive symptomatology CES-D in <code>y_raw</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up environment -----------------------------------------------------------</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load package that implements this method</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">library</span>(<span class="st">"PCovR"</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load package that implements this method</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"PCovR"</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load package for measure of similarity (TuckerCoef)</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">library</span>(<span class="st">"RegularizedSCA"</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load package for a measure of similarity (TuckerCoef)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"RegularizedSCA"</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load example data from PCovR package</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data</span>(alexithymia)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Load package for Tucker congruence between vectors</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"psych"</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Explore its scale</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colMeans</span>(alexithymia<span class="sc">$</span>X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         confused       right words        sensations          describe 
-        1.8196721         1.7950820         0.5983607         2.2213115 
- analyze problems             upset           puzzled        let happen 
-        2.5081967         1.6065574         1.1393443         1.2622951 
-         identify         essential feel about people     describe more 
-        1.6393443         2.7131148         1.7213115         1.0081967 
-         going on         why angry  daily activities     entertainment 
-        0.9836066         1.2540984         1.6639344         1.6967213 
-  reveal feelings             close            useful   hidden meanings 
-        1.6475410         2.8442623         2.4672131         1.2131148 </code></pre>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Load example data from PCovR package</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(alexithymia)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset data</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>X_raw <span class="ot">&lt;-</span> alexithymia<span class="sc">$</span>X</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>y_raw <span class="ot">&lt;-</span> alexithymia<span class="sc">$</span>Y[, <span class="dv">1</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colMeans</span>(alexithymia<span class="sc">$</span>Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The first thing we’ll do is explore the data measures of center and spread.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check variable means and variances</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">c</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> <span class="fu">colMeans</span>(X_raw),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="fu">colMeans</span>(y_raw)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance =</span> <span class="fu">c</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> <span class="fu">apply</span>(X_raw, <span class="dv">2</span>, var), </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="fu">apply</span>(y_raw, <span class="dv">2</span>, var)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   CES-D      RSE 
-16.46721 31.37295 </code></pre>
+<pre><code>                          mean   variance
+X.confused           1.8196721   1.388701
+X.right words        1.7950820   1.635348
+X.sensations         0.5983607   1.151402
+X.describe           2.2213115   1.479542
+X.analyze problems   2.5081967   1.161089
+X.upset              1.6065574   1.678634
+X.puzzled            1.1393443   1.294472
+X.let happen         1.2622951   1.302534
+X.identify           1.6393443   1.620919
+X.essential          2.7131148   1.231066
+X.feel about people  1.7213115   1.475410
+X.describe more      1.0081967   1.363569
+X.going on           0.9836066   1.470803
+X.why angry          1.2540984   1.496884
+X.daily activities   1.6639344   1.514226
+X.entertainment      1.6967213   1.601477
+X.reveal feelings    1.6475410   2.097886
+X.close              2.8442623   1.240008
+X.useful             2.4672131   1.193131
+X.hidden meanings    1.2131148   1.045116
+y.CES-D             16.4672131 118.350156</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">apply</span>(alexithymia<span class="sc">$</span>X, <span class="dv">2</span>, var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We will need to scale the data before performing any form of dimensionality reduction.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">scale</span>(X_raw)<span class="co"># * (n - 1) / n</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">scale</span>(y_raw)<span class="co"># * (n - 1) / n</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Once the data has been mean-centered and standardized we can proceed to perform PCovR of the data. First, let’s assume that both <span class="math inline">\(\alpha\)</span> and the number of PCs we want to compute are given.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimation -------------------------------------------------------------------</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define fixed parameters</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> .<span class="dv">5</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>npcs <span class="ot">&lt;-</span> <span class="dv">5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we can use the <code>PCovR::pcovr_est()</code> function to estimate the loadings, and weights and compute the component scores.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; Estimation with package ----------------------------------------------------</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate with PCovR function</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>package <span class="ot">&lt;-</span> PCovR<span class="sc">::</span><span class="fu">pcovr_est</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">X =</span> X,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> y,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">a =</span> alpha,  <span class="co"># fixed alpha</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> npcs    <span class="co"># fixed number of components</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Inside the object <code>package</code> we can find all of the desired matrices. For example, we can extract the component scores</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract PC scores</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>T_p <span class="ot">&lt;-</span> package<span class="sc">$</span>Te</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s also compute the component scores manually based on the procedure described by <span class="citation" data-cites="vervloetEtAl:2016">Vervloet et al. (<a href="#ref-vervloetEtAl:2016" role="doc-biblioref">2016</a>)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; Estimation with Vervolet approach (manual) ---------------------------------</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the hat matrix</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>Hx <span class="ot">&lt;-</span> X <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the G matrix</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>G <span class="ot">&lt;-</span> alpha <span class="sc">*</span> X <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">/</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">*</span> Hx <span class="sc">%*%</span> y <span class="sc">%*%</span> <span class="fu">t</span>(y) <span class="sc">%*%</span> Hx <span class="sc">/</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Take the eigendecomposition of the G matrix</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>EG <span class="ot">&lt;-</span> <span class="fu">eigen</span>(G)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Take the first npcs eigenvectors of G as the PC scores </span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>T_m <span class="ot">&lt;-</span> EG<span class="sc">$</span>vectors[, <span class="dv">1</span><span class="sc">:</span>npcs]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now compare the results obtained with the two approaches. To keep the section slim and easy to read we will use the <a href="https://en.wikipedia.org/wiki/Congruence_coefficient">Tucker congruence</a> coefficient to compare matrices. This is a measure of similarity between matrices that ranges between -1 and +1. A congruence greater than 0.95 means the two matrices (or vectors) are virtually identical. First, notice that the PC scores obtained are the same:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare results --------------------------------------------------------------</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># T scores</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_p, T_m)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>         confused       right words        sensations          describe 
-         1.388701          1.635348          1.151402          1.479542 
- analyze problems             upset           puzzled        let happen 
-         1.161089          1.678634          1.294472          1.302534 
-         identify         essential feel about people     describe more 
-         1.620919          1.231066          1.475410          1.363569 
-         going on         why angry  daily activities     entertainment 
-         1.470803          1.496884          1.514226          1.601477 
-  reveal feelings             close            useful   hidden meanings 
-         2.097886          1.240008          1.193131          1.045116 </code></pre>
+<pre><code>[1] 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">apply</span>(alexithymia<span class="sc">$</span>Y, <span class="dv">2</span>, var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Also interesting</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_p, X <span class="sc">%*%</span> package<span class="sc">$</span>W)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    CES-D       RSE 
-118.35016  37.24199 </code></pre>
+<pre><code>[1] 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Subset data</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    X_raw <span class="ot">&lt;-</span> alexithymia<span class="sc">$</span>X</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    y_raw <span class="ot">&lt;-</span> alexithymia<span class="sc">$</span>Y[, <span class="dv">1</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define paramters that can be useful</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X_raw)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X_raw)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scale data</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    X <span class="ot">&lt;-</span> <span class="fu">scale</span>(X_raw)<span class="co"># * (n - 1) / n</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="fu">scale</span>(y_raw)<span class="co"># * (n - 1) / n</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define parameters</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    alpha <span class="ot">&lt;-</span> .<span class="dv">5</span> <span class="co"># weighting parameter</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    npcs <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimation -------------------------------------------------------------------</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Estimate with PCovR function</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> PCovR<span class="sc">::</span><span class="fu">pcovr_est</span>(</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> X,</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y =</span> y,</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">a =</span> alpha,</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">r =</span> npcs <span class="co"># fixed number of components</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Estimate manually (Vervolet version)</span></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    Hx <span class="ot">&lt;-</span> X <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X)</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    G_vv <span class="ot">&lt;-</span> alpha <span class="sc">*</span> X <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">/</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">*</span> Hx <span class="sc">%*%</span> y <span class="sc">%*%</span> <span class="fu">t</span>(y) <span class="sc">%*%</span> Hx <span class="sc">/</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    EG_vv <span class="ot">&lt;-</span> <span class="fu">eigen</span>(G_vv) <span class="co"># eigen-decomposition of matrix</span></span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    T_vv <span class="ot">&lt;-</span> EG_vv<span class="sc">$</span>vectors[, <span class="dv">1</span><span class="sc">:</span>npcs]</span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare results --------------------------------------------------------------</span></span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># T scores</span></span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    Ts <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>        <span class="at">PCovR =</span> <span class="fu">head</span>(out<span class="sc">$</span>Te),</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>        <span class="at">PCovR_man =</span> <span class="fu">head</span>(X <span class="sc">%*%</span> out<span class="sc">$</span>W),</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>        <span class="at">Vervolet =</span> <span class="fu">head</span>(T_vv)</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Weights</span></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    W <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">PCovR =</span> out<span class="sc">$</span>W,</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>        <span class="at">Vervolet =</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> T_vv</span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Px</span></span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    ( <span class="fu">t</span>(out<span class="sc">$</span>Te) <span class="sc">%*%</span> X )[, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Given the component scores, we can compute all of the other matrices of interest and compare them with the results obtained with the R package <code>PCovR</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># W (weights)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>W_p <span class="ot">&lt;-</span> package<span class="sc">$</span>W</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>W_m <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> T_m</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(W_p, W_m)<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       confused right words sensations   describe analyze problems
-[1,] -8.4662585  -7.3375812 -2.2012950  6.1597661        0.4271093
-[2,]  3.3642487  -2.5380829 -0.2684529  4.9595077        6.2443158
-[3,] -1.4118650  -4.4348404  1.4484525  1.8944371       -3.1435113
-[4,]  1.1136577   1.0030862  2.0443923 -3.5188316        0.5622115
-[5,]  0.8172586   0.7913444  5.2341517  0.5130866       -5.2948505</code></pre>
+<pre><code>[1] 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>    ( <span class="fu">t</span>(out<span class="sc">$</span>W) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X )[, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Px</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>Px_p <span class="ot">&lt;-</span> package<span class="sc">$</span>Px</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>Px_m <span class="ot">&lt;-</span> <span class="fu">t</span>(W_m) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(<span class="fu">t</span>(Px_p), <span class="fu">t</span>(Px_m))<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       confused right words sensations   describe analyze problems
-[1,] -8.4662585  -7.3375812 -2.2012950  6.1597661        0.4271093
-[2,]  3.3642487  -2.5380829 -0.2684529  4.9595077        6.2443158
-[3,] -1.4118650  -4.4348404  1.4484525  1.8944371       -3.1435113
-[4,]  1.1136577   1.0030862  2.0443923 -3.5188316        0.5622115
-[5,]  0.8172586   0.7913444  5.2341517  0.5130866       -5.2948505</code></pre>
+<pre><code>[1] 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>    out<span class="sc">$</span>Px[, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Py</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>Py_p <span class="ot">&lt;-</span> <span class="fu">drop</span>(package<span class="sc">$</span>Py)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>Py_m <span class="ot">&lt;-</span> <span class="fu">drop</span>(<span class="fu">t</span>(W_m) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y) <span class="co"># WtXtY</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>Py_m <span class="ot">&lt;-</span> <span class="fu">t</span>(T_m) <span class="sc">%*%</span> y <span class="co">#TtY</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">factor.congruence</span>(<span class="at">x =</span> Py_p, <span class="at">y =</span> Py_m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       confused right words sensations   describe analyze problems
-[1,] -8.4662585  -7.3375812 -2.2012950  6.1597661        0.4271093
-[2,]  3.3642487  -2.5380829 -0.2684529  4.9595077        6.2443158
-[3,] -1.4118650  -4.4348404  1.4484525  1.8944371       -3.1435113
-[4,]  1.1136577   1.0030862  2.0443923 -3.5188316        0.5622115
-[5,]  0.8172586   0.7913444  5.2341517  0.5130866       -5.2948505</code></pre>
+<pre><code>     CES-D
+[1,]  0.98</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Py</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">Py =</span> out<span class="sc">$</span>Py,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">TtY =</span> <span class="fu">t</span>(out<span class="sc">$</span>Te) <span class="sc">%*%</span> y,</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">WtXtY =</span> <span class="fu">t</span>(out<span class="sc">$</span>W) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># B</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>B_p <span class="ot">&lt;-</span> <span class="fu">drop</span>(package<span class="sc">$</span>B)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>B_m <span class="ot">&lt;-</span> <span class="fu">drop</span>(W_m <span class="sc">%*%</span> Py_m) <span class="co"># WPY</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>B_m <span class="ot">&lt;-</span> <span class="fu">drop</span>(W_m <span class="sc">%*%</span> <span class="fu">t</span>(W_m) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y) <span class="co"># WWtXtY</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">factor.congruence</span>(B_p, B_m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>          CES-D      CES-D      CES-D
-[1,] -6.9315017 -6.9315017 -6.9315017
-[2,]  0.7212995  0.7212995  0.7212995
-[3,]  1.1114400  1.1114400  1.1114400
-[4,] -0.2349069 -0.2349069 -0.2349069
-[5,] -0.5126823 -0.5126823 -0.5126823</code></pre>
+<pre><code>     [,1]
+[1,]    1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>    <span class="co"># B</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">B =</span> <span class="fu">drop</span>(out<span class="sc">$</span>B),</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">WPY =</span> <span class="fu">drop</span>(out<span class="sc">$</span>W <span class="sc">%*%</span> out<span class="sc">$</span>Py),</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">WWtXtY =</span> <span class="fu">drop</span>(out<span class="sc">$</span>W <span class="sc">%*%</span> <span class="fu">t</span>(out<span class="sc">$</span>W) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="reverting-to-pca" class="level2">
+<h2 class="anchored" data-anchor-id="reverting-to-pca">Reverting to PCA</h2>
+<p>I mentioned before that when <span class="math inline">\(\alpha = 1\)</span>, PCovR reduces to PCR. Let’s see that in action. First, we set the desired value for <span class="math inline">\(\alpha\)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reverting to PCA -------------------------------------------------------------</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Use alpha 1</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>then, we can perform PCovR</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate PCovR</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>package <span class="ot">&lt;-</span> PCovR<span class="sc">::</span><span class="fu">pcovr_est</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">X =</span> X,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> y,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">a =</span> alpha,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> npcs <span class="co"># fixed number of components</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>and classical PCA according to the <span class="citation" data-cites="guerraEtAl:2021">Guerra-Urzola et al. (<a href="#ref-guerraEtAl:2021" role="doc-biblioref">2021</a>)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Classical PCA</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>uSVt <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>U <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>u</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">diag</span>(uSVt<span class="sc">$</span>d)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>v</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X)                              <span class="co"># Define the number of rows</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>P_hat <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="sc">-</span><span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> V <span class="sc">%*%</span> D       <span class="co"># Component loadings</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>W_hat <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> V <span class="sc">%*%</span> <span class="fu">solve</span>(D) <span class="co"># Component weights</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>T_hat <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> U              <span class="co"># Component scores</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>T_hat <span class="ot">&lt;-</span> X <span class="sc">%*%</span> W_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now compare the results again</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The scores obtained with PCovR are the same as the ones obtained with PCA</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(package<span class="sc">$</span>Te, T_hat[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                 B          WPY       WWtXtY
- [1,]  0.383110912  0.383110912  0.383110912
- [2,]  0.019216602  0.019216602  0.019216602
- [3,] -0.032288901 -0.032288901 -0.032288901
- [4,] -0.016670641 -0.016670641 -0.016670641
- [5,]  0.086442108  0.086442108  0.086442108
- [6,] -0.185643598 -0.185643598 -0.185643598
- [7,]  0.145228530  0.145228530  0.145228530
- [8,] -0.016889454 -0.016889454 -0.016889454
- [9,]  0.019540943  0.019540943  0.019540943
-[10,] -0.129790008 -0.129790008 -0.129790008
-[11,]  0.011837598  0.011837598  0.011837598
-[12,] -0.060783224 -0.060783224 -0.060783224
-[13,]  0.214728328  0.214728328  0.214728328
-[14,]  0.182671533  0.182671533  0.182671533
-[15,]  0.044201180  0.044201180  0.044201180
-[16,] -0.002997744 -0.002997744 -0.002997744
-[17,]  0.041239398  0.041239398  0.041239398
-[18,]  0.035879278  0.035879278  0.035879278
-[19,] -0.131120013 -0.131120013 -0.131120013
-[20,] -0.049644574 -0.049644574 -0.049644574</code></pre>
+<pre><code>[1] 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Maximum likelihood tuning of alpha -------------------------------------------</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fit PCovR</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    pcovr_out <span class="ot">&lt;-</span> <span class="fu">pcovr</span>(</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> X_raw,</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y =</span> y_raw,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">rot =</span> <span class="st">"none"</span>,</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">R =</span> npcs, <span class="co"># fixed number of components</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">modsel =</span> <span class="st">"seq"</span> <span class="co"># fastest option</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute error ratio with function</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    err <span class="ot">&lt;-</span> <span class="fu">ErrorRatio</span>(</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> X,</span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y =</span> y,</span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">Rmin =</span> npcs,</span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">Rmax =</span> npcs</span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute error ratio components</span></span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    lm_mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> X)</span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    ery <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">summary</span>(lm_mod)<span class="sc">$</span>r.squared</span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    Rmin <span class="ot">&lt;-</span> npcs</span>
-<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    Rmax <span class="ot">&lt;-</span> npcs</span>
-<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>    sing <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
-<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    vec <span class="ot">&lt;-</span> Rmin<span class="sc">:</span>Rmax</span>
-<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>    vec <span class="ot">&lt;-</span> <span class="fu">c</span>(vec[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, vec, vec[<span class="fu">length</span>(vec)] <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>    VAF <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(sing<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">sum</span>(sing<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span>))</span>
-<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>    VAF <span class="ot">&lt;-</span> VAF[vec <span class="sc">+</span> <span class="dv">1</span>]</span>
-<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>    scr <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">length</span>(vec)))</span>
-<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (u <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(<span class="fu">length</span>(vec) <span class="sc">-</span> <span class="dv">1</span>)) {</span>
-<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>        scr[, u] <span class="ot">&lt;-</span> (VAF[u] <span class="sc">-</span> VAF[u <span class="sc">-</span> <span class="dv">1</span>]) <span class="sc">/</span> (VAF[u <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">-</span> VAF[u])</span>
-<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>    erx <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> VAF[<span class="fu">which.max</span>(scr)]</span>
-<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find alpha ML</span></span>
-<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>    alpha_ML <span class="ot">&lt;-</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> (<span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> erx <span class="sc">/</span> ery)</span>
-<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compare to one found by package</span></span>
-<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>    pcovr_out<span class="sc">$</span>a <span class="sc">-</span> alpha_ML</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The loadings obtained with PCovR are the same as the ones obtained with PCA</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(<span class="fu">t</span>(package<span class="sc">$</span>Px), P_hat[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The weights obtained with PCovR are the same as the ones obtained with PCA</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(package<span class="sc">$</span>W, W_hat[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># P is now proportional to W</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(package<span class="sc">$</span>W, <span class="fu">t</span>(package<span class="sc">$</span>Px))<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+</section>
+<section id="maximum-likelihood-estimation-of-alpha" class="level2">
+<h2 class="anchored" data-anchor-id="maximum-likelihood-estimation-of-alpha">Maximum Likelihood estimation of <span class="math inline">\(\alpha\)</span></h2>
+<p>The value of <span class="math inline">\(\alpha\)</span> is not usually chosen arbitrarily. One could cross-validate it or compute it with a closed-form solution that relies on the Maximum likelihood approach <span class="citation" data-cites="vervloetEtAl:2016">(<a href="#ref-vervloetEtAl:2016" role="doc-biblioref">Vervloet et al. 2016</a>)</span>. Here, I show how to use this latter approach. First, let’s simply fit PCovR by using the <code>PCovR::pcovr()</code> function and setting the model selection argument set to “seq”. As explained in the help-file, this “implies a sequential procedure in which the weighting value is determined on the basis of maximum likelihood principles”, exactly what we want.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Maximum likelihood tuning of alpha -------------------------------------------</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit PCovR</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>package <span class="ot">&lt;-</span> <span class="fu">pcovr</span>(</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">X =</span> X_raw,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> y_raw,</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">rot =</span> <span class="st">"none"</span>,</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">R =</span> npcs, <span class="co"># fixed number of components</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">modsel =</span> <span class="st">"seq"</span> <span class="co"># fastest option</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then, we can compute the maximum likelihood value of <span class="math inline">\(\alpha\)</span> by first computing the error terms and taking their ratio.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute error ratio components</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>lm_mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> X)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>ery <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">summary</span>(lm_mod)<span class="sc">$</span>r.squared</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>Rmin <span class="ot">&lt;-</span> npcs</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>Rmax <span class="ot">&lt;-</span> npcs</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>sing <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>vec <span class="ot">&lt;-</span> Rmin<span class="sc">:</span>Rmax</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>vec <span class="ot">&lt;-</span> <span class="fu">c</span>(vec[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, vec, vec[<span class="fu">length</span>(vec)] <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>VAF <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(sing<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">sum</span>(sing<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>VAF <span class="ot">&lt;-</span> VAF[vec <span class="sc">+</span> <span class="dv">1</span>]</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>scr <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">length</span>(vec)))</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (u <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(<span class="fu">length</span>(vec) <span class="sc">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>    scr[, u] <span class="ot">&lt;-</span> (VAF[u] <span class="sc">-</span> VAF[u <span class="sc">-</span> <span class="dv">1</span>]) <span class="sc">/</span> (VAF[u <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">-</span> VAF[u])</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>erx <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> VAF[<span class="fu">which.max</span>(scr)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We could have computed the error ratio with the <code>PCovR::err()</code> R function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute error ratio with function</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>err <span class="ot">&lt;-</span> <span class="fu">ErrorRatio</span>(</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">X =</span> X,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> y,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rmin =</span> npcs,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rmax =</span> npcs</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Is it the same?</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>err <span class="sc">-</span> erx<span class="sc">/</span>ery</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.110223e-15</code></pre>
+</div>
+</div>
+<p>With this value, it is now easy to compute <span class="math inline">\(\alpha\)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find alpha ML</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>alpha_ML <span class="ot">&lt;-</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> (<span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> erx <span class="sc">/</span> ery)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to one found by package</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>package<span class="sc">$</span>a <span class="sc">-</span> alpha_ML</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reverting to PCA -------------------------------------------------------------</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Use alpha 1</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    alpha <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Estimate PCovR quantities</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    pcovr_out <span class="ot">&lt;-</span> PCovR<span class="sc">::</span><span class="fu">pcovr_est</span>(</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> X,</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y =</span> y,</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">a =</span> alpha,</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">r =</span> npcs <span class="co"># fixed number of components</span></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform regular SVD of X</span></span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    uSVt <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract objects</span></span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    U <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>u</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    D <span class="ot">&lt;-</span> <span class="fu">diag</span>(uSVt<span class="sc">$</span>d)</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    V <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>v</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define the number of rows</span></span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    I <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X)</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Component loadings</span></span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    P_hat <span class="ot">&lt;-</span> P_psych <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="sc">-</span><span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> V <span class="sc">%*%</span> D</span>
-<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Component weights</span></span>
-<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    W_hat <span class="ot">&lt;-</span> W_psych <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> V <span class="sc">%*%</span> <span class="fu">solve</span>(D)</span>
-<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Component scores</span></span>
-<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    T_hat <span class="ot">&lt;-</span> T_psych <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> U</span>
-<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    T_hat <span class="ot">&lt;-</span> T_psych_xw <span class="ot">&lt;-</span> X <span class="sc">%*%</span> W_hat</span>
-<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The scores obtained with PCovR are the same as the ones obtained with PCA</span></span>
-<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">TuckerCoef</span>(pcovr_out<span class="sc">$</span>Te, T_psych[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The loadings obtained with PCovR are the same as the ones obtained with PCA</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">TuckerCoef</span>(<span class="fu">t</span>(pcovr_out<span class="sc">$</span>Px), P_psych[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The weights obtained with PCovR are the same as the ones obtained with PCA</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">TuckerCoef</span>(pcovr_out<span class="sc">$</span>W, W_psych[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>    <span class="co"># P is now proportional to W</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">TuckerCoef</span>(pcovr_out<span class="sc">$</span>W, <span class="fu">t</span>(pcovr_out<span class="sc">$</span>Px))<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1</code></pre>
-</div>
-</div>
+</section>
 </section>
 <section id="tldr-just-give-me-the-code" class="level1">
 <h1>TL;DR, just give me the code!</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up environment -----------------------------------------------------------</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load package that implements this method</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">library</span>(<span class="st">"PCovR"</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load package for measure of similarity (TuckerCoef)</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">library</span>(<span class="st">"RegularizedSCA"</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load example data from PCovR package</span></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data</span>(alexithymia)</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Explore its scale</span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colMeans</span>(alexithymia<span class="sc">$</span>X)</span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colMeans</span>(alexithymia<span class="sc">$</span>Y)</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">apply</span>(alexithymia<span class="sc">$</span>X, <span class="dv">2</span>, var)</span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">apply</span>(alexithymia<span class="sc">$</span>Y, <span class="dv">2</span>, var)</span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Subset data</span></span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    X_raw <span class="ot">&lt;-</span> alexithymia<span class="sc">$</span>X</span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    y_raw <span class="ot">&lt;-</span> alexithymia<span class="sc">$</span>Y[, <span class="dv">1</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define paramters that can be useful</span></span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X_raw)</span>
-<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X_raw)</span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scale data</span></span>
-<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>    X <span class="ot">&lt;-</span> <span class="fu">scale</span>(X_raw)<span class="co"># * (n - 1) / n</span></span>
-<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="fu">scale</span>(y_raw)<span class="co"># * (n - 1) / n</span></span>
-<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define parameters</span></span>
-<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>    alpha <span class="ot">&lt;-</span> .<span class="dv">5</span> <span class="co"># weighting parameter</span></span>
-<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>    npcs <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimation -------------------------------------------------------------------</span></span>
-<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Estimate with PCovR function</span></span>
-<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> PCovR<span class="sc">::</span><span class="fu">pcovr_est</span>(</span>
-<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> X,</span>
-<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y =</span> y,</span>
-<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">a =</span> alpha,</span>
-<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">r =</span> npcs <span class="co"># fixed number of components</span></span>
-<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Estimate manually (Vervolet version)</span></span>
-<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>    Hx <span class="ot">&lt;-</span> X <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X)</span>
-<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>    G_vv <span class="ot">&lt;-</span> alpha <span class="sc">*</span> X <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">/</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">*</span> Hx <span class="sc">%*%</span> y <span class="sc">%*%</span> <span class="fu">t</span>(y) <span class="sc">%*%</span> Hx <span class="sc">/</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>    EG_vv <span class="ot">&lt;-</span> <span class="fu">eigen</span>(G_vv) <span class="co"># eigen-decomposition of matrix</span></span>
-<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>    T_vv <span class="ot">&lt;-</span> EG_vv<span class="sc">$</span>vectors[, <span class="dv">1</span><span class="sc">:</span>npcs]</span>
-<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare results --------------------------------------------------------------</span></span>
-<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># T scores</span></span>
-<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a>    Ts <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a>        <span class="at">PCovR =</span> <span class="fu">head</span>(out<span class="sc">$</span>Te),</span>
-<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a>        <span class="at">PCovR_man =</span> <span class="fu">head</span>(X <span class="sc">%*%</span> out<span class="sc">$</span>W),</span>
-<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a>        <span class="at">Vervolet =</span> <span class="fu">head</span>(T_vv)</span>
-<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Weights</span></span>
-<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a>    W <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a>        <span class="at">PCovR =</span> out<span class="sc">$</span>W,</span>
-<span id="cb29-63"><a href="#cb29-63" aria-hidden="true" tabindex="-1"></a>        <span class="at">Vervolet =</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> T_vv</span>
-<span id="cb29-64"><a href="#cb29-64" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-66"><a href="#cb29-66" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Px</span></span>
-<span id="cb29-67"><a href="#cb29-67" aria-hidden="true" tabindex="-1"></a>    ( <span class="fu">t</span>(out<span class="sc">$</span>Te) <span class="sc">%*%</span> X )[, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb29-68"><a href="#cb29-68" aria-hidden="true" tabindex="-1"></a>    ( <span class="fu">t</span>(out<span class="sc">$</span>W) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X )[, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb29-69"><a href="#cb29-69" aria-hidden="true" tabindex="-1"></a>    out<span class="sc">$</span>Px[, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb29-70"><a href="#cb29-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-71"><a href="#cb29-71" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Py</span></span>
-<span id="cb29-72"><a href="#cb29-72" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(</span>
-<span id="cb29-73"><a href="#cb29-73" aria-hidden="true" tabindex="-1"></a>        <span class="at">Py =</span> out<span class="sc">$</span>Py,</span>
-<span id="cb29-74"><a href="#cb29-74" aria-hidden="true" tabindex="-1"></a>        <span class="at">TtY =</span> <span class="fu">t</span>(out<span class="sc">$</span>Te) <span class="sc">%*%</span> y,</span>
-<span id="cb29-75"><a href="#cb29-75" aria-hidden="true" tabindex="-1"></a>        <span class="at">WtXtY =</span> <span class="fu">t</span>(out<span class="sc">$</span>W) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y</span>
-<span id="cb29-76"><a href="#cb29-76" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-77"><a href="#cb29-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-78"><a href="#cb29-78" aria-hidden="true" tabindex="-1"></a>    <span class="co"># B</span></span>
-<span id="cb29-79"><a href="#cb29-79" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(</span>
-<span id="cb29-80"><a href="#cb29-80" aria-hidden="true" tabindex="-1"></a>        <span class="at">B =</span> <span class="fu">drop</span>(out<span class="sc">$</span>B),</span>
-<span id="cb29-81"><a href="#cb29-81" aria-hidden="true" tabindex="-1"></a>        <span class="at">WPY =</span> <span class="fu">drop</span>(out<span class="sc">$</span>W <span class="sc">%*%</span> out<span class="sc">$</span>Py),</span>
-<span id="cb29-82"><a href="#cb29-82" aria-hidden="true" tabindex="-1"></a>        <span class="at">WWtXtY =</span> <span class="fu">drop</span>(out<span class="sc">$</span>W <span class="sc">%*%</span> <span class="fu">t</span>(out<span class="sc">$</span>W) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y)</span>
-<span id="cb29-83"><a href="#cb29-83" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-84"><a href="#cb29-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-85"><a href="#cb29-85" aria-hidden="true" tabindex="-1"></a><span class="co"># Maximum likelihood tuning of alpha -------------------------------------------</span></span>
-<span id="cb29-86"><a href="#cb29-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-87"><a href="#cb29-87" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fit PCovR</span></span>
-<span id="cb29-88"><a href="#cb29-88" aria-hidden="true" tabindex="-1"></a>    pcovr_out <span class="ot">&lt;-</span> <span class="fu">pcovr</span>(</span>
-<span id="cb29-89"><a href="#cb29-89" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> X_raw,</span>
-<span id="cb29-90"><a href="#cb29-90" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y =</span> y_raw,</span>
-<span id="cb29-91"><a href="#cb29-91" aria-hidden="true" tabindex="-1"></a>        <span class="at">rot =</span> <span class="st">"none"</span>,</span>
-<span id="cb29-92"><a href="#cb29-92" aria-hidden="true" tabindex="-1"></a>        <span class="at">R =</span> npcs, <span class="co"># fixed number of components</span></span>
-<span id="cb29-93"><a href="#cb29-93" aria-hidden="true" tabindex="-1"></a>        <span class="at">modsel =</span> <span class="st">"seq"</span> <span class="co"># fastest option</span></span>
-<span id="cb29-94"><a href="#cb29-94" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-95"><a href="#cb29-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-96"><a href="#cb29-96" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute error ratio with function</span></span>
-<span id="cb29-97"><a href="#cb29-97" aria-hidden="true" tabindex="-1"></a>    err <span class="ot">&lt;-</span> <span class="fu">ErrorRatio</span>(</span>
-<span id="cb29-98"><a href="#cb29-98" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> X,</span>
-<span id="cb29-99"><a href="#cb29-99" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y =</span> y,</span>
-<span id="cb29-100"><a href="#cb29-100" aria-hidden="true" tabindex="-1"></a>        <span class="at">Rmin =</span> npcs,</span>
-<span id="cb29-101"><a href="#cb29-101" aria-hidden="true" tabindex="-1"></a>        <span class="at">Rmax =</span> npcs</span>
-<span id="cb29-102"><a href="#cb29-102" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-103"><a href="#cb29-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-104"><a href="#cb29-104" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute error ratio components</span></span>
-<span id="cb29-105"><a href="#cb29-105" aria-hidden="true" tabindex="-1"></a>    lm_mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> X)</span>
-<span id="cb29-106"><a href="#cb29-106" aria-hidden="true" tabindex="-1"></a>    ery <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">summary</span>(lm_mod)<span class="sc">$</span>r.squared</span>
-<span id="cb29-107"><a href="#cb29-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-108"><a href="#cb29-108" aria-hidden="true" tabindex="-1"></a>    Rmin <span class="ot">&lt;-</span> npcs</span>
-<span id="cb29-109"><a href="#cb29-109" aria-hidden="true" tabindex="-1"></a>    Rmax <span class="ot">&lt;-</span> npcs</span>
-<span id="cb29-110"><a href="#cb29-110" aria-hidden="true" tabindex="-1"></a>    sing <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
-<span id="cb29-111"><a href="#cb29-111" aria-hidden="true" tabindex="-1"></a>    vec <span class="ot">&lt;-</span> Rmin<span class="sc">:</span>Rmax</span>
-<span id="cb29-112"><a href="#cb29-112" aria-hidden="true" tabindex="-1"></a>    vec <span class="ot">&lt;-</span> <span class="fu">c</span>(vec[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, vec, vec[<span class="fu">length</span>(vec)] <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb29-113"><a href="#cb29-113" aria-hidden="true" tabindex="-1"></a>    VAF <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(sing<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">sum</span>(sing<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span>))</span>
-<span id="cb29-114"><a href="#cb29-114" aria-hidden="true" tabindex="-1"></a>    VAF <span class="ot">&lt;-</span> VAF[vec <span class="sc">+</span> <span class="dv">1</span>]</span>
-<span id="cb29-115"><a href="#cb29-115" aria-hidden="true" tabindex="-1"></a>    scr <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">length</span>(vec)))</span>
-<span id="cb29-116"><a href="#cb29-116" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (u <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(<span class="fu">length</span>(vec) <span class="sc">-</span> <span class="dv">1</span>)) {</span>
-<span id="cb29-117"><a href="#cb29-117" aria-hidden="true" tabindex="-1"></a>        scr[, u] <span class="ot">&lt;-</span> (VAF[u] <span class="sc">-</span> VAF[u <span class="sc">-</span> <span class="dv">1</span>]) <span class="sc">/</span> (VAF[u <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">-</span> VAF[u])</span>
-<span id="cb29-118"><a href="#cb29-118" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb29-119"><a href="#cb29-119" aria-hidden="true" tabindex="-1"></a>    erx <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> VAF[<span class="fu">which.max</span>(scr)]</span>
-<span id="cb29-120"><a href="#cb29-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-121"><a href="#cb29-121" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find alpha ML</span></span>
-<span id="cb29-122"><a href="#cb29-122" aria-hidden="true" tabindex="-1"></a>    alpha_ML <span class="ot">&lt;-</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> (<span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> erx <span class="sc">/</span> ery)</span>
-<span id="cb29-123"><a href="#cb29-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-124"><a href="#cb29-124" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compare to one found by package</span></span>
-<span id="cb29-125"><a href="#cb29-125" aria-hidden="true" tabindex="-1"></a>    pcovr_out<span class="sc">$</span>a <span class="sc">-</span> alpha_ML</span>
-<span id="cb29-126"><a href="#cb29-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-127"><a href="#cb29-127" aria-hidden="true" tabindex="-1"></a><span class="co"># Reverting to PCA -------------------------------------------------------------</span></span>
-<span id="cb29-128"><a href="#cb29-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-129"><a href="#cb29-129" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Use alpha 1</span></span>
-<span id="cb29-130"><a href="#cb29-130" aria-hidden="true" tabindex="-1"></a>    alpha <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb29-131"><a href="#cb29-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-132"><a href="#cb29-132" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Estimate PCovR quantities</span></span>
-<span id="cb29-133"><a href="#cb29-133" aria-hidden="true" tabindex="-1"></a>    pcovr_out <span class="ot">&lt;-</span> PCovR<span class="sc">::</span><span class="fu">pcovr_est</span>(</span>
-<span id="cb29-134"><a href="#cb29-134" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> X,</span>
-<span id="cb29-135"><a href="#cb29-135" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y =</span> y,</span>
-<span id="cb29-136"><a href="#cb29-136" aria-hidden="true" tabindex="-1"></a>        <span class="at">a =</span> alpha,</span>
-<span id="cb29-137"><a href="#cb29-137" aria-hidden="true" tabindex="-1"></a>        <span class="at">r =</span> npcs <span class="co"># fixed number of components</span></span>
-<span id="cb29-138"><a href="#cb29-138" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-139"><a href="#cb29-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-140"><a href="#cb29-140" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform regular SVD of X</span></span>
-<span id="cb29-141"><a href="#cb29-141" aria-hidden="true" tabindex="-1"></a>    uSVt <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
-<span id="cb29-142"><a href="#cb29-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-143"><a href="#cb29-143" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract objects</span></span>
-<span id="cb29-144"><a href="#cb29-144" aria-hidden="true" tabindex="-1"></a>    U <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>u</span>
-<span id="cb29-145"><a href="#cb29-145" aria-hidden="true" tabindex="-1"></a>    D <span class="ot">&lt;-</span> <span class="fu">diag</span>(uSVt<span class="sc">$</span>d)</span>
-<span id="cb29-146"><a href="#cb29-146" aria-hidden="true" tabindex="-1"></a>    V <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>v</span>
-<span id="cb29-147"><a href="#cb29-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-148"><a href="#cb29-148" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define the number of rows</span></span>
-<span id="cb29-149"><a href="#cb29-149" aria-hidden="true" tabindex="-1"></a>    I <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X)</span>
-<span id="cb29-150"><a href="#cb29-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-151"><a href="#cb29-151" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Component loadings</span></span>
-<span id="cb29-152"><a href="#cb29-152" aria-hidden="true" tabindex="-1"></a>    P_hat <span class="ot">&lt;-</span> P_psych <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="sc">-</span><span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> V <span class="sc">%*%</span> D</span>
-<span id="cb29-153"><a href="#cb29-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-154"><a href="#cb29-154" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Component weights</span></span>
-<span id="cb29-155"><a href="#cb29-155" aria-hidden="true" tabindex="-1"></a>    W_hat <span class="ot">&lt;-</span> W_psych <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> V <span class="sc">%*%</span> <span class="fu">solve</span>(D)</span>
-<span id="cb29-156"><a href="#cb29-156" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-157"><a href="#cb29-157" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Component scores</span></span>
-<span id="cb29-158"><a href="#cb29-158" aria-hidden="true" tabindex="-1"></a>    T_hat <span class="ot">&lt;-</span> T_psych <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> U</span>
-<span id="cb29-159"><a href="#cb29-159" aria-hidden="true" tabindex="-1"></a>    T_hat <span class="ot">&lt;-</span> T_psych_xw <span class="ot">&lt;-</span> X <span class="sc">%*%</span> W_hat</span>
-<span id="cb29-160"><a href="#cb29-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-161"><a href="#cb29-161" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The scores obtained with PCovR are the same as the ones obtained with PCA</span></span>
-<span id="cb29-162"><a href="#cb29-162" aria-hidden="true" tabindex="-1"></a>    <span class="fu">TuckerCoef</span>(pcovr_out<span class="sc">$</span>Te, T_psych[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span>
-<span id="cb29-163"><a href="#cb29-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-164"><a href="#cb29-164" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The loadings obtained with PCovR are the same as the ones obtained with PCA</span></span>
-<span id="cb29-165"><a href="#cb29-165" aria-hidden="true" tabindex="-1"></a>    <span class="fu">TuckerCoef</span>(<span class="fu">t</span>(pcovr_out<span class="sc">$</span>Px), P_psych[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span>
-<span id="cb29-166"><a href="#cb29-166" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-167"><a href="#cb29-167" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The weights obtained with PCovR are the same as the ones obtained with PCA</span></span>
-<span id="cb29-168"><a href="#cb29-168" aria-hidden="true" tabindex="-1"></a>    <span class="fu">TuckerCoef</span>(pcovr_out<span class="sc">$</span>W, W_psych[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span>
-<span id="cb29-169"><a href="#cb29-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-170"><a href="#cb29-170" aria-hidden="true" tabindex="-1"></a>    <span class="co"># P is now proportional to W</span></span>
-<span id="cb29-171"><a href="#cb29-171" aria-hidden="true" tabindex="-1"></a>    <span class="fu">TuckerCoef</span>(pcovr_out<span class="sc">$</span>W, <span class="fu">t</span>(pcovr_out<span class="sc">$</span>Px))<span class="sc">$</span>tucker_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up environment -----------------------------------------------------------</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load package that implements this method</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"PCovR"</span>)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load package for a measure of similarity (TuckerCoef)</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"RegularizedSCA"</span>)</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Load package for Tucker congruence between vectors</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"psych"</span>)</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Load example data from PCovR package</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(alexithymia)</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset data</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>X_raw <span class="ot">&lt;-</span> alexithymia<span class="sc">$</span>X</span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>y_raw <span class="ot">&lt;-</span> alexithymia<span class="sc">$</span>Y[, <span class="dv">1</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Check variable means and variances</span></span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">c</span>(</span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> <span class="fu">colMeans</span>(X_raw),</span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="fu">colMeans</span>(y_raw)</span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance =</span> <span class="fu">c</span>(</span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">X =</span> <span class="fu">apply</span>(X_raw, <span class="dv">2</span>, var), </span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="fu">apply</span>(y_raw, <span class="dv">2</span>, var)</span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale data</span></span>
+<span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">scale</span>(X_raw)<span class="co"># * (n - 1) / n</span></span>
+<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">scale</span>(y_raw)<span class="co"># * (n - 1) / n</span></span>
+<span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimation -------------------------------------------------------------------</span></span>
+<span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-37"><a href="#cb38-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Define fixed parameters</span></span>
+<span id="cb38-38"><a href="#cb38-38" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> .<span class="dv">5</span></span>
+<span id="cb38-39"><a href="#cb38-39" aria-hidden="true" tabindex="-1"></a>npcs <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb38-40"><a href="#cb38-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-41"><a href="#cb38-41" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; Estimation with package ----------------------------------------------------</span></span>
+<span id="cb38-42"><a href="#cb38-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-43"><a href="#cb38-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate with PCovR function</span></span>
+<span id="cb38-44"><a href="#cb38-44" aria-hidden="true" tabindex="-1"></a>package <span class="ot">&lt;-</span> PCovR<span class="sc">::</span><span class="fu">pcovr_est</span>(</span>
+<span id="cb38-45"><a href="#cb38-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">X =</span> X,</span>
+<span id="cb38-46"><a href="#cb38-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> y,</span>
+<span id="cb38-47"><a href="#cb38-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">a =</span> alpha,  <span class="co"># fixed alpha</span></span>
+<span id="cb38-48"><a href="#cb38-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> npcs    <span class="co"># fixed number of components</span></span>
+<span id="cb38-49"><a href="#cb38-49" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-50"><a href="#cb38-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-51"><a href="#cb38-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract PC scores</span></span>
+<span id="cb38-52"><a href="#cb38-52" aria-hidden="true" tabindex="-1"></a>T_p <span class="ot">&lt;-</span> package<span class="sc">$</span>Te</span>
+<span id="cb38-53"><a href="#cb38-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-54"><a href="#cb38-54" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; Estimation with Vervolet approach (manual) ---------------------------------</span></span>
+<span id="cb38-55"><a href="#cb38-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-56"><a href="#cb38-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the hat matrix</span></span>
+<span id="cb38-57"><a href="#cb38-57" aria-hidden="true" tabindex="-1"></a>Hx <span class="ot">&lt;-</span> X <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X)</span>
+<span id="cb38-58"><a href="#cb38-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-59"><a href="#cb38-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the G matrix</span></span>
+<span id="cb38-60"><a href="#cb38-60" aria-hidden="true" tabindex="-1"></a>G <span class="ot">&lt;-</span> alpha <span class="sc">*</span> X <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">/</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">*</span> Hx <span class="sc">%*%</span> y <span class="sc">%*%</span> <span class="fu">t</span>(y) <span class="sc">%*%</span> Hx <span class="sc">/</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb38-61"><a href="#cb38-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-62"><a href="#cb38-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Take the eigendecomposition of the G matrix</span></span>
+<span id="cb38-63"><a href="#cb38-63" aria-hidden="true" tabindex="-1"></a>EG <span class="ot">&lt;-</span> <span class="fu">eigen</span>(G)</span>
+<span id="cb38-64"><a href="#cb38-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-65"><a href="#cb38-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Take the first npcs eigenvectors of G as the PC scores </span></span>
+<span id="cb38-66"><a href="#cb38-66" aria-hidden="true" tabindex="-1"></a>T_m <span class="ot">&lt;-</span> EG<span class="sc">$</span>vectors[, <span class="dv">1</span><span class="sc">:</span>npcs]</span>
+<span id="cb38-67"><a href="#cb38-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-68"><a href="#cb38-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare results --------------------------------------------------------------</span></span>
+<span id="cb38-69"><a href="#cb38-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-70"><a href="#cb38-70" aria-hidden="true" tabindex="-1"></a><span class="co"># T scores</span></span>
+<span id="cb38-71"><a href="#cb38-71" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_p, T_m)<span class="sc">$</span>tucker_value</span>
+<span id="cb38-72"><a href="#cb38-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-73"><a href="#cb38-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Also interesting</span></span>
+<span id="cb38-74"><a href="#cb38-74" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(T_p, X <span class="sc">%*%</span> package<span class="sc">$</span>W)<span class="sc">$</span>tucker_value</span>
+<span id="cb38-75"><a href="#cb38-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-76"><a href="#cb38-76" aria-hidden="true" tabindex="-1"></a><span class="co"># W (weights)</span></span>
+<span id="cb38-77"><a href="#cb38-77" aria-hidden="true" tabindex="-1"></a>W_p <span class="ot">&lt;-</span> package<span class="sc">$</span>W</span>
+<span id="cb38-78"><a href="#cb38-78" aria-hidden="true" tabindex="-1"></a>W_m <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> T_m</span>
+<span id="cb38-79"><a href="#cb38-79" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(W_p, W_m)<span class="sc">$</span>tucker_value</span>
+<span id="cb38-80"><a href="#cb38-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-81"><a href="#cb38-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Px</span></span>
+<span id="cb38-82"><a href="#cb38-82" aria-hidden="true" tabindex="-1"></a>Px_p <span class="ot">&lt;-</span> package<span class="sc">$</span>Px</span>
+<span id="cb38-83"><a href="#cb38-83" aria-hidden="true" tabindex="-1"></a>Px_m <span class="ot">&lt;-</span> <span class="fu">t</span>(W_m) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X</span>
+<span id="cb38-84"><a href="#cb38-84" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(<span class="fu">t</span>(Px_p), <span class="fu">t</span>(Px_m))<span class="sc">$</span>tucker_value</span>
+<span id="cb38-85"><a href="#cb38-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-86"><a href="#cb38-86" aria-hidden="true" tabindex="-1"></a><span class="co"># Py</span></span>
+<span id="cb38-87"><a href="#cb38-87" aria-hidden="true" tabindex="-1"></a>Py_p <span class="ot">&lt;-</span> <span class="fu">drop</span>(package<span class="sc">$</span>Py)</span>
+<span id="cb38-88"><a href="#cb38-88" aria-hidden="true" tabindex="-1"></a>Py_m <span class="ot">&lt;-</span> <span class="fu">drop</span>(<span class="fu">t</span>(W_m) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y) <span class="co"># WtXtY</span></span>
+<span id="cb38-89"><a href="#cb38-89" aria-hidden="true" tabindex="-1"></a>Py_m <span class="ot">&lt;-</span> <span class="fu">t</span>(T_m) <span class="sc">%*%</span> y <span class="co">#TtY</span></span>
+<span id="cb38-90"><a href="#cb38-90" aria-hidden="true" tabindex="-1"></a><span class="fu">factor.congruence</span>(<span class="at">x =</span> Py_p, <span class="at">y =</span> Py_m)</span>
+<span id="cb38-91"><a href="#cb38-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-92"><a href="#cb38-92" aria-hidden="true" tabindex="-1"></a><span class="co"># B</span></span>
+<span id="cb38-93"><a href="#cb38-93" aria-hidden="true" tabindex="-1"></a>B_p <span class="ot">&lt;-</span> <span class="fu">drop</span>(package<span class="sc">$</span>B)</span>
+<span id="cb38-94"><a href="#cb38-94" aria-hidden="true" tabindex="-1"></a>B_m <span class="ot">&lt;-</span> <span class="fu">drop</span>(W_m <span class="sc">%*%</span> Py_m) <span class="co"># WPY</span></span>
+<span id="cb38-95"><a href="#cb38-95" aria-hidden="true" tabindex="-1"></a>B_m <span class="ot">&lt;-</span> <span class="fu">drop</span>(W_m <span class="sc">%*%</span> <span class="fu">t</span>(W_m) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y) <span class="co"># WWtXtY</span></span>
+<span id="cb38-96"><a href="#cb38-96" aria-hidden="true" tabindex="-1"></a><span class="fu">factor.congruence</span>(B_p, B_m)</span>
+<span id="cb38-97"><a href="#cb38-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-98"><a href="#cb38-98" aria-hidden="true" tabindex="-1"></a><span class="co"># Reverting to PCA -------------------------------------------------------------</span></span>
+<span id="cb38-99"><a href="#cb38-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-100"><a href="#cb38-100" aria-hidden="true" tabindex="-1"></a><span class="co"># Use alpha 1</span></span>
+<span id="cb38-101"><a href="#cb38-101" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb38-102"><a href="#cb38-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-103"><a href="#cb38-103" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate PCovR</span></span>
+<span id="cb38-104"><a href="#cb38-104" aria-hidden="true" tabindex="-1"></a>package <span class="ot">&lt;-</span> PCovR<span class="sc">::</span><span class="fu">pcovr_est</span>(</span>
+<span id="cb38-105"><a href="#cb38-105" aria-hidden="true" tabindex="-1"></a>    <span class="at">X =</span> X,</span>
+<span id="cb38-106"><a href="#cb38-106" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> y,</span>
+<span id="cb38-107"><a href="#cb38-107" aria-hidden="true" tabindex="-1"></a>    <span class="at">a =</span> alpha,</span>
+<span id="cb38-108"><a href="#cb38-108" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> npcs <span class="co"># fixed number of components</span></span>
+<span id="cb38-109"><a href="#cb38-109" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-110"><a href="#cb38-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-111"><a href="#cb38-111" aria-hidden="true" tabindex="-1"></a><span class="co"># Classical PCA</span></span>
+<span id="cb38-112"><a href="#cb38-112" aria-hidden="true" tabindex="-1"></a>uSVt <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
+<span id="cb38-113"><a href="#cb38-113" aria-hidden="true" tabindex="-1"></a>U <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>u</span>
+<span id="cb38-114"><a href="#cb38-114" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">diag</span>(uSVt<span class="sc">$</span>d)</span>
+<span id="cb38-115"><a href="#cb38-115" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> uSVt<span class="sc">$</span>v</span>
+<span id="cb38-116"><a href="#cb38-116" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X)                              <span class="co"># Define the number of rows</span></span>
+<span id="cb38-117"><a href="#cb38-117" aria-hidden="true" tabindex="-1"></a>P_hat <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="sc">-</span><span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> V <span class="sc">%*%</span> D       <span class="co"># Component loadings</span></span>
+<span id="cb38-118"><a href="#cb38-118" aria-hidden="true" tabindex="-1"></a>W_hat <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> V <span class="sc">%*%</span> <span class="fu">solve</span>(D) <span class="co"># Component weights</span></span>
+<span id="cb38-119"><a href="#cb38-119" aria-hidden="true" tabindex="-1"></a>T_hat <span class="ot">&lt;-</span> (I <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">^</span>{<span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>} <span class="sc">*</span> U              <span class="co"># Component scores</span></span>
+<span id="cb38-120"><a href="#cb38-120" aria-hidden="true" tabindex="-1"></a>T_hat <span class="ot">&lt;-</span> X <span class="sc">%*%</span> W_hat</span>
+<span id="cb38-121"><a href="#cb38-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-122"><a href="#cb38-122" aria-hidden="true" tabindex="-1"></a><span class="co"># The scores obtained with PCovR are the same as the ones obtained with PCA</span></span>
+<span id="cb38-123"><a href="#cb38-123" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(package<span class="sc">$</span>Te, T_hat[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span>
+<span id="cb38-124"><a href="#cb38-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-125"><a href="#cb38-125" aria-hidden="true" tabindex="-1"></a><span class="co"># The loadings obtained with PCovR are the same as the ones obtained with PCA</span></span>
+<span id="cb38-126"><a href="#cb38-126" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(<span class="fu">t</span>(package<span class="sc">$</span>Px), P_hat[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span>
+<span id="cb38-127"><a href="#cb38-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-128"><a href="#cb38-128" aria-hidden="true" tabindex="-1"></a><span class="co"># The weights obtained with PCovR are the same as the ones obtained with PCA</span></span>
+<span id="cb38-129"><a href="#cb38-129" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(package<span class="sc">$</span>W, W_hat[, <span class="dv">1</span><span class="sc">:</span>npcs])<span class="sc">$</span>tucker_value</span>
+<span id="cb38-130"><a href="#cb38-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-131"><a href="#cb38-131" aria-hidden="true" tabindex="-1"></a><span class="co"># P is now proportional to W</span></span>
+<span id="cb38-132"><a href="#cb38-132" aria-hidden="true" tabindex="-1"></a><span class="fu">TuckerCoef</span>(package<span class="sc">$</span>W, <span class="fu">t</span>(package<span class="sc">$</span>Px))<span class="sc">$</span>tucker_value</span>
+<span id="cb38-133"><a href="#cb38-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-134"><a href="#cb38-134" aria-hidden="true" tabindex="-1"></a><span class="co"># Maximum likelihood tuning of alpha -------------------------------------------</span></span>
+<span id="cb38-135"><a href="#cb38-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-136"><a href="#cb38-136" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit PCovR</span></span>
+<span id="cb38-137"><a href="#cb38-137" aria-hidden="true" tabindex="-1"></a>package <span class="ot">&lt;-</span> <span class="fu">pcovr</span>(</span>
+<span id="cb38-138"><a href="#cb38-138" aria-hidden="true" tabindex="-1"></a>    <span class="at">X =</span> X_raw,</span>
+<span id="cb38-139"><a href="#cb38-139" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> y_raw,</span>
+<span id="cb38-140"><a href="#cb38-140" aria-hidden="true" tabindex="-1"></a>    <span class="at">rot =</span> <span class="st">"none"</span>,</span>
+<span id="cb38-141"><a href="#cb38-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">R =</span> npcs, <span class="co"># fixed number of components</span></span>
+<span id="cb38-142"><a href="#cb38-142" aria-hidden="true" tabindex="-1"></a>    <span class="at">modsel =</span> <span class="st">"seq"</span> <span class="co"># fastest option</span></span>
+<span id="cb38-143"><a href="#cb38-143" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-144"><a href="#cb38-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-145"><a href="#cb38-145" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute error ratio components</span></span>
+<span id="cb38-146"><a href="#cb38-146" aria-hidden="true" tabindex="-1"></a>lm_mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> X)</span>
+<span id="cb38-147"><a href="#cb38-147" aria-hidden="true" tabindex="-1"></a>ery <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">summary</span>(lm_mod)<span class="sc">$</span>r.squared</span>
+<span id="cb38-148"><a href="#cb38-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-149"><a href="#cb38-149" aria-hidden="true" tabindex="-1"></a>Rmin <span class="ot">&lt;-</span> npcs</span>
+<span id="cb38-150"><a href="#cb38-150" aria-hidden="true" tabindex="-1"></a>Rmax <span class="ot">&lt;-</span> npcs</span>
+<span id="cb38-151"><a href="#cb38-151" aria-hidden="true" tabindex="-1"></a>sing <span class="ot">&lt;-</span> <span class="fu">svd</span>(X)</span>
+<span id="cb38-152"><a href="#cb38-152" aria-hidden="true" tabindex="-1"></a>vec <span class="ot">&lt;-</span> Rmin<span class="sc">:</span>Rmax</span>
+<span id="cb38-153"><a href="#cb38-153" aria-hidden="true" tabindex="-1"></a>vec <span class="ot">&lt;-</span> <span class="fu">c</span>(vec[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, vec, vec[<span class="fu">length</span>(vec)] <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb38-154"><a href="#cb38-154" aria-hidden="true" tabindex="-1"></a>VAF <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(sing<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">sum</span>(sing<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb38-155"><a href="#cb38-155" aria-hidden="true" tabindex="-1"></a>VAF <span class="ot">&lt;-</span> VAF[vec <span class="sc">+</span> <span class="dv">1</span>]</span>
+<span id="cb38-156"><a href="#cb38-156" aria-hidden="true" tabindex="-1"></a>scr <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">length</span>(vec)))</span>
+<span id="cb38-157"><a href="#cb38-157" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (u <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(<span class="fu">length</span>(vec) <span class="sc">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb38-158"><a href="#cb38-158" aria-hidden="true" tabindex="-1"></a>    scr[, u] <span class="ot">&lt;-</span> (VAF[u] <span class="sc">-</span> VAF[u <span class="sc">-</span> <span class="dv">1</span>]) <span class="sc">/</span> (VAF[u <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">-</span> VAF[u])</span>
+<span id="cb38-159"><a href="#cb38-159" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb38-160"><a href="#cb38-160" aria-hidden="true" tabindex="-1"></a>erx <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> VAF[<span class="fu">which.max</span>(scr)]</span>
+<span id="cb38-161"><a href="#cb38-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-162"><a href="#cb38-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-163"><a href="#cb38-163" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute error ratio with function</span></span>
+<span id="cb38-164"><a href="#cb38-164" aria-hidden="true" tabindex="-1"></a>err <span class="ot">&lt;-</span> <span class="fu">ErrorRatio</span>(</span>
+<span id="cb38-165"><a href="#cb38-165" aria-hidden="true" tabindex="-1"></a>    <span class="at">X =</span> X,</span>
+<span id="cb38-166"><a href="#cb38-166" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> y,</span>
+<span id="cb38-167"><a href="#cb38-167" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rmin =</span> npcs,</span>
+<span id="cb38-168"><a href="#cb38-168" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rmax =</span> npcs</span>
+<span id="cb38-169"><a href="#cb38-169" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-170"><a href="#cb38-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-171"><a href="#cb38-171" aria-hidden="true" tabindex="-1"></a><span class="co"># Is it the same?</span></span>
+<span id="cb38-172"><a href="#cb38-172" aria-hidden="true" tabindex="-1"></a>err <span class="sc">-</span> erx<span class="sc">/</span>ery</span>
+<span id="cb38-173"><a href="#cb38-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-174"><a href="#cb38-174" aria-hidden="true" tabindex="-1"></a><span class="co"># Find alpha ML</span></span>
+<span id="cb38-175"><a href="#cb38-175" aria-hidden="true" tabindex="-1"></a>alpha_ML <span class="ot">&lt;-</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> (<span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> erx <span class="sc">/</span> ery)</span>
+<span id="cb38-176"><a href="#cb38-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-177"><a href="#cb38-177" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to one found by package</span></span>
+<span id="cb38-178"><a href="#cb38-178" aria-hidden="true" tabindex="-1"></a>package<span class="sc">$</span>a <span class="sc">-</span> alpha_ML</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="references" class="level1">
@@ -708,14 +758,29 @@ div.csl-indent {
 
 </section>
 
+
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-deJongKiers:1992" class="csl-entry" role="doc-biblioentry">
 De Jong, Sijmen, and Henk AL Kiers. 1992. <span>“Principal Covariates Regression: Part i. Theory.”</span> <em>Chemometrics and Intelligent Laboratory Systems</em> 14 (1-3): 155–64.
 </div>
+<div id="ref-guerraEtAl:2021" class="csl-entry" role="doc-biblioentry">
+Guerra-Urzola, Rosember, Katrijn Van Deun, Juan C Vera, and Klaas Sijtsma. 2021. <span>“A Guide for Sparse PCA: Model Comparison and Applications.”</span> <em>Psychometrika</em> 86 (4): 893–919.
+</div>
 <div id="ref-vervloetEtAl:2015" class="csl-entry" role="doc-biblioentry">
 Vervloet, Marlies, Henk AL Kiers, Wim Van den Noortgate, and Eva Ceulemans. 2015. <span>“PCovR: An r Package for Principal Covariates Regression.”</span> <em>Journal of Statistical Software</em> 65: 1–14.
 </div>
-</div></section></div></main> <!-- /main -->
+<div id="ref-vervloetEtAl:2013" class="csl-entry" role="doc-biblioentry">
+Vervloet, Marlies, Katrijn Van Deun, Wim Van den Noortgate, and Eva Ceulemans. 2013. <span>“On the Selection of the Weighting Parameter Value in Principal Covariates Regression.”</span> <em>Chemometrics and Intelligent Laboratory Systems</em> 123: 36–43.
+</div>
+<div id="ref-vervloetEtAl:2016" class="csl-entry" role="doc-biblioentry">
+———. 2016. <span>“Model Selection in Principal Covariates Regression.”</span> <em>Chemometrics and Intelligent Laboratory Systems</em> 151: 26–33. https://doi.org/<a href="https://doi.org/10.1016/j.chemolab.2015.12.004">https://doi.org/10.1016/j.chemolab.2015.12.004</a>.
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Check the helpfile for the <code>alexithymia</code> data in the <code>PCovR</code> package for more information.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
