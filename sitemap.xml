@@ -1,79 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://edoardocostantini.github.io/research/mi-spcr.html</loc>
+    <lastmod>2023-03-01T17:48:12.427Z</lastmod>
+  </url>
+  <url>
+    <loc>https://edoardocostantini.github.io/research/mi-hd.html</loc>
+    <lastmod>2023-03-01T17:48:12.972Z</lastmod>
+  </url>
+  <url>
+    <loc>https://edoardocostantini.github.io/research/mi-pcr.html</loc>
+    <lastmod>2023-03-01T17:48:13.393Z</lastmod>
+  </url>
+  <url>
     <loc>https://edoardocostantini.github.io/research.html</loc>
-    <lastmod>2023-03-01T16:18:56.311Z</lastmod>
+    <lastmod>2023-03-01T17:48:13.732Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-sampling/norta.html</loc>
-    <lastmod>2023-03-01T16:18:57.272Z</lastmod>
+    <lastmod>2023-03-01T17:48:14.609Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-em/sweep.html</loc>
-    <lastmod>2023-03-01T16:18:58.932Z</lastmod>
+    <lastmod>2023-03-01T17:48:16.459Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pcovr.html</loc>
-    <lastmod>2023-03-01T16:19:00.419Z</lastmod>
+    <lastmod>2023-03-01T17:48:18.078Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pls.html</loc>
-    <lastmod>2023-03-01T16:19:01.209Z</lastmod>
+    <lastmod>2023-03-01T17:48:19.044Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pca-non-graphical-solutions.html</loc>
-    <lastmod>2023-03-01T16:19:03.195Z</lastmod>
+    <lastmod>2023-03-01T17:48:21.160Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pca-biplots.html</loc>
-    <lastmod>2023-03-01T16:19:03.830Z</lastmod>
+    <lastmod>2023-03-01T17:48:21.770Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-pca-primer/pca-svd.html</loc>
-    <lastmod>2023-03-01T16:19:04.527Z</lastmod>
+    <lastmod>2023-03-01T17:48:22.503Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-knowledge/covmatwt.html</loc>
-    <lastmod>2023-03-01T16:19:05.258Z</lastmod>
+    <lastmod>2023-03-01T17:48:23.245Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-knowledge/ridge.html</loc>
-    <lastmod>2023-03-01T16:19:05.992Z</lastmod>
+    <lastmod>2023-03-01T17:48:24.062Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-knowledge/crossentropy.html</loc>
-    <lastmod>2023-03-01T16:19:06.779Z</lastmod>
+    <lastmod>2023-03-01T17:48:24.737Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-sm-course/boxplots.html</loc>
-    <lastmod>2023-03-01T16:19:07.355Z</lastmod>
+    <lastmod>2023-03-01T17:48:25.297Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-sm-course/se-resid.html</loc>
-    <lastmod>2023-03-01T16:19:07.900Z</lastmod>
+    <lastmod>2023-03-01T17:48:25.808Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/posts/series-sm-course/qunatiles.html</loc>
-    <lastmod>2023-03-01T16:19:08.449Z</lastmod>
+    <lastmod>2023-03-01T17:48:26.325Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/series-pca.html</loc>
-    <lastmod>2023-03-01T16:19:11.388Z</lastmod>
+    <lastmod>2023-03-01T17:48:28.906Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/series-sm-course.html</loc>
-    <lastmod>2023-03-01T16:19:11.774Z</lastmod>
+    <lastmod>2023-03-01T17:48:29.210Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/index.html</loc>
-    <lastmod>2023-03-01T16:19:12.098Z</lastmod>
+    <lastmod>2023-03-01T17:48:29.508Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/series-sampling.html</loc>
-    <lastmod>2023-03-01T16:19:12.412Z</lastmod>
+    <lastmod>2023-03-01T17:48:29.824Z</lastmod>
   </url>
   <url>
     <loc>https://edoardocostantini.github.io/all-posts.html</loc>
-    <lastmod>2023-03-01T16:19:12.828Z</lastmod>
+    <lastmod>2023-03-01T17:48:30.218Z</lastmod>
   </url>
 </urlset>

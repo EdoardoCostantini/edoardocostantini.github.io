@@ -1,5 +1,13 @@
 [
   {
+    "listing": "/research.html",
+    "items": [
+      "/research/mi-spcr.html",
+      "/research/mi-pcr.html",
+      "/research/mi-hd.html"
+    ]
+  },
+  {
     "listing": "/series-pca.html",
     "items": [
       "/posts/series-pca-primer/pcovr.html",
