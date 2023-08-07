@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.1.251">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -19,9 +19,10 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -48,48 +49,19 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+/* CSS for citations */
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
 }
-.hanging div.csl-entry {
+.hanging-indent div.csl-entry {
   margin-left:2em;
   text-indent:-2em;
 }
@@ -103,8 +75,7 @@ div.csl-right-inline {
 }
 div.csl-indent {
   margin-left: 2em;
-}
-</style>
+}</style>
 
 
 <script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -141,10 +112,12 @@ div.csl-indent {
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
@@ -161,40 +134,43 @@ div.csl-indent {
     <span class="navbar-title">Edoardo Costantini</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-digital-garden" role="button" data-bs-toggle="dropdown" aria-expanded="false">Digital garden</a>
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-digital-garden" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Digital garden</span>
+    </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-digital-garden">    
         <li>
-    <a class="dropdown-item" href="../../all-posts.html">
+    <a class="dropdown-item" href="../../all-posts.html" rel="" target="">
  <span class="dropdown-text">All posts</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../series-pca.html">
+    <a class="dropdown-item" href="../../series-pca.html" rel="" target="">
  <span class="dropdown-text">A primer on PCA</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../series-sm-course.html">
+    <a class="dropdown-item" href="../../series-sm-course.html" rel="" target="">
  <span class="dropdown-text">Course: Statistics and Methodology</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../series-sampling.html">
+    <a class="dropdown-item" href="../../series-sampling.html" rel="" target="">
  <span class="dropdown-text">Sampling</span></a>
   </li>  
     </ul>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="../../research.html">Research</a>
+    <a class="nav-link" href="../../research.html" rel="" target="">
+ <span class="menu-text">Research</span></a>
   </li>  
 </ul>
-              <div class="quarto-toggle-container">
-                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
-              </div>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools ms-auto">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -228,6 +204,7 @@ div.csl-indent {
         <p class="date">November 17, 2021</p>
       </div>
     </div>
+    
       
     </div>
     
@@ -850,14 +827,14 @@ V4  -0.07777123 -0.9014841  -0.7246001</code></pre>
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
-<div id="ref-goodnight:1979" class="csl-entry" role="doc-biblioentry">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-goodnight:1979" class="csl-entry" role="listitem">
 Goodnight, James H. 1979. <span>“A Tutorial on the SWEEP Operator.”</span> <em>The American Statistician</em> 33 (3): 149–58.
 </div>
-<div id="ref-littleRubin:2002" class="csl-entry" role="doc-biblioentry">
+<div id="ref-littleRubin:2002" class="csl-entry" role="listitem">
 Little, R. J. A., and D. B. Rubin. 2002. <em>Statistical Analysis with Missing Data</em>. 2nd ed. Hoboken, NJ: Wiley-Interscience.
 </div>
-<div id="ref-schafer:1997" class="csl-entry" role="doc-biblioentry">
+<div id="ref-schafer:1997" class="csl-entry" role="listitem">
 Schafer, Joseph L. 1997. <em>Analysis of Incomplete Multivariate Data</em>. Vol. 72. Boca Raton, FL: Chapman &amp; Hall/<span>CRC</span>.
 </div>
 </div></section></div></main> <!-- /main -->
@@ -993,7 +970,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   // Switch to dark mode if need be
   if (hasAlternateSentinel()) {
     toggleColorMode(true);
-  } 
+  } else {
+    toggleColorMode(false);
+  }
   const icon = "";
   const anchorJS = new window.AnchorJS();
   anchorJS.options = {
@@ -1001,9 +980,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -1015,7 +1008,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
     setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
@@ -1102,441 +1112,545 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
-    tippyHover(ref, function() {
-      var popup = window.document.createElement('div');
-      cites.forEach(function(cite) {
-        var citeDiv = window.document.createElement('div');
-        citeDiv.classList.add('hanging-indent');
-        citeDiv.classList.add('csl-entry');
-        var biblioDiv = window.document.getElementById('ref-' + cite);
-        if (biblioDiv) {
-          citeDiv.innerHTML = biblioDiv.innerHTML;
-        }
-        popup.appendChild(citeDiv);
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
       });
-      return popup.innerHTML;
-    });
+    }
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<pre class="markdown" data-shortcodes="false"><code>---
-title: The sweep operator
-author: Edoardo Costantini
-date: '2021-11-17'
-slug: sweep
-categories: ["The EM algorithm", "Matrix algebra", "Statistics"]
-bibliography: ../../resources/bibshelf.bib
-format:
-  html:
-    code-tools: true
----
-
-# Introduction
-
-The sweep operator is a matrix transformation commonly used to estimate regression models.
-It performs elementary row operations on a $p \times p$ matrix which happens to be particularly useful to estimate multivariate linear models.
-@littleRubin:2002 [p148] defined it as follows:
-
-&gt; The sweep operator is defined for symmetric matrices as follows. A $p \times p$ symmetric matrix G is said to be swept on row and column k if it is replaced by another symmetric $p \times p$ matrix H with elements defined as follows:
-&gt; $$
-&gt; h_{kk} = -1/g_{kk}
-&gt; $$
-&gt; $$
-&gt; h_{jk} = h_{kj} = \frac{g_{jk}}{g_{kk}}, j \neq k
-&gt; $$
-&gt; $$
-&gt; h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k
-&gt; $$
-
-The notation indicating this transformation is usually a variation of $\text{SWEEP}[k]G$, which can be read as sweeping matrix $G$ on column (and row) $k$.
-It is important to know that:
-
-- Any symmetric matrix $G$ can be swept over $l$ multiple positions.
-The notation $\text{SWEEP}[k_1, k_2, ..., k_l]G$ indicates successive applications of $\text{SWEEP}[k]G$ with $k = k_1, \dots, k_l$.
-- The sweep operator is commutative.
-Sweeps on multiple positions do not need to be carried out in any particular order:
-
-$$
-\text{SWEEP}[k_2]\text{SWEEP}[k_1]G = \text{SWEEP}[k_1]\text{SWEEP}[k_2]G
-$$
-
-- The $l$ sweeping positions do not need to be consecutive.
-For example, $k_1$ could indicate the third column and $k_2$ could indicate the sixth column.
-
-In this post, I want to show how the sweep operator can be used to estimate the parameters of any linear regressions model.
-If you are interested in the mathematical details, I recommend reading the full sweep operator description in @goodnight:1979 [p154], @schafer:1997, or @littleRubin:2002 [p148].
-
-@goodnight:1979 [p150] is a particularly helpful paper as it describes an easy implementation of the sweep operator.
-Following Goodnight, given an originally symmetric positive definite matrix G, $\text{SWEEP}[k]G$ modifies a matrix G as follows:
-
-- Step 1: Let $D = g_{kk}$
-- Step 2: Divide row $k$ by $D$.
-- Step 3: For every other row $i \neq k$, let $B = g_{ik}$. Subtract $B \times \text{row } k$ from row $i$. Set $g_{ik} = -B/D$.
-- Step 4: Set $g_{kk} = 1/D$.
-
-# Learn by coding
-
-## Coding a sweep function in R
-
-Let's start by coding a simple function that performs the operations described by @goodnight:1979 [p150].
-We want a function that takes as inputs a symmetric matrix (argument `G`) and a vector of positions to sweep over (argument `K`).
-The function below takes these two inputs and performs the four sweep steps for every element of `K`.
-
-```{r sweep function}
-# Write an R function implementing SWEEP(k)[G] according to Goodnight ----------
-
-sweepGoodnight &lt;- function (G, K){
-
-  for(k in K){
-    # Step 1: Let D = g_kk
-    D &lt;- G[k, k]
-
-    # Step 2: Divide row k by D.
-    G[k, ] &lt;- G[k, ] / D
-
-    # Step 3:
-    # - For every other row i != k, let B = g_ik
-    # - Subtract B \times row k from row i.
-    # - set g_ik = -B/D.
-    for(i in 1:nrow(G)){
-      if(i != k){
-        B &lt;- G[i, k]
-        G[i, ] &lt;- G[i, ] - B * G[k, ]
-        G[i, k] &lt;- -1 * B / D
-      }
-    }
-    # Step 4: Set g_kk = 1/D
-    G[k, k] = 1/D
-  }
-
-  # Output
-  return(G)
-}
-
-```
-
-Let's check that this function returns what we want by comparing it with a function implemented by someone else.
-
-```{r compare sweeps, warning = FALSE}
-# Compare sweepGoodnight with other implementations ----------------------------
-
-# Install the `fastmatrix` package (run if you don't have it yet)
-# install.packages("fastmatrix")
-
-# Load fastmatrix
-library(fastmatrix)
-
-# Define an example dataset
-X &lt;- matrix(c(1, 1, 1, 1,
-              1, 2, 1, 3,
-              1, 3, 1, 3,
-              1, 1,-1, 2,
-              1, 2,-1, 2,
-              1, 3,-1, 1), ncol = 4, byrow = TRUE)
-
-# Define the G matrix
-G &lt;- crossprod(X)
-
-# Define a vector of positions to sweep over
-K &lt;- 1:3
-
-# Perform SWEEP[K]G with fastmatrix sweep.operator
-H_fm &lt;- sweep.operator(G, k = K)
-
-# Perform SWEEP[K]G with our sweepGoodnight implementation
-H_sg &lt;- sweepGoodnight(G, K = K)
-
-# Compare the two
-all.equal(H_fm, H_sg)
-
-```
-
-The functions `fastmatrix::sweep.operator()` and `sweepGoodnight()` return the same `H` matrix by sweeping matrix `G` over the positions defined in `K`.
-
-## Using the sweep operator to estimate regression models
-
-To understand how the sweep operator relates to the estimation of multivariate linear models, we will work with a data set used by @littleRubin:2002 [p152].
-
-```{r load data}
-# Load Little Rubin data -------------------------------------------------------
-
-# Create data
-  X &lt;- as.data.frame(
-          matrix(
-                  data = c(7, 1, 11, 11, 7, 11, 3, 1, 2, 21, 1, 11, 10, 26,
-                           29, 56, 31, 52, 55, 71 ,31, 54, 47, 40, 66, 68,
-                           6, 15, 8, 8, 6, 9, 17, 22, 18, 4, 23, 9, 8,
-                           60, 52, 20, 47, 33, 22,6,44,22,26,34,12,12,
-                           78.5, 74.3, 104.3, 87.6, 95.9, 109.2, 102.7,
-                           72.5, 93.1, 115.9, 83.8, 113.3, 109.4),
-                  ncol = 5
-          )
-  )
-
-# Store useful information
-  n &lt;- nrow(X)
-  p &lt;- ncol(X)
-
-```
-
-Let's take a quick look at the first rows of the data to get an idea of what we are working with.
-
-```{r check X}
-# Glance at the first 6 rows of the data
-  head(X)
-
-```
-
-### Compute the augmented covariance matrix
-
-To obtain the estimates of the regression coefficients of a multivariate linear model, we need to sweep the augmented covariance matrix of the data ($\Theta$) over the positions of the predictors.
-This is a $(p+1) \times (p+1)$ matrix storing the covariance matrix and the means of the dataset.
-It usually looks like this:
-
-$$
-\Theta =
-\begin{bmatrix}
-1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
-\mu_1 &amp; \sigma^2_1 &amp; ... &amp; \sigma_{1p}\\
-... &amp; ... &amp; ... &amp; ...\\
-\mu_p &amp; \sigma_{1p} &amp; ... &amp; \sigma^2_{p}
-\end{bmatrix}
-$$
-
-with $\mu_1, \dots, \mu_p$, $\sigma^2_1, \dots, \sigma^2_p$, and $\sigma_{jk}$ being the means, variances, and covariances of the variables in our dataset, respectively.
-
-In R, we can obtain this matrix in just a few steps starting from our dataset `X`:
-
-- **Augment the original data** with a column of 1s on the left.
-
-  We can use the `cbind()` function to append a column of 1s to the left of X.
-  Keep in mind that we need to perform matrix operations with the resulting object.
-  Therefore, we need to make sure we are working with an R object of the class `matrix` instead of `data.frame`.
-
-  ```{r augment X}
-  # Obtain the augmented covariance matrix ---------------------------------------
-
-  # Augment X
-    X_aug &lt;- cbind(int = 1, as.matrix(X))
-
-  # Glance at the first 6 rows of X_aug
-    head(X_aug)
-
-  ```
-
-- Compute the **augmented matrix of [sufficient statistics](https://en.wikipedia.org/wiki/Sufficient_statistic) $T$**.
-
-  $T$ is the matrix having as elements the sum of the cross-products of the columns of `X_aug`.
-
-  $$
-  T =
-  \begin{bmatrix}
-  n &amp; \sum{x_1} &amp; ... &amp; \sum{x_p}\\
-  \sum{x_1} &amp; \sum{x_1^2} &amp; ... &amp; \sum{x_1 x_p}\\
-  ... &amp; ... &amp; ... &amp; ...\\
-  \sum{x_p} &amp; \sum{x_1 x_p} &amp; ... &amp; \sum{x_p^2}
-  \end{bmatrix}
-  $$
-
-  Since the first column of `X_aug` is a column of 1s, the first element of T is the number of rows in the data, the first column and rows store the sum of scores on each variable (sufficient statistics for the mean), and the other elements store the sum of products between the columns of `X` (sufficient statistics for the covariance matrix of `X`).
-
-  In R, we can compute it easily with the cross-product function:
-
-  ```{r compute T}
-  # Compute the matrix of sufficient statistics (T matrix)
-    Tmat &lt;- crossprod(X_aug)
-
-  ```
-
-- **Transform T to G**
-
-  $G$ is simply $T / n$
-
-  $$
-  G =
-  \begin{bmatrix}
-   1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
-   \mu_1 &amp; \frac{\sum{x_1^2}}{n} &amp; ... &amp; \frac{\sum{x_1 x_p}}{n}\\
-   ... &amp; ... &amp; ... &amp; ...\\
-   \mu_p &amp; \frac{\sum{x_1 x_p}}{n} &amp; ... &amp; \frac{\sum{x_p^2}}{n}
-  \end{bmatrix}
-  $$
-
-  ```{r compute G}
-  # Compute G
-    G &lt;- Tmat / n
-
-  ```
-
-- **Compute $\Theta$** by sweeping G over the first row and column.
-
-  Let's use our `sweepGoodnight()` function to perform SWEEP[1]G and obtain $\Theta$
-
-  $$
-  \Theta =
-  \begin{bmatrix}
-  1 &amp; \mu_1 &amp; ... &amp;\mu_p\\
-  \mu_1 &amp; \sigma^2_1 &amp; ... &amp; \sigma_{1p}\\
-  ... &amp; ... &amp; ... &amp; ...\\
-  \mu_p &amp; \sigma_{1p} &amp; ... &amp; \sigma^2_{p}
-  \end{bmatrix}
-  $$
-
-  In R:
-  ```{r compute Theta}
-  # Sweep G over the first position
-    Theta &lt;- sweepGoodnight(G, 1)
-
-  # Check how it looks
-    Theta
-
-  # Check Theta is storing the means in the first row and column
-    colMeans(X)
-
-  # Check Theta is storing the ML covariance matrix everywhere else
-    cov(X) * (n-1) / n
-
-  ```
-
-  Pay attention to a couple of things:
-  - The covariance matrix stored in $\Theta$ is the Maximum Likelihood version (denominator should be `n` instead of the default `n-1`)
-  - We could have constructed the object `Theta` just by using `colMeans(X)` and `cov(X) * (n-1) / n` directly.
-    However, it is important to note the relationship between `Tmat`, `G`, and `Theta`.
-    In particular, pay attention to the fact that `Theta` is the result of sweeping `G` in the first position.
-    When I started looking into this topic I did not understand this, and I kept sweeping `Theta` over the first position, resulting in a confusing double sweeping of the first column and row.
-    I will get back to this point in a sec.
-
-### Estimate multivariate linear models
-
-Now let's see how we can use $\Theta$ to estimate any multivariate linear model involving the variables in our dataset.
-First, let's see how we would obtain these linear models in R with standard procedures.
-Say we want to regress V1 and V3 on V2, V4, and V5 from the `X` dataset.
-We will start by creating a formula for an `lm` function to estimate the model we want.
-
-```{r mlm definition}
-# Fit some multivariate linear models ------------------------------------------
-
-  # Define the dependent variables (dvs) of the multivairate linear models
-  dvs &lt;- c("V1", "V3")
-
-  # Define the predictors (ivs) of the multivairate linear models
-  ivs &lt;- c("V2", "V4", "V5")
-
-  # Create the formula (complicated but flexible way)
-  formula_mlm &lt;- paste0("cbind(",
-                       paste0(dvs, collapse = ", "),
-                       ") ~ ",
-                       paste0(ivs, collapse = " + "))
-
-  # Check the formula
-  formula_mlm
-
-```
-
-  Next, we will fit the multivariate linear model with the `lm()` function:
-
-```{r mlm estimation}
-  # Fit the model with the lm function
-  mlm0 &lt;- lm(formula_mlm, data = X)
-  coef(mlm0)
-
-```
-
-  These are our intercepts, and regression coefficients for the multivariate linear model.
-  We can sweep $\Theta$ over the positions of the independent variables to obtain the the same intercept and regression coefficients.
-  First, let's define a vector of positions to sweep over based on the variable names we stored in `ivs`.
-
-```{r define sweep over}
-# Fit some multivariate linear models using sweep ------------------------------
-
-  # Define positions to sweep over
-  sweep_over &lt;- which(colnames(Theta) %in% ivs)
-
-```
-
-Then, let's simply sweep our $\Theta$ over these positions.
-
-```{r sweep theta}
-  # Sweep theta
-  H &lt;- sweepGoodnight(Theta, K = sweep_over)
-
-  # Check out the result
-  H
-
-```
-
-Our regression coefficients are here in this new matrix.
-We just need to find them.
-We know that the dependent variables are V1 and V3, and that the independent variables are V2, V4, and V5.
-Let's index the rows of `H` with the names of the ivs (and the name of the intercept row), and the columns of `H` with the names of the dvs.
-
-```{r index H}
-  # Extract the regression coefficients from H
-  H[c("int", ivs), dvs]
-
-  # Compare with coefficients from lm function
-  coef(mlm0)
-
-```
-
-Note that, we are sweeping $\Theta$ only over the predictors, but we also get the estimate of the intercept.
-Remember that $\Theta$ is the result of sweeping G over the first position, which is the position where the intercept estimate appears.
-You could obtain the same result by directly sweeping G over position 1, and the position of the predictors.
-In code:
-
-```{r sweeping G as theta}
-  # Sweep G
-  sweepGoodnight(G, c(1, sweep_over))[c("int", ivs), dvs]
-
-```
-
-Therefore, you can think of finding the coefficients of a multivariate linear model using the sweep operator as:
-
-- SWEEP(1, $k_1, \dots, k_l$)[G] or as,
-- SWEEP($k_1, \dots, k_l$)[SWEEP(1)[G]] or as,
-- SWEEP($k_1, \dots, k_l$)[$\Theta$]
-
-with $k_1, \dots, k_l$ being the positions of the $K$ predictors in matrix $G$.
-
-Finally, just play around with what variables you consider as dvs and ivs.
-You will discover the magic of the sweep operator.
-
-```{r variable roles}
-# Play around with variable roles ------------------------------------------
-
-  # Define different dependent variables (dvs) for the multivairate linear models
-  dvs &lt;- c("V1", "V2", "V5")
-
-  # Define different predictors (ivs) for the multivairate linear models
-  ivs &lt;- c("V3", "V4")
-
-  # Create the formula (complicated but flexible way)
-  formula_mlm &lt;- paste0("cbind(",
-                       paste0(dvs, collapse = ", "),
-                       ") ~ ",
-                       paste0(ivs, collapse = " + "))
-
-  # Fit the model with the MLM
-  mlm1 &lt;- lm(formula_mlm, data = X)
-  coef(mlm1)
-
-  # Define positions to sweep over
-  sweep_over &lt;- which(colnames(Theta) %in% ivs)
-
-  # Sweep Theta over new positions
-  sweepGoodnight(Theta, K = sweep_over)[c("int", ivs), dvs]
-
-```
-
-# TL;DR, just give me the code!
-```{r TLDR, ref.label = knitr::all_labels(), echo=TRUE, eval=FALSE}
-```
-
-# References</code></pre>
+<div class="sourceCode" id="cb35" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> The sweep operator</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> Edoardo Costantini</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> '2021-11-17'</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="an">slug:</span><span class="co"> sweep</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> ["The EM algorithm", "Matrix algebra", "Statistics"]</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="an">bibliography:</span><span class="co"> ../../resources/bibshelf.bib</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introduction</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>The sweep operator is a matrix transformation commonly used to estimate regression models.</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>It performs elementary row operations on a $p \times p$ matrix which happens to be particularly useful to estimate multivariate linear models.</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>@littleRubin:2002 <span class="co">[</span><span class="ot">p148</span><span class="co">]</span> defined it as follows:</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; The sweep operator is defined for symmetric matrices as follows. A $p \times p$ symmetric matrix G is said to be swept on row and column k if it is replaced by another symmetric $p \times p$ matrix H with elements defined as follows:</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; $$</span></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; h_{kk} = -1/g_{kk}</span></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; $$</span></span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; $$</span></span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; h_{jk} = h_{kj} = \frac{g_{jk}}{g_{kk}}, j \neq k</span></span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; $$</span></span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; $$</span></span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; h_{jl} = g_{jl} - \frac{g_{jk}g_{kl}}{g_{kk}}, j \neq k, l \neq k</span></span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; $$</span></span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>The notation indicating this transformation is usually a variation of $\text{SWEEP}<span class="co">[</span><span class="ot">k</span><span class="co">]</span>G$, which can be read as sweeping matrix $G$ on column (and row) $k$.</span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>It is important to know that:</span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Any symmetric matrix $G$ can be swept over $l$ multiple positions.</span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>The notation $\text{SWEEP}<span class="co">[</span><span class="ot">k_1, k_2, ..., k_l</span><span class="co">]</span>G$ indicates successive applications of $\text{SWEEP}<span class="co">[</span><span class="ot">k</span><span class="co">]</span>G$ with $k = k_1, \dots, k_l$.</span>
+<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The sweep operator is commutative.</span>
+<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>Sweeps on multiple positions do not need to be carried out in any particular order:</span>
+<span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a>\text{SWEEP}<span class="co">[</span><span class="ot">k_2</span><span class="co">]</span>\text{SWEEP}<span class="co">[</span><span class="ot">k_1</span><span class="co">]</span>G = \text{SWEEP}<span class="co">[</span><span class="ot">k_1</span><span class="co">]</span>\text{SWEEP}<span class="co">[</span><span class="ot">k_2</span><span class="co">]</span>G</span>
+<span id="cb35-40"><a href="#cb35-40" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb35-41"><a href="#cb35-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-42"><a href="#cb35-42" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The $l$ sweeping positions do not need to be consecutive.</span>
+<span id="cb35-43"><a href="#cb35-43" aria-hidden="true" tabindex="-1"></a>For example, $k_1$ could indicate the third column and $k_2$ could indicate the sixth column.</span>
+<span id="cb35-44"><a href="#cb35-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-45"><a href="#cb35-45" aria-hidden="true" tabindex="-1"></a>In this post, I want to show how the sweep operator can be used to estimate the parameters of any linear regressions model.</span>
+<span id="cb35-46"><a href="#cb35-46" aria-hidden="true" tabindex="-1"></a>If you are interested in the mathematical details, I recommend reading the full sweep operator description in @goodnight:1979 <span class="co">[</span><span class="ot">p154</span><span class="co">]</span>, @schafer:1997, or @littleRubin:2002 <span class="co">[</span><span class="ot">p148</span><span class="co">]</span>.</span>
+<span id="cb35-47"><a href="#cb35-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-48"><a href="#cb35-48" aria-hidden="true" tabindex="-1"></a>@goodnight:1979 <span class="co">[</span><span class="ot">p150</span><span class="co">]</span> is a particularly helpful paper as it describes an easy implementation of the sweep operator.</span>
+<span id="cb35-49"><a href="#cb35-49" aria-hidden="true" tabindex="-1"></a>Following Goodnight, given an originally symmetric positive definite matrix G, $\text{SWEEP}<span class="co">[</span><span class="ot">k</span><span class="co">]</span>G$ modifies a matrix G as follows:</span>
+<span id="cb35-50"><a href="#cb35-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-51"><a href="#cb35-51" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Step 1: Let $D = g_{kk}$</span>
+<span id="cb35-52"><a href="#cb35-52" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Step 2: Divide row $k$ by $D$.</span>
+<span id="cb35-53"><a href="#cb35-53" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Step 3: For every other row $i \neq k$, let $B = g_{ik}$. Subtract $B \times \text{row } k$ from row $i$. Set $g_{ik} = -B/D$.</span>
+<span id="cb35-54"><a href="#cb35-54" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Step 4: Set $g_{kk} = 1/D$.</span>
+<span id="cb35-55"><a href="#cb35-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-56"><a href="#cb35-56" aria-hidden="true" tabindex="-1"></a><span class="fu"># Learn by coding</span></span>
+<span id="cb35-57"><a href="#cb35-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-58"><a href="#cb35-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## Coding a sweep function in R</span></span>
+<span id="cb35-59"><a href="#cb35-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-60"><a href="#cb35-60" aria-hidden="true" tabindex="-1"></a>Let's start by coding a simple function that performs the operations described by @goodnight:1979 <span class="co">[</span><span class="ot">p150</span><span class="co">]</span>.</span>
+<span id="cb35-61"><a href="#cb35-61" aria-hidden="true" tabindex="-1"></a>We want a function that takes as inputs a symmetric matrix (argument <span class="in">`G`</span>) and a vector of positions to sweep over (argument <span class="in">`K`</span>).</span>
+<span id="cb35-62"><a href="#cb35-62" aria-hidden="true" tabindex="-1"></a>The function below takes these two inputs and performs the four sweep steps for every element of <span class="in">`K`</span>.</span>
+<span id="cb35-63"><a href="#cb35-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-64"><a href="#cb35-64" aria-hidden="true" tabindex="-1"></a><span class="in">```{r sweep function}</span></span>
+<span id="cb35-65"><a href="#cb35-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Write an R function implementing SWEEP(k)[G] according to Goodnight ----------</span></span>
+<span id="cb35-66"><a href="#cb35-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-67"><a href="#cb35-67" aria-hidden="true" tabindex="-1"></a>sweepGoodnight <span class="ot">&lt;-</span> <span class="cf">function</span> (G, K){</span>
+<span id="cb35-68"><a href="#cb35-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-69"><a href="#cb35-69" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(k <span class="cf">in</span> K){</span>
+<span id="cb35-70"><a href="#cb35-70" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 1: Let D = g_kk</span></span>
+<span id="cb35-71"><a href="#cb35-71" aria-hidden="true" tabindex="-1"></a>    D <span class="ot">&lt;-</span> G[k, k]</span>
+<span id="cb35-72"><a href="#cb35-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-73"><a href="#cb35-73" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 2: Divide row k by D.</span></span>
+<span id="cb35-74"><a href="#cb35-74" aria-hidden="true" tabindex="-1"></a>    G[k, ] <span class="ot">&lt;-</span> G[k, ] <span class="sc">/</span> D</span>
+<span id="cb35-75"><a href="#cb35-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-76"><a href="#cb35-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 3:</span></span>
+<span id="cb35-77"><a href="#cb35-77" aria-hidden="true" tabindex="-1"></a>    <span class="co"># - For every other row i != k, let B = g_ik</span></span>
+<span id="cb35-78"><a href="#cb35-78" aria-hidden="true" tabindex="-1"></a>    <span class="co"># - Subtract B \times row k from row i.</span></span>
+<span id="cb35-79"><a href="#cb35-79" aria-hidden="true" tabindex="-1"></a>    <span class="co"># - set g_ik = -B/D.</span></span>
+<span id="cb35-80"><a href="#cb35-80" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(G)){</span>
+<span id="cb35-81"><a href="#cb35-81" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span>(i <span class="sc">!=</span> k){</span>
+<span id="cb35-82"><a href="#cb35-82" aria-hidden="true" tabindex="-1"></a>        B <span class="ot">&lt;-</span> G[i, k]</span>
+<span id="cb35-83"><a href="#cb35-83" aria-hidden="true" tabindex="-1"></a>        G[i, ] <span class="ot">&lt;-</span> G[i, ] <span class="sc">-</span> B <span class="sc">*</span> G[k, ]</span>
+<span id="cb35-84"><a href="#cb35-84" aria-hidden="true" tabindex="-1"></a>        G[i, k] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> B <span class="sc">/</span> D</span>
+<span id="cb35-85"><a href="#cb35-85" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb35-86"><a href="#cb35-86" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb35-87"><a href="#cb35-87" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 4: Set g_kk = 1/D</span></span>
+<span id="cb35-88"><a href="#cb35-88" aria-hidden="true" tabindex="-1"></a>    G[k, k] <span class="ot">=</span> <span class="dv">1</span><span class="sc">/</span>D</span>
+<span id="cb35-89"><a href="#cb35-89" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb35-90"><a href="#cb35-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-91"><a href="#cb35-91" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Output</span></span>
+<span id="cb35-92"><a href="#cb35-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(G)</span>
+<span id="cb35-93"><a href="#cb35-93" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb35-94"><a href="#cb35-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-95"><a href="#cb35-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-96"><a href="#cb35-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-97"><a href="#cb35-97" aria-hidden="true" tabindex="-1"></a>Let's check that this function returns what we want by comparing it with a function implemented by someone else.</span>
+<span id="cb35-98"><a href="#cb35-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-99"><a href="#cb35-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{r compare sweeps, warning = FALSE}</span></span>
+<span id="cb35-100"><a href="#cb35-100" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare sweepGoodnight with other implementations ----------------------------</span></span>
+<span id="cb35-101"><a href="#cb35-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-102"><a href="#cb35-102" aria-hidden="true" tabindex="-1"></a><span class="co"># Install the `fastmatrix` package (run if you don't have it yet)</span></span>
+<span id="cb35-103"><a href="#cb35-103" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("fastmatrix")</span></span>
+<span id="cb35-104"><a href="#cb35-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-105"><a href="#cb35-105" aria-hidden="true" tabindex="-1"></a><span class="co"># Load fastmatrix</span></span>
+<span id="cb35-106"><a href="#cb35-106" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fastmatrix)</span>
+<span id="cb35-107"><a href="#cb35-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-108"><a href="#cb35-108" aria-hidden="true" tabindex="-1"></a><span class="co"># Define an example dataset</span></span>
+<span id="cb35-109"><a href="#cb35-109" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>,</span>
+<span id="cb35-110"><a href="#cb35-110" aria-hidden="true" tabindex="-1"></a>              <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>,</span>
+<span id="cb35-111"><a href="#cb35-111" aria-hidden="true" tabindex="-1"></a>              <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">3</span>,</span>
+<span id="cb35-112"><a href="#cb35-112" aria-hidden="true" tabindex="-1"></a>              <span class="dv">1</span>, <span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>, <span class="dv">2</span>,</span>
+<span id="cb35-113"><a href="#cb35-113" aria-hidden="true" tabindex="-1"></a>              <span class="dv">1</span>, <span class="dv">2</span>,<span class="sc">-</span><span class="dv">1</span>, <span class="dv">2</span>,</span>
+<span id="cb35-114"><a href="#cb35-114" aria-hidden="true" tabindex="-1"></a>              <span class="dv">1</span>, <span class="dv">3</span>,<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-115"><a href="#cb35-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-116"><a href="#cb35-116" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the G matrix</span></span>
+<span id="cb35-117"><a href="#cb35-117" aria-hidden="true" tabindex="-1"></a>G <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(X)</span>
+<span id="cb35-118"><a href="#cb35-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-119"><a href="#cb35-119" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a vector of positions to sweep over</span></span>
+<span id="cb35-120"><a href="#cb35-120" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span></span>
+<span id="cb35-121"><a href="#cb35-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-122"><a href="#cb35-122" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform SWEEP[K]G with fastmatrix sweep.operator</span></span>
+<span id="cb35-123"><a href="#cb35-123" aria-hidden="true" tabindex="-1"></a>H_fm <span class="ot">&lt;-</span> <span class="fu">sweep.operator</span>(G, <span class="at">k =</span> K)</span>
+<span id="cb35-124"><a href="#cb35-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-125"><a href="#cb35-125" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform SWEEP[K]G with our sweepGoodnight implementation</span></span>
+<span id="cb35-126"><a href="#cb35-126" aria-hidden="true" tabindex="-1"></a>H_sg <span class="ot">&lt;-</span> <span class="fu">sweepGoodnight</span>(G, <span class="at">K =</span> K)</span>
+<span id="cb35-127"><a href="#cb35-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-128"><a href="#cb35-128" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare the two</span></span>
+<span id="cb35-129"><a href="#cb35-129" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(H_fm, H_sg)</span>
+<span id="cb35-130"><a href="#cb35-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-131"><a href="#cb35-131" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-132"><a href="#cb35-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-133"><a href="#cb35-133" aria-hidden="true" tabindex="-1"></a>The functions <span class="in">`fastmatrix::sweep.operator()`</span> and <span class="in">`sweepGoodnight()`</span> return the same <span class="in">`H`</span> matrix by sweeping matrix <span class="in">`G`</span> over the positions defined in <span class="in">`K`</span>.</span>
+<span id="cb35-134"><a href="#cb35-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-135"><a href="#cb35-135" aria-hidden="true" tabindex="-1"></a><span class="fu">## Using the sweep operator to estimate regression models</span></span>
+<span id="cb35-136"><a href="#cb35-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-137"><a href="#cb35-137" aria-hidden="true" tabindex="-1"></a>To understand how the sweep operator relates to the estimation of multivariate linear models, we will work with a data set used by @littleRubin:2002 <span class="co">[</span><span class="ot">p152</span><span class="co">]</span>.</span>
+<span id="cb35-138"><a href="#cb35-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-139"><a href="#cb35-139" aria-hidden="true" tabindex="-1"></a><span class="in">```{r load data}</span></span>
+<span id="cb35-140"><a href="#cb35-140" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Little Rubin data -------------------------------------------------------</span></span>
+<span id="cb35-141"><a href="#cb35-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-142"><a href="#cb35-142" aria-hidden="true" tabindex="-1"></a><span class="co"># Create data</span></span>
+<span id="cb35-143"><a href="#cb35-143" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(</span>
+<span id="cb35-144"><a href="#cb35-144" aria-hidden="true" tabindex="-1"></a>          <span class="fu">matrix</span>(</span>
+<span id="cb35-145"><a href="#cb35-145" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">1</span>, <span class="dv">11</span>, <span class="dv">11</span>, <span class="dv">7</span>, <span class="dv">11</span>, <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">21</span>, <span class="dv">1</span>, <span class="dv">11</span>, <span class="dv">10</span>, <span class="dv">26</span>,</span>
+<span id="cb35-146"><a href="#cb35-146" aria-hidden="true" tabindex="-1"></a>                           <span class="dv">29</span>, <span class="dv">56</span>, <span class="dv">31</span>, <span class="dv">52</span>, <span class="dv">55</span>, <span class="dv">71</span> ,<span class="dv">31</span>, <span class="dv">54</span>, <span class="dv">47</span>, <span class="dv">40</span>, <span class="dv">66</span>, <span class="dv">68</span>,</span>
+<span id="cb35-147"><a href="#cb35-147" aria-hidden="true" tabindex="-1"></a>                           <span class="dv">6</span>, <span class="dv">15</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">6</span>, <span class="dv">9</span>, <span class="dv">17</span>, <span class="dv">22</span>, <span class="dv">18</span>, <span class="dv">4</span>, <span class="dv">23</span>, <span class="dv">9</span>, <span class="dv">8</span>,</span>
+<span id="cb35-148"><a href="#cb35-148" aria-hidden="true" tabindex="-1"></a>                           <span class="dv">60</span>, <span class="dv">52</span>, <span class="dv">20</span>, <span class="dv">47</span>, <span class="dv">33</span>, <span class="dv">22</span>,<span class="dv">6</span>,<span class="dv">44</span>,<span class="dv">22</span>,<span class="dv">26</span>,<span class="dv">34</span>,<span class="dv">12</span>,<span class="dv">12</span>,</span>
+<span id="cb35-149"><a href="#cb35-149" aria-hidden="true" tabindex="-1"></a>                           <span class="fl">78.5</span>, <span class="fl">74.3</span>, <span class="fl">104.3</span>, <span class="fl">87.6</span>, <span class="fl">95.9</span>, <span class="fl">109.2</span>, <span class="fl">102.7</span>,</span>
+<span id="cb35-150"><a href="#cb35-150" aria-hidden="true" tabindex="-1"></a>                           <span class="fl">72.5</span>, <span class="fl">93.1</span>, <span class="fl">115.9</span>, <span class="fl">83.8</span>, <span class="fl">113.3</span>, <span class="fl">109.4</span>),</span>
+<span id="cb35-151"><a href="#cb35-151" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ncol =</span> <span class="dv">5</span></span>
+<span id="cb35-152"><a href="#cb35-152" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb35-153"><a href="#cb35-153" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-154"><a href="#cb35-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-155"><a href="#cb35-155" aria-hidden="true" tabindex="-1"></a><span class="co"># Store useful information</span></span>
+<span id="cb35-156"><a href="#cb35-156" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X)</span>
+<span id="cb35-157"><a href="#cb35-157" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
+<span id="cb35-158"><a href="#cb35-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-159"><a href="#cb35-159" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-160"><a href="#cb35-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-161"><a href="#cb35-161" aria-hidden="true" tabindex="-1"></a>Let's take a quick look at the first rows of the data to get an idea of what we are working with.</span>
+<span id="cb35-162"><a href="#cb35-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-163"><a href="#cb35-163" aria-hidden="true" tabindex="-1"></a><span class="in">```{r check X}</span></span>
+<span id="cb35-164"><a href="#cb35-164" aria-hidden="true" tabindex="-1"></a><span class="co"># Glance at the first 6 rows of the data</span></span>
+<span id="cb35-165"><a href="#cb35-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(X)</span>
+<span id="cb35-166"><a href="#cb35-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-167"><a href="#cb35-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-168"><a href="#cb35-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-169"><a href="#cb35-169" aria-hidden="true" tabindex="-1"></a><span class="fu">### Compute the augmented covariance matrix</span></span>
+<span id="cb35-170"><a href="#cb35-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-171"><a href="#cb35-171" aria-hidden="true" tabindex="-1"></a>To obtain the estimates of the regression coefficients of a multivariate linear model, we need to sweep the augmented covariance matrix of the data ($\Theta$) over the positions of the predictors.</span>
+<span id="cb35-172"><a href="#cb35-172" aria-hidden="true" tabindex="-1"></a>This is a $(p+1) \times (p+1)$ matrix storing the covariance matrix and the means of the dataset.</span>
+<span id="cb35-173"><a href="#cb35-173" aria-hidden="true" tabindex="-1"></a>It usually looks like this:</span>
+<span id="cb35-174"><a href="#cb35-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-175"><a href="#cb35-175" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb35-176"><a href="#cb35-176" aria-hidden="true" tabindex="-1"></a>\Theta =</span>
+<span id="cb35-177"><a href="#cb35-177" aria-hidden="true" tabindex="-1"></a>\begin{bmatrix}</span>
+<span id="cb35-178"><a href="#cb35-178" aria-hidden="true" tabindex="-1"></a>1 &amp; \mu_1 &amp; ... &amp;\mu_p<span class="sc">\\</span></span>
+<span id="cb35-179"><a href="#cb35-179" aria-hidden="true" tabindex="-1"></a>\mu_1 &amp; \sigma^2_1 &amp; ... &amp; \sigma_{1p}<span class="sc">\\</span></span>
+<span id="cb35-180"><a href="#cb35-180" aria-hidden="true" tabindex="-1"></a>... &amp; ... &amp; ... &amp; ...<span class="sc">\\</span></span>
+<span id="cb35-181"><a href="#cb35-181" aria-hidden="true" tabindex="-1"></a>\mu_p &amp; \sigma_{1p} &amp; ... &amp; \sigma^2_{p}</span>
+<span id="cb35-182"><a href="#cb35-182" aria-hidden="true" tabindex="-1"></a>\end{bmatrix}</span>
+<span id="cb35-183"><a href="#cb35-183" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb35-184"><a href="#cb35-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-185"><a href="#cb35-185" aria-hidden="true" tabindex="-1"></a>with $\mu_1, \dots, \mu_p$, $\sigma^2_1, \dots, \sigma^2_p$, and $\sigma_{jk}$ being the means, variances, and covariances of the variables in our dataset, respectively.</span>
+<span id="cb35-186"><a href="#cb35-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-187"><a href="#cb35-187" aria-hidden="true" tabindex="-1"></a>In R, we can obtain this matrix in just a few steps starting from our dataset <span class="in">`X`</span>:</span>
+<span id="cb35-188"><a href="#cb35-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-189"><a href="#cb35-189" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Augment the original data** with a column of 1s on the left.</span>
+<span id="cb35-190"><a href="#cb35-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-191"><a href="#cb35-191" aria-hidden="true" tabindex="-1"></a>  We can use the <span class="in">`cbind()`</span> function to append a column of 1s to the left of X.</span>
+<span id="cb35-192"><a href="#cb35-192" aria-hidden="true" tabindex="-1"></a>  Keep in mind that we need to perform matrix operations with the resulting object.</span>
+<span id="cb35-193"><a href="#cb35-193" aria-hidden="true" tabindex="-1"></a>  Therefore, we need to make sure we are working with an R object of the class <span class="in">`matrix`</span> instead of <span class="in">`data.frame`</span>.</span>
+<span id="cb35-194"><a href="#cb35-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-195"><a href="#cb35-195" aria-hidden="true" tabindex="-1"></a>  <span class="in">```{r augment X}</span></span>
+<span id="cb35-196"><a href="#cb35-196" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Obtain the augmented covariance matrix ---------------------------------------</span></span>
+<span id="cb35-197"><a href="#cb35-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-198"><a href="#cb35-198" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Augment X</span></span>
+<span id="cb35-199"><a href="#cb35-199" aria-hidden="true" tabindex="-1"></a>    X_aug <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">int =</span> <span class="dv">1</span>, <span class="fu">as.matrix</span>(X))</span>
+<span id="cb35-200"><a href="#cb35-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-201"><a href="#cb35-201" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Glance at the first 6 rows of X_aug</span></span>
+<span id="cb35-202"><a href="#cb35-202" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(X_aug)</span>
+<span id="cb35-203"><a href="#cb35-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-204"><a href="#cb35-204" aria-hidden="true" tabindex="-1"></a>  <span class="in">```</span></span>
+<span id="cb35-205"><a href="#cb35-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-206"><a href="#cb35-206" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Compute the **augmented matrix of [sufficient statistics](https://en.wikipedia.org/wiki/Sufficient_statistic) $T$**.</span>
+<span id="cb35-207"><a href="#cb35-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-208"><a href="#cb35-208" aria-hidden="true" tabindex="-1"></a>  $T$ is the matrix having as elements the sum of the cross-products of the columns of <span class="in">`X_aug`</span>.</span>
+<span id="cb35-209"><a href="#cb35-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-210"><a href="#cb35-210" aria-hidden="true" tabindex="-1"></a>  $$</span>
+<span id="cb35-211"><a href="#cb35-211" aria-hidden="true" tabindex="-1"></a>  T =</span>
+<span id="cb35-212"><a href="#cb35-212" aria-hidden="true" tabindex="-1"></a>  \begin{bmatrix}</span>
+<span id="cb35-213"><a href="#cb35-213" aria-hidden="true" tabindex="-1"></a>  n &amp; \sum{x_1} &amp; ... &amp; \sum{x_p}<span class="sc">\\</span></span>
+<span id="cb35-214"><a href="#cb35-214" aria-hidden="true" tabindex="-1"></a>  \sum{x_1} &amp; \sum{x_1^2} &amp; ... &amp; \sum{x_1 x_p}<span class="sc">\\</span></span>
+<span id="cb35-215"><a href="#cb35-215" aria-hidden="true" tabindex="-1"></a>  ... &amp; ... &amp; ... &amp; ...<span class="sc">\\</span></span>
+<span id="cb35-216"><a href="#cb35-216" aria-hidden="true" tabindex="-1"></a>  \sum{x_p} &amp; \sum{x_1 x_p} &amp; ... &amp; \sum{x_p^2}</span>
+<span id="cb35-217"><a href="#cb35-217" aria-hidden="true" tabindex="-1"></a>  \end{bmatrix}</span>
+<span id="cb35-218"><a href="#cb35-218" aria-hidden="true" tabindex="-1"></a>  $$</span>
+<span id="cb35-219"><a href="#cb35-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-220"><a href="#cb35-220" aria-hidden="true" tabindex="-1"></a>  Since the first column of <span class="in">`X_aug`</span> is a column of 1s, the first element of T is the number of rows in the data, the first column and rows store the sum of scores on each variable (sufficient statistics for the mean), and the other elements store the sum of products between the columns of <span class="in">`X`</span> (sufficient statistics for the covariance matrix of <span class="in">`X`</span>).</span>
+<span id="cb35-221"><a href="#cb35-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-222"><a href="#cb35-222" aria-hidden="true" tabindex="-1"></a>  In R, we can compute it easily with the cross-product function:</span>
+<span id="cb35-223"><a href="#cb35-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-224"><a href="#cb35-224" aria-hidden="true" tabindex="-1"></a>  <span class="in">```{r compute T}</span></span>
+<span id="cb35-225"><a href="#cb35-225" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute the matrix of sufficient statistics (T matrix)</span></span>
+<span id="cb35-226"><a href="#cb35-226" aria-hidden="true" tabindex="-1"></a>    Tmat <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(X_aug)</span>
+<span id="cb35-227"><a href="#cb35-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-228"><a href="#cb35-228" aria-hidden="true" tabindex="-1"></a>  <span class="in">```</span></span>
+<span id="cb35-229"><a href="#cb35-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-230"><a href="#cb35-230" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Transform T to G**</span>
+<span id="cb35-231"><a href="#cb35-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-232"><a href="#cb35-232" aria-hidden="true" tabindex="-1"></a>  $G$ is simply $T / n$</span>
+<span id="cb35-233"><a href="#cb35-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-234"><a href="#cb35-234" aria-hidden="true" tabindex="-1"></a>  $$</span>
+<span id="cb35-235"><a href="#cb35-235" aria-hidden="true" tabindex="-1"></a>  G =</span>
+<span id="cb35-236"><a href="#cb35-236" aria-hidden="true" tabindex="-1"></a>  \begin{bmatrix}</span>
+<span id="cb35-237"><a href="#cb35-237" aria-hidden="true" tabindex="-1"></a>   1 &amp; \mu_1 &amp; ... &amp;\mu_p<span class="sc">\\</span></span>
+<span id="cb35-238"><a href="#cb35-238" aria-hidden="true" tabindex="-1"></a>   \mu_1 &amp; \frac{\sum{x_1^2}}{n} &amp; ... &amp; \frac{\sum{x_1 x_p}}{n}<span class="sc">\\</span></span>
+<span id="cb35-239"><a href="#cb35-239" aria-hidden="true" tabindex="-1"></a>   ... &amp; ... &amp; ... &amp; ...<span class="sc">\\</span></span>
+<span id="cb35-240"><a href="#cb35-240" aria-hidden="true" tabindex="-1"></a>   \mu_p &amp; \frac{\sum{x_1 x_p}}{n} &amp; ... &amp; \frac{\sum{x_p^2}}{n}</span>
+<span id="cb35-241"><a href="#cb35-241" aria-hidden="true" tabindex="-1"></a>  \end{bmatrix}</span>
+<span id="cb35-242"><a href="#cb35-242" aria-hidden="true" tabindex="-1"></a>  $$</span>
+<span id="cb35-243"><a href="#cb35-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-244"><a href="#cb35-244" aria-hidden="true" tabindex="-1"></a>  <span class="in">```{r compute G}</span></span>
+<span id="cb35-245"><a href="#cb35-245" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute G</span></span>
+<span id="cb35-246"><a href="#cb35-246" aria-hidden="true" tabindex="-1"></a>    G <span class="ot">&lt;-</span> Tmat <span class="sc">/</span> n</span>
+<span id="cb35-247"><a href="#cb35-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-248"><a href="#cb35-248" aria-hidden="true" tabindex="-1"></a>  <span class="in">```</span></span>
+<span id="cb35-249"><a href="#cb35-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-250"><a href="#cb35-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Compute $\Theta$** by sweeping G over the first row and column.</span>
+<span id="cb35-251"><a href="#cb35-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-252"><a href="#cb35-252" aria-hidden="true" tabindex="-1"></a>  Let's use our <span class="in">`sweepGoodnight()`</span> function to perform SWEEP<span class="co">[</span><span class="ot">1</span><span class="co">]</span>G and obtain $\Theta$</span>
+<span id="cb35-253"><a href="#cb35-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-254"><a href="#cb35-254" aria-hidden="true" tabindex="-1"></a>  $$</span>
+<span id="cb35-255"><a href="#cb35-255" aria-hidden="true" tabindex="-1"></a>  \Theta =</span>
+<span id="cb35-256"><a href="#cb35-256" aria-hidden="true" tabindex="-1"></a>  \begin{bmatrix}</span>
+<span id="cb35-257"><a href="#cb35-257" aria-hidden="true" tabindex="-1"></a>  1 &amp; \mu_1 &amp; ... &amp;\mu_p<span class="sc">\\</span></span>
+<span id="cb35-258"><a href="#cb35-258" aria-hidden="true" tabindex="-1"></a>  \mu_1 &amp; \sigma^2_1 &amp; ... &amp; \sigma_{1p}<span class="sc">\\</span></span>
+<span id="cb35-259"><a href="#cb35-259" aria-hidden="true" tabindex="-1"></a>  ... &amp; ... &amp; ... &amp; ...<span class="sc">\\</span></span>
+<span id="cb35-260"><a href="#cb35-260" aria-hidden="true" tabindex="-1"></a>  \mu_p &amp; \sigma_{1p} &amp; ... &amp; \sigma^2_{p}</span>
+<span id="cb35-261"><a href="#cb35-261" aria-hidden="true" tabindex="-1"></a>  \end{bmatrix}</span>
+<span id="cb35-262"><a href="#cb35-262" aria-hidden="true" tabindex="-1"></a>  $$</span>
+<span id="cb35-263"><a href="#cb35-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-264"><a href="#cb35-264" aria-hidden="true" tabindex="-1"></a>  In R:</span>
+<span id="cb35-265"><a href="#cb35-265" aria-hidden="true" tabindex="-1"></a>  <span class="in">```{r compute Theta}</span></span>
+<span id="cb35-266"><a href="#cb35-266" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sweep G over the first position</span></span>
+<span id="cb35-267"><a href="#cb35-267" aria-hidden="true" tabindex="-1"></a>    Theta <span class="ot">&lt;-</span> <span class="fu">sweepGoodnight</span>(G, <span class="dv">1</span>)</span>
+<span id="cb35-268"><a href="#cb35-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-269"><a href="#cb35-269" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check how it looks</span></span>
+<span id="cb35-270"><a href="#cb35-270" aria-hidden="true" tabindex="-1"></a>    Theta</span>
+<span id="cb35-271"><a href="#cb35-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-272"><a href="#cb35-272" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check Theta is storing the means in the first row and column</span></span>
+<span id="cb35-273"><a href="#cb35-273" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colMeans</span>(X)</span>
+<span id="cb35-274"><a href="#cb35-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-275"><a href="#cb35-275" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check Theta is storing the ML covariance matrix everywhere else</span></span>
+<span id="cb35-276"><a href="#cb35-276" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cov</span>(X) <span class="sc">*</span> (n<span class="dv">-1</span>) <span class="sc">/</span> n</span>
+<span id="cb35-277"><a href="#cb35-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-278"><a href="#cb35-278" aria-hidden="true" tabindex="-1"></a>  <span class="in">```</span></span>
+<span id="cb35-279"><a href="#cb35-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-280"><a href="#cb35-280" aria-hidden="true" tabindex="-1"></a>  Pay attention to a couple of things:</span>
+<span id="cb35-281"><a href="#cb35-281" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>The covariance matrix stored in $\Theta$ is the Maximum Likelihood version (denominator should be <span class="in">`n`</span> instead of the default <span class="in">`n-1`</span>)</span>
+<span id="cb35-282"><a href="#cb35-282" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>We could have constructed the object <span class="in">`Theta`</span> just by using <span class="in">`colMeans(X)`</span> and <span class="in">`cov(X) * (n-1) / n`</span> directly.</span>
+<span id="cb35-283"><a href="#cb35-283" aria-hidden="true" tabindex="-1"></a>    However, it is important to note the relationship between <span class="in">`Tmat`</span>, <span class="in">`G`</span>, and <span class="in">`Theta`</span>.</span>
+<span id="cb35-284"><a href="#cb35-284" aria-hidden="true" tabindex="-1"></a>    In particular, pay attention to the fact that <span class="in">`Theta`</span> is the result of sweeping <span class="in">`G`</span> in the first position.</span>
+<span id="cb35-285"><a href="#cb35-285" aria-hidden="true" tabindex="-1"></a>    When I started looking into this topic I did not understand this, and I kept sweeping <span class="in">`Theta`</span> over the first position, resulting in a confusing double sweeping of the first column and row.</span>
+<span id="cb35-286"><a href="#cb35-286" aria-hidden="true" tabindex="-1"></a>    I will get back to this point in a sec.</span>
+<span id="cb35-287"><a href="#cb35-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-288"><a href="#cb35-288" aria-hidden="true" tabindex="-1"></a><span class="fu">### Estimate multivariate linear models</span></span>
+<span id="cb35-289"><a href="#cb35-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-290"><a href="#cb35-290" aria-hidden="true" tabindex="-1"></a>Now let's see how we can use $\Theta$ to estimate any multivariate linear model involving the variables in our dataset.</span>
+<span id="cb35-291"><a href="#cb35-291" aria-hidden="true" tabindex="-1"></a>First, let's see how we would obtain these linear models in R with standard procedures.</span>
+<span id="cb35-292"><a href="#cb35-292" aria-hidden="true" tabindex="-1"></a>Say we want to regress V1 and V3 on V2, V4, and V5 from the <span class="in">`X`</span> dataset.</span>
+<span id="cb35-293"><a href="#cb35-293" aria-hidden="true" tabindex="-1"></a>We will start by creating a formula for an <span class="in">`lm`</span> function to estimate the model we want.</span>
+<span id="cb35-294"><a href="#cb35-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-295"><a href="#cb35-295" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mlm definition}</span></span>
+<span id="cb35-296"><a href="#cb35-296" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit some multivariate linear models ------------------------------------------</span></span>
+<span id="cb35-297"><a href="#cb35-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-298"><a href="#cb35-298" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define the dependent variables (dvs) of the multivairate linear models</span></span>
+<span id="cb35-299"><a href="#cb35-299" aria-hidden="true" tabindex="-1"></a>  dvs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"V1"</span>, <span class="st">"V3"</span>)</span>
+<span id="cb35-300"><a href="#cb35-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-301"><a href="#cb35-301" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define the predictors (ivs) of the multivairate linear models</span></span>
+<span id="cb35-302"><a href="#cb35-302" aria-hidden="true" tabindex="-1"></a>  ivs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"V2"</span>, <span class="st">"V4"</span>, <span class="st">"V5"</span>)</span>
+<span id="cb35-303"><a href="#cb35-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-304"><a href="#cb35-304" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create the formula (complicated but flexible way)</span></span>
+<span id="cb35-305"><a href="#cb35-305" aria-hidden="true" tabindex="-1"></a>  formula_mlm <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"cbind("</span>,</span>
+<span id="cb35-306"><a href="#cb35-306" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">paste0</span>(dvs, <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb35-307"><a href="#cb35-307" aria-hidden="true" tabindex="-1"></a>                       <span class="st">") ~ "</span>,</span>
+<span id="cb35-308"><a href="#cb35-308" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">paste0</span>(ivs, <span class="at">collapse =</span> <span class="st">" + "</span>))</span>
+<span id="cb35-309"><a href="#cb35-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-310"><a href="#cb35-310" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check the formula</span></span>
+<span id="cb35-311"><a href="#cb35-311" aria-hidden="true" tabindex="-1"></a>  formula_mlm</span>
+<span id="cb35-312"><a href="#cb35-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-313"><a href="#cb35-313" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-314"><a href="#cb35-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-315"><a href="#cb35-315" aria-hidden="true" tabindex="-1"></a>  Next, we will fit the multivariate linear model with the <span class="in">`lm()`</span> function:</span>
+<span id="cb35-316"><a href="#cb35-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-317"><a href="#cb35-317" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mlm estimation}</span></span>
+<span id="cb35-318"><a href="#cb35-318" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit the model with the lm function</span></span>
+<span id="cb35-319"><a href="#cb35-319" aria-hidden="true" tabindex="-1"></a>  mlm0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(formula_mlm, <span class="at">data =</span> X)</span>
+<span id="cb35-320"><a href="#cb35-320" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(mlm0)</span>
+<span id="cb35-321"><a href="#cb35-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-322"><a href="#cb35-322" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-323"><a href="#cb35-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-324"><a href="#cb35-324" aria-hidden="true" tabindex="-1"></a>  These are our intercepts, and regression coefficients for the multivariate linear model.</span>
+<span id="cb35-325"><a href="#cb35-325" aria-hidden="true" tabindex="-1"></a>  We can sweep $\Theta$ over the positions of the independent variables to obtain the the same intercept and regression coefficients.</span>
+<span id="cb35-326"><a href="#cb35-326" aria-hidden="true" tabindex="-1"></a>  First, let's define a vector of positions to sweep over based on the variable names we stored in <span class="in">`ivs`</span>.</span>
+<span id="cb35-327"><a href="#cb35-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-328"><a href="#cb35-328" aria-hidden="true" tabindex="-1"></a><span class="in">```{r define sweep over}</span></span>
+<span id="cb35-329"><a href="#cb35-329" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit some multivariate linear models using sweep ------------------------------</span></span>
+<span id="cb35-330"><a href="#cb35-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-331"><a href="#cb35-331" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define positions to sweep over</span></span>
+<span id="cb35-332"><a href="#cb35-332" aria-hidden="true" tabindex="-1"></a>  sweep_over <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">colnames</span>(Theta) <span class="sc">%in%</span> ivs)</span>
+<span id="cb35-333"><a href="#cb35-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-334"><a href="#cb35-334" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-335"><a href="#cb35-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-336"><a href="#cb35-336" aria-hidden="true" tabindex="-1"></a>Then, let's simply sweep our $\Theta$ over these positions.</span>
+<span id="cb35-337"><a href="#cb35-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-338"><a href="#cb35-338" aria-hidden="true" tabindex="-1"></a><span class="in">```{r sweep theta}</span></span>
+<span id="cb35-339"><a href="#cb35-339" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sweep theta</span></span>
+<span id="cb35-340"><a href="#cb35-340" aria-hidden="true" tabindex="-1"></a>  H <span class="ot">&lt;-</span> <span class="fu">sweepGoodnight</span>(Theta, <span class="at">K =</span> sweep_over)</span>
+<span id="cb35-341"><a href="#cb35-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-342"><a href="#cb35-342" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check out the result</span></span>
+<span id="cb35-343"><a href="#cb35-343" aria-hidden="true" tabindex="-1"></a>  H</span>
+<span id="cb35-344"><a href="#cb35-344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-345"><a href="#cb35-345" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-346"><a href="#cb35-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-347"><a href="#cb35-347" aria-hidden="true" tabindex="-1"></a>Our regression coefficients are here in this new matrix.</span>
+<span id="cb35-348"><a href="#cb35-348" aria-hidden="true" tabindex="-1"></a>We just need to find them.</span>
+<span id="cb35-349"><a href="#cb35-349" aria-hidden="true" tabindex="-1"></a>We know that the dependent variables are V1 and V3, and that the independent variables are V2, V4, and V5.</span>
+<span id="cb35-350"><a href="#cb35-350" aria-hidden="true" tabindex="-1"></a>Let's index the rows of <span class="in">`H`</span> with the names of the ivs (and the name of the intercept row), and the columns of <span class="in">`H`</span> with the names of the dvs.</span>
+<span id="cb35-351"><a href="#cb35-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-352"><a href="#cb35-352" aria-hidden="true" tabindex="-1"></a><span class="in">```{r index H}</span></span>
+<span id="cb35-353"><a href="#cb35-353" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract the regression coefficients from H</span></span>
+<span id="cb35-354"><a href="#cb35-354" aria-hidden="true" tabindex="-1"></a>  H[<span class="fu">c</span>(<span class="st">"int"</span>, ivs), dvs]</span>
+<span id="cb35-355"><a href="#cb35-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-356"><a href="#cb35-356" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compare with coefficients from lm function</span></span>
+<span id="cb35-357"><a href="#cb35-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(mlm0)</span>
+<span id="cb35-358"><a href="#cb35-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-359"><a href="#cb35-359" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-360"><a href="#cb35-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-361"><a href="#cb35-361" aria-hidden="true" tabindex="-1"></a>Note that, we are sweeping $\Theta$ only over the predictors, but we also get the estimate of the intercept.</span>
+<span id="cb35-362"><a href="#cb35-362" aria-hidden="true" tabindex="-1"></a>Remember that $\Theta$ is the result of sweeping G over the first position, which is the position where the intercept estimate appears.</span>
+<span id="cb35-363"><a href="#cb35-363" aria-hidden="true" tabindex="-1"></a>You could obtain the same result by directly sweeping G over position 1, and the position of the predictors.</span>
+<span id="cb35-364"><a href="#cb35-364" aria-hidden="true" tabindex="-1"></a>In code:</span>
+<span id="cb35-365"><a href="#cb35-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-366"><a href="#cb35-366" aria-hidden="true" tabindex="-1"></a><span class="in">```{r sweeping G as theta}</span></span>
+<span id="cb35-367"><a href="#cb35-367" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sweep G</span></span>
+<span id="cb35-368"><a href="#cb35-368" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sweepGoodnight</span>(G, <span class="fu">c</span>(<span class="dv">1</span>, sweep_over))[<span class="fu">c</span>(<span class="st">"int"</span>, ivs), dvs]</span>
+<span id="cb35-369"><a href="#cb35-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-370"><a href="#cb35-370" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-371"><a href="#cb35-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-372"><a href="#cb35-372" aria-hidden="true" tabindex="-1"></a>Therefore, you can think of finding the coefficients of a multivariate linear model using the sweep operator as:</span>
+<span id="cb35-373"><a href="#cb35-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-374"><a href="#cb35-374" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SWEEP(1, $k_1, \dots, k_l$)<span class="co">[</span><span class="ot">G</span><span class="co">]</span> or as,</span>
+<span id="cb35-375"><a href="#cb35-375" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SWEEP($k_1, \dots, k_l$)<span class="co">[</span><span class="ot">SWEEP(1)[G]</span><span class="co">]</span> or as,</span>
+<span id="cb35-376"><a href="#cb35-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SWEEP($k_1, \dots, k_l$)<span class="co">[</span><span class="ot">$\Theta$</span><span class="co">]</span></span>
+<span id="cb35-377"><a href="#cb35-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-378"><a href="#cb35-378" aria-hidden="true" tabindex="-1"></a>with $k_1, \dots, k_l$ being the positions of the $K$ predictors in matrix $G$.</span>
+<span id="cb35-379"><a href="#cb35-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-380"><a href="#cb35-380" aria-hidden="true" tabindex="-1"></a>Finally, just play around with what variables you consider as dvs and ivs.</span>
+<span id="cb35-381"><a href="#cb35-381" aria-hidden="true" tabindex="-1"></a>You will discover the magic of the sweep operator.</span>
+<span id="cb35-382"><a href="#cb35-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-383"><a href="#cb35-383" aria-hidden="true" tabindex="-1"></a><span class="in">```{r variable roles}</span></span>
+<span id="cb35-384"><a href="#cb35-384" aria-hidden="true" tabindex="-1"></a><span class="co"># Play around with variable roles ------------------------------------------</span></span>
+<span id="cb35-385"><a href="#cb35-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-386"><a href="#cb35-386" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define different dependent variables (dvs) for the multivairate linear models</span></span>
+<span id="cb35-387"><a href="#cb35-387" aria-hidden="true" tabindex="-1"></a>  dvs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"V1"</span>, <span class="st">"V2"</span>, <span class="st">"V5"</span>)</span>
+<span id="cb35-388"><a href="#cb35-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-389"><a href="#cb35-389" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define different predictors (ivs) for the multivairate linear models</span></span>
+<span id="cb35-390"><a href="#cb35-390" aria-hidden="true" tabindex="-1"></a>  ivs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"V3"</span>, <span class="st">"V4"</span>)</span>
+<span id="cb35-391"><a href="#cb35-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-392"><a href="#cb35-392" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create the formula (complicated but flexible way)</span></span>
+<span id="cb35-393"><a href="#cb35-393" aria-hidden="true" tabindex="-1"></a>  formula_mlm <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"cbind("</span>,</span>
+<span id="cb35-394"><a href="#cb35-394" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">paste0</span>(dvs, <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb35-395"><a href="#cb35-395" aria-hidden="true" tabindex="-1"></a>                       <span class="st">") ~ "</span>,</span>
+<span id="cb35-396"><a href="#cb35-396" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">paste0</span>(ivs, <span class="at">collapse =</span> <span class="st">" + "</span>))</span>
+<span id="cb35-397"><a href="#cb35-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-398"><a href="#cb35-398" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit the model with the MLM</span></span>
+<span id="cb35-399"><a href="#cb35-399" aria-hidden="true" tabindex="-1"></a>  mlm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(formula_mlm, <span class="at">data =</span> X)</span>
+<span id="cb35-400"><a href="#cb35-400" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(mlm1)</span>
+<span id="cb35-401"><a href="#cb35-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-402"><a href="#cb35-402" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define positions to sweep over</span></span>
+<span id="cb35-403"><a href="#cb35-403" aria-hidden="true" tabindex="-1"></a>  sweep_over <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">colnames</span>(Theta) <span class="sc">%in%</span> ivs)</span>
+<span id="cb35-404"><a href="#cb35-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-405"><a href="#cb35-405" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sweep Theta over new positions</span></span>
+<span id="cb35-406"><a href="#cb35-406" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sweepGoodnight</span>(Theta, <span class="at">K =</span> sweep_over)[<span class="fu">c</span>(<span class="st">"int"</span>, ivs), dvs]</span>
+<span id="cb35-407"><a href="#cb35-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-408"><a href="#cb35-408" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-409"><a href="#cb35-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-410"><a href="#cb35-410" aria-hidden="true" tabindex="-1"></a><span class="fu"># TL;DR, just give me the code!</span></span>
+<span id="cb35-411"><a href="#cb35-411" aria-hidden="true" tabindex="-1"></a><span class="in">```{r TLDR, ref.label = knitr::all_labels(), echo=TRUE, eval=FALSE}</span></span>
+<span id="cb35-412"><a href="#cb35-412" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb35-413"><a href="#cb35-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-414"><a href="#cb35-414" aria-hidden="true" tabindex="-1"></a><span class="fu"># References</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

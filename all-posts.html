@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.1.251">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -17,7 +17,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -59,7 +59,8 @@ ul.task-list li input[type="checkbox"] {
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script>
@@ -92,6 +93,7 @@ ul.task-list li input[type="checkbox"] {
   })
   </script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="styles.css">
@@ -108,40 +110,43 @@ ul.task-list li input[type="checkbox"] {
     <span class="navbar-title">Edoardo Costantini</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-digital-garden" role="button" data-bs-toggle="dropdown" aria-expanded="false">Digital garden</a>
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-digital-garden" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Digital garden</span>
+    </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-digital-garden">    
         <li>
-    <a class="dropdown-item" href="./all-posts.html">
+    <a class="dropdown-item" href="./all-posts.html" rel="" target="">
  <span class="dropdown-text">All posts</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./series-pca.html">
+    <a class="dropdown-item" href="./series-pca.html" rel="" target="">
  <span class="dropdown-text">A primer on PCA</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./series-sm-course.html">
+    <a class="dropdown-item" href="./series-sm-course.html" rel="" target="">
  <span class="dropdown-text">Course: Statistics and Methodology</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./series-sampling.html">
+    <a class="dropdown-item" href="./series-sampling.html" rel="" target="">
  <span class="dropdown-text">Sampling</span></a>
   </li>  
     </ul>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="./research.html">Research</a>
+    <a class="nav-link" href="./research.html" rel="" target="">
+ <span class="menu-text">Research</span></a>
   </li>  
 </ul>
-              <div class="quarto-toggle-container">
-                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
-              </div>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools ms-auto">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -158,6 +163,7 @@ ul.task-list li input[type="checkbox"] {
   <div class="quarto-title-meta">
 
       
+    
       
     </div>
     
@@ -165,7 +171,7 @@ ul.task-list li input[type="checkbox"] {
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
     </div>
 <!-- main -->
@@ -213,160 +219,160 @@ Categories
 </tr>
 </thead>
 <tbody class="list">
-<tr data-index="0" data-categories="Supervised learning" data-listing-date-sort="1670886000000" data-listing-file-modified-sort="1670936811831" data-listing-reading-time-sort="8.45" data-listing-title-sort="Principal covariates regression in R" data-listing-filename-sort="pcovr.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="0" data-categories="Supervised learning" data-listing-date-sort="1670886000000" data-listing-file-modified-sort="1687108208191" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-title-sort="Principal covariates regression in R" data-listing-filename-sort="pcovr.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Dec 13, 2022
+<td>
+<span class="listing-date">Dec 13, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-pca-primer/pcovr.html" class="title">Principal covariates regression in R</a>
+<td>
+<a href="./posts/series-pca-primer/pcovr.html" class="title listing-title">Principal covariates regression in R</a>
 </td>
-<td class="listing-categories">
-Supervised learning
+<td>
+<span class="listing-categories">Supervised learning</span>
 </td>
 </tr>
-<tr data-index="1" data-categories="PCA,Interpretation" data-listing-date-sort="1670454000000" data-listing-file-modified-sort="1677677929811" data-listing-reading-time-sort="3.83" data-listing-title-sort="How to obtain PCA biplots" data-listing-filename-sort="pca-biplots.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="1" data-categories="PCA,Interpretation" data-listing-date-sort="1670454000000" data-listing-file-modified-sort="1687108208189" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-title-sort="How to obtain PCA biplots" data-listing-filename-sort="pca-biplots.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Dec 8, 2022
+<td>
+<span class="listing-date">Dec 8, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-pca-primer/pca-biplots.html" class="title">How to obtain PCA biplots</a>
+<td>
+<a href="./posts/series-pca-primer/pca-biplots.html" class="title listing-title">How to obtain PCA biplots</a>
 </td>
-<td class="listing-categories">
-PCA,Interpretation
+<td>
+<span class="listing-categories">PCA,Interpretation</span>
 </td>
 </tr>
-<tr data-index="2" data-categories="distributions" data-listing-date-sort="1666735200000" data-listing-file-modified-sort="1667916616184" data-listing-reading-time-sort="5.52" data-listing-title-sort="Normal to anything (NORTA) sampling" data-listing-filename-sort="norta.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="2" data-categories="distributions" data-listing-date-sort="1666735200000" data-listing-file-modified-sort="1687108208195" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-title-sort="Normal to anything (NORTA) sampling" data-listing-filename-sort="norta.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Oct 26, 2022
+<td>
+<span class="listing-date">Oct 26, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-sampling/norta.html" class="title">Normal to anything (NORTA) sampling</a>
+<td>
+<a href="./posts/series-sampling/norta.html" class="title listing-title">Normal to anything (NORTA) sampling</a>
 </td>
-<td class="listing-categories">
-distributions
+<td>
+<span class="listing-categories">distributions</span>
 </td>
 </tr>
-<tr data-index="3" data-categories="Statistics,Distributions" data-listing-date-sort="1662415200000" data-listing-file-modified-sort="1666773607658" data-listing-reading-time-sort="3.535" data-listing-title-sort="Understanding quantiles" data-listing-filename-sort="qunatiles.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="3" data-categories="Statistics,Distributions" data-listing-date-sort="1662415200000" data-listing-file-modified-sort="1687108208195" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-title-sort="Understanding quantiles" data-listing-filename-sort="qunatiles.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Sep 6, 2022
+<td>
+<span class="listing-date">Sep 6, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-sm-course/qunatiles.html" class="title">Understanding quantiles</a>
+<td>
+<a href="./posts/series-sm-course/qunatiles.html" class="title listing-title">Understanding quantiles</a>
 </td>
-<td class="listing-categories">
-Statistics,Distributions
+<td>
+<span class="listing-categories">Statistics,Distributions</span>
 </td>
 </tr>
-<tr data-index="4" data-categories="Plotting" data-listing-date-sort="1662328800000" data-listing-file-modified-sort="1667377501571" data-listing-reading-time-sort="3.59" data-listing-title-sort="Understanding boxplots" data-listing-filename-sort="boxplots.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="4" data-categories="Plotting" data-listing-date-sort="1662328800000" data-listing-file-modified-sort="1687108208195" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-title-sort="Understanding boxplots" data-listing-filename-sort="boxplots.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Sep 5, 2022
+<td>
+<span class="listing-date">Sep 5, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-sm-course/boxplots.html" class="title">Understanding boxplots</a>
+<td>
+<a href="./posts/series-sm-course/boxplots.html" class="title listing-title">Understanding boxplots</a>
 </td>
-<td class="listing-categories">
-Plotting
+<td>
+<span class="listing-categories">Plotting</span>
 </td>
 </tr>
-<tr data-index="5" data-categories="Knowledge snippet,linear models,ols" data-listing-date-sort="1655848800000" data-listing-file-modified-sort="1666773882541" data-listing-reading-time-sort="1.8" data-listing-title-sort="Understanding the residual standard error" data-listing-filename-sort="se-resid.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="5" data-categories="Knowledge snippet,linear models,ols" data-listing-date-sort="1655848800000" data-listing-file-modified-sort="1687108208196" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-title-sort="Understanding the residual standard error" data-listing-filename-sort="se-resid.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Jun 22, 2022
+<td>
+<span class="listing-date">Jun 22, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-sm-course/se-resid.html" class="title">Understanding the residual standard error</a>
+<td>
+<a href="./posts/series-sm-course/se-resid.html" class="title listing-title">Understanding the residual standard error</a>
 </td>
-<td class="listing-categories">
-Knowledge snippet,linear models,ols
+<td>
+<span class="listing-categories">Knowledge snippet,linear models,ols</span>
 </td>
 </tr>
-<tr data-index="6" data-categories="Supervised learning" data-listing-date-sort="1655071200000" data-listing-file-modified-sort="1671704408170" data-listing-reading-time-sort="22.15" data-listing-title-sort="Implementing a PLS alogirthm in R" data-listing-filename-sort="pls.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="6" data-categories="Supervised learning" data-listing-date-sort="1655071200000" data-listing-file-modified-sort="1687108208191" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="23" data-listing-title-sort="Implementing a PLS alogirthm in R" data-listing-filename-sort="pls.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Jun 13, 2022
+<td>
+<span class="listing-date">Jun 13, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-pca-primer/pls.html" class="title">Implementing a PLS alogirthm in R</a>
+<td>
+<a href="./posts/series-pca-primer/pls.html" class="title listing-title">Implementing a PLS alogirthm in R</a>
 </td>
-<td class="listing-categories">
-Supervised learning
+<td>
+<span class="listing-categories">Supervised learning</span>
 </td>
 </tr>
-<tr data-index="7" data-categories="PCA,Tutorials" data-listing-date-sort="1652652000000" data-listing-file-modified-sort="1666773920328" data-listing-reading-time-sort="1.42" data-listing-title-sort="Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test" data-listing-filename-sort="pca-non-graphical-solutions.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="7" data-categories="PCA,Tutorials" data-listing-date-sort="1652652000000" data-listing-file-modified-sort="1687108208190" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-title-sort="Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test" data-listing-filename-sort="pca-non-graphical-solutions.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-May 16, 2022
+<td>
+<span class="listing-date">May 16, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-pca-primer/pca-non-graphical-solutions.html" class="title">Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test</a>
+<td>
+<a href="./posts/series-pca-primer/pca-non-graphical-solutions.html" class="title listing-title">Deciding the Number of PCs with Non-Graphical Solutions to the Scree Test</a>
 </td>
-<td class="listing-categories">
-PCA,Tutorials
+<td>
+<span class="listing-categories">PCA,Tutorials</span>
 </td>
 </tr>
-<tr data-index="8" data-categories="PCA" data-listing-date-sort="1652392800000" data-listing-file-modified-sort="1676884403402" data-listing-reading-time-sort="5.82" data-listing-title-sort="Principal Component Analysis, SVD, and EVD" data-listing-filename-sort="pca-svd.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="8" data-categories="PCA" data-listing-date-sort="1652392800000" data-listing-file-modified-sort="1687108208190" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-title-sort="Principal Component Analysis, SVD, and EVD" data-listing-filename-sort="pca-svd.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-May 13, 2022
+<td>
+<span class="listing-date">May 13, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-pca-primer/pca-svd.html" class="title">Principal Component Analysis, SVD, and EVD</a>
+<td>
+<a href="./posts/series-pca-primer/pca-svd.html" class="title listing-title">Principal Component Analysis, SVD, and EVD</a>
 </td>
-<td class="listing-categories">
-PCA
+<td>
+<span class="listing-categories">PCA</span>
 </td>
 </tr>
-<tr data-index="9" data-categories="Machine Learning" data-listing-date-sort="1650578400000" data-listing-file-modified-sort="1667402148208" data-listing-reading-time-sort="5.045" data-listing-title-sort="Cross-entropy as a measure of predictive performance" data-listing-filename-sort="crossentropy.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="9" data-categories="Machine Learning" data-listing-date-sort="1650578400000" data-listing-file-modified-sort="1687108208185" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-title-sort="Cross-entropy as a measure of predictive performance" data-listing-filename-sort="crossentropy.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Apr 22, 2022
+<td>
+<span class="listing-date">Apr 22, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-knowledge/crossentropy.html" class="title">Cross-entropy as a measure of predictive performance</a>
+<td>
+<a href="./posts/series-knowledge/crossentropy.html" class="title listing-title">Cross-entropy as a measure of predictive performance</a>
 </td>
-<td class="listing-categories">
-Machine Learning
+<td>
+<span class="listing-categories">Machine Learning</span>
 </td>
 </tr>
-<tr data-index="10" data-categories="Statistics" data-listing-date-sort="1647212400000" data-listing-file-modified-sort="1667401467685" data-listing-reading-time-sort="7.99" data-listing-title-sort="Estimating the weighted covariance matrix in R" data-listing-filename-sort="covmatwt.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="10" data-categories="Statistics" data-listing-date-sort="1647212400000" data-listing-file-modified-sort="1687108208185" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-title-sort="Estimating the weighted covariance matrix in R" data-listing-filename-sort="covmatwt.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Mar 14, 2022
+<td>
+<span class="listing-date">Mar 14, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-knowledge/covmatwt.html" class="title">Estimating the weighted covariance matrix in R</a>
+<td>
+<a href="./posts/series-knowledge/covmatwt.html" class="title listing-title">Estimating the weighted covariance matrix in R</a>
 </td>
-<td class="listing-categories">
-Statistics
+<td>
+<span class="listing-categories">Statistics</span>
 </td>
 </tr>
-<tr data-index="11" data-categories="Penalty" data-listing-date-sort="1646002800000" data-listing-file-modified-sort="1677692848322" data-listing-reading-time-sort="9.36" data-listing-title-sort="Estimating ridge regression in R" data-listing-filename-sort="ridge.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="11" data-categories="Penalty" data-listing-date-sort="1646002800000" data-listing-file-modified-sort="1687108208187" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-title-sort="Estimating ridge regression in R" data-listing-filename-sort="ridge.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Feb 28, 2022
+<td>
+<span class="listing-date">Feb 28, 2022</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-knowledge/ridge.html" class="title">Estimating ridge regression in R</a>
+<td>
+<a href="./posts/series-knowledge/ridge.html" class="title listing-title">Estimating ridge regression in R</a>
 </td>
-<td class="listing-categories">
-Penalty
+<td>
+<span class="listing-categories">Penalty</span>
 </td>
 </tr>
-<tr data-index="12" data-categories="The EM algorithm,Matrix algebra,Statistics" data-listing-date-sort="1637103600000" data-listing-file-modified-sort="1670845131149" data-listing-reading-time-sort="13.17" data-listing-title-sort="The sweep operator" data-listing-filename-sort="sweep.qmd" onclick="href = this.querySelector('a').getAttribute('href');
+<tr data-index="12" data-categories="The EM algorithm,Matrix algebra,Statistics" data-listing-date-sort="1637103600000" data-listing-file-modified-sort="1687108208184" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-title-sort="The sweep operator" data-listing-filename-sort="sweep.qmd" onclick="href = this.querySelector('a').getAttribute('href');
  if (href) { window.location=href ; return false; }">
-<td class="listing-date">
-Nov 17, 2021
+<td>
+<span class="listing-date">Nov 17, 2021</span>
 </td>
-<td class="listing-title">
-<a href="./posts/series-em/sweep.html" class="title">The sweep operator</a>
+<td>
+<a href="./posts/series-em/sweep.html" class="title listing-title">The sweep operator</a>
 </td>
-<td class="listing-categories">
-The EM algorithm,Matrix algebra,Statistics
+<td>
+<span class="listing-categories">The EM algorithm,Matrix algebra,Statistics</span>
 </td>
 </tr>
 </tbody>
@@ -508,7 +514,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   // Switch to dark mode if need be
   if (hasAlternateSentinel()) {
     toggleColorMode(true);
-  } 
+  } else {
+    toggleColorMode(false);
+  }
   const icon = "";
   const anchorJS = new window.AnchorJS();
   anchorJS.options = {
@@ -516,9 +524,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -530,7 +552,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
     setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
@@ -566,24 +605,128 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
-    tippyHover(ref, function() {
-      var popup = window.document.createElement('div');
-      cites.forEach(function(cite) {
-        var citeDiv = window.document.createElement('div');
-        citeDiv.classList.add('hanging-indent');
-        citeDiv.classList.add('csl-entry');
-        var biblioDiv = window.document.getElementById('ref-' + cite);
-        if (biblioDiv) {
-          citeDiv.innerHTML = biblioDiv.innerHTML;
-        }
-        popup.appendChild(citeDiv);
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
       });
-      return popup.innerHTML;
-    });
+    }
   }
 });
 </script>
