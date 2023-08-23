@@ -221,14 +221,14 @@
     "href": "research/mi-pcr.html",
     "title": "Solving the many variables problem in MICE with principal component regression.",
     "section": "",
-    "text": "Citation\n\nCostantini, Edoardo, Kyle M Lang, Klaas Sijtsma, and Tim Reeskens. n.d. “Solving the Many-Variables Problem in MICE with Principal Component Regression.” Behavior Research Methods. https://doi.org/doi.org/10.3758/s13428-023-02117-1."
+    "text": "Citation\n\nCostantini, Edoardo, Kyle M Lang, Klaas Sijtsma, and Tim Reeskens. 2023. “Solving the Many-Variables Problem in MICE with Principal Component Regression.” Behavior Research Methods. https://doi.org/doi.org/10.3758/s13428-023-02117-1."
   },
   {
     "objectID": "research/mi-spcr.html",
     "href": "research/mi-spcr.html",
     "title": "Supervised principal component regression imputation in MICE.",
     "section": "",
-    "text": "Citation\n\nCostantini, Edoardo, Kyle M Lang, Tim Reeskens, and Klaas Sijtsma. 2022. “Supervised Principal Component Regression for Multiple Imputation by Chained Equations.” Work in Progress."
+    "text": "Citation\n\nCostantini, Edoardo, Kyle M Lang, Tim Reeskens, and Klaas Sijtsma. 2022. “Supervised Dimensionality Reduction for Multiple Imputation by Chained Equations.” Work in Progress."
   },
   {
     "objectID": "research/mi-hd.html",
@@ -242,7 +242,7 @@
     "href": "research.html",
     "title": "Research",
     "section": "",
-    "text": "Order By\n       Default\n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Title\n        \n     \n  \n\n\n\n\n\n\nDate\n\n\nTitle\n\n\nCategories\n\n\n\n\n\n\n2023\n\n\nSupervised principal component regression imputation in MICE.\n\n\nWork in progress\n\n\n\n\n2023\n\n\nSolving the many variables problem in MICE with principal component regression.\n\n\nPublished\n\n\n\n\n2022\n\n\nHigh-dimensional imputation for the social sciences: a comparison of state-of-the-art methods.\n\n\nWork in progress\n\n\n\n\n\n\nNo matching items"
+    "text": "Order By\n       Default\n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Title\n        \n     \n  \n\n\n\n\n\n\nDate\n\n\nTitle\n\n\nCategories\n\n\n\n\n\n\n2023\n\n\nSupervised principal component regression imputation in MICE.\n\n\nWork in progress\n\n\n\n\n2023\n\n\nSolving the many variables problem in MICE with principal component regression.\n\n\nPublished\n\n\n\n\n2022\n\n\nHigh-dimensional imputation for the social sciences: a comparison of state-of-the-art methods.\n\n\nAccepted for publication\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/series-pca-primer/pls.html",
