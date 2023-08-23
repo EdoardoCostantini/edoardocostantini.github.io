@@ -56,7 +56,26 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -234,7 +253,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     \mathbf{X} = \mathbf{UDV}'
 \end{equation}\]</span></p>
 <p>The PCs scores are given by the <span class="math inline">\(n \times r\)</span> matrix <span class="math inline">\(\mathbf{UD}\)</span>, and the weights <span class="math inline">\(\mathbf{\Lambda}\)</span> are given by the <span class="math inline">\(p \times r\)</span> matrix <span class="math inline">\(\mathbf{V}\)</span>.</p>
-<p><strong>Multiple Correspondence Analysis</strong> (MCA) is generally regarded as an equivalent tool that applies to discrete data. Chavent et al. <span class="citation" data-cites="chaventEtAl:2014">(<a href="#ref-chaventEtAl:2014" role="doc-biblioref"><strong>chaventEtAl:2014?</strong></a>)</span> have shown how using weights on rows and columns of the input data matrix can define a general PCA framework that includes standard PCA and MCA as special cases. This approach is often referred to as <strong>PCA with metrics</strong>, as metrics are used to introduce the weights. In this post, I want to show how PCA and MCA are related through this framework.</p>
+<p><strong>Multiple Correspondence Analysis</strong> (MCA) is generally regarded as an equivalent tool that applies to discrete data. Chavent et al. <span class="citation" data-cites="chaventEtAl:2012">(<a href="#ref-chaventEtAl:2012" role="doc-biblioref">2012</a>)</span> have shown how using weights on rows and columns of the input data matrix can define a general PCA framework that includes standard PCA and MCA as special cases. This approach is often referred to as <strong>PCA with metrics</strong>, as metrics are used to introduce the weights. In this post, I want to show how PCA and MCA are related through this framework.</p>
 <section id="generalised-singular-value-decomposition" class="level2">
 <h2 class="anchored" data-anchor-id="generalised-singular-value-decomposition">Generalised Singular Value Decomposition</h2>
 <p>Consider an <span class="math inline">\(n \times p\)</span> matrix of input variables <span class="math inline">\(\mathbf{X}\)</span> with row metric <span class="math inline">\(\mathbf{N}\)</span> and column metric <span class="math inline">\(\mathbf{M}\)</span>. The Generalized Singular Value Decomposition of <span class="math inline">\(\mathbf{X}\)</span> can be written as: <span class="math display">\[
@@ -3424,9 +3443,14 @@ SPC            chain store chain store+tea shop    tea shop
 </div>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-chaventEtAl:2012" class="csl-entry" role="listitem">
+Chavent, Marie, Vanessa Kuentz-Simonet, and Jérôme Saracco. 2012. <span>“Orthogonal Rotation in PCAMIX.”</span> <em>Advances in Data Analysis and Classification</em> 6 (2): 131–46.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
